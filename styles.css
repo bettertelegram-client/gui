@@ -1,0 +1,125 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f1f3f4;
+  }
+  
+  /* Custom Title Bar */
+  .custom-title-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #2e2e2e;
+    color: #fff;
+    height: 40px;
+    cursor: move; /* Allows dragging of the window */
+  }
+  
+  /* Title in the center */
+  .title {
+    flex-grow: 1;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  /* Window buttons (close, minimize) on the left */
+  .window-btn {
+    width: 15px;
+    height: 15px;
+    margin-right: 10px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  /* Close button (Red Circle with X) */
+  .close-btn {
+    background-color: #f44336; /* Red */
+    position: relative;
+  }
+  
+  .close-btn::before {
+    content: '×';
+    font-size: 12px;
+    color: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Minimize button (Yellow Circle with -) */
+  .minimize-btn {
+    content: '-';
+    background-color: #ffeb3b; /* Yellow */
+  }
+  
+  .minimize-btn::before {
+    content: '-';
+    font-size: 14px;
+    color: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Hover Effects */
+  .window-btn:hover {
+    opacity: 0.7;
+  }
+  
+  /* Menu Bar */
+  .menu-bar {
+    background-color: #0088cc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+    position: fixed;
+    top: 40px;
+    width: 100%;
+    z-index: 100;
+  }
+  
+  .menu-button {
+    background-color: #ffffff;
+    border: none;
+    color: #0088cc;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 0 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+  
+  .menu-button:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Content Section */
+  .content {
+    margin-top: 100px;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .page {
+    display: none;
+  }
+  
+  h1 {
+    color: #333;
+  }

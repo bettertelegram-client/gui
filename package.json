@@ -1,0 +1,82 @@
+{
+  "name": "bt",
+  "version": "1.2.16.1",
+  "main": "main.js",
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@ffxiv-teamcraft/dll-inject": "^0.0.15",
+    "axios": "^1.8.4",
+    "chalk": "^4.1.2",
+    "chardet": "^2.0.0",
+    "child_process": "^1.0.2",
+    "cli-table3": "^0.6.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.4.7",
+    "electron-squirrel-startup": "^1.0.1",
+    "figlet": "^1.8.0",
+    "fs": "^0.0.1-security",
+    "iconv-lite": "^0.6.3",
+    "inquirer": "^6.5.2",
+    "koffi": "^2.11.0",
+    "nan": "^2.22.2",
+    "node-abi": "^4.2.0",
+    "os": "^0.1.2",
+    "path": "^0.12.7",
+    "winreg": "^1.2.5"
+  },
+  "devDependencies": {
+    "electron": "^35.0.2",
+    "electron-builder": "^25.1.8"
+  },
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win nsis"
+  },
+  "build": {
+    "productName": "BetterTelegram",
+    "executableName": "bt",
+    "win": {
+      "target": "portable",
+      "icon": "C:\\Users\\vovaj\\Desktop\\TGOTR\\Injector\\icon.ico",
+      "signingHashAlgorithms": [],
+      "certificateFile": null,
+      "sign": false
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "BetterTelegram",
+      "artifactName": "${productName}-setup-${version}.${ext}",
+      "installerIcon": "C:\\Users\\vovaj\\Desktop\\TGOTR\\Injector\\icon.ico",
+      "uninstallerIcon": "C:\\Users\\vovaj\\Desktop\\TGOTR\\Injector\\icon.ico",
+      "installerHeaderIcon": "C:\\Users\\vovaj\\Desktop\\TGOTR\\Injector\\icon.ico"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "Setting.html",
+      "Notes.html",
+      "Plugins.html",
+      "LoginTwoSetup.html",
+      "Home.html",
+      "About.html",
+      "renderer.js",
+      "styles.css",
+      "script.js",
+      "images/**/*",
+      "resources/**/*",
+      "styles/**/*"
+    ],
+    "extraResources": [
+      "resources/injector.node",
+      "images/**/*",
+      "styles/**/*"
+    ],
+    "nodeGypRebuild": false
+  }
+}

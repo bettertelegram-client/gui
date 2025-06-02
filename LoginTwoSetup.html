@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>BetterTelegram</title>
+		<style>
+			@import url('styles/Animation.css');
+			@import url('styles/switch.css');
+			@import url('styles/font.css');
+
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				font-family: 'Segoe UI Variable Static Display', sans-serif;
+				height: 100vh;
+				overflow: hidden;
+			}
+
+			.header__section {
+				width: 100%;
+				display: flex;
+				justify-content: right;
+				align-items: center;
+				gap: 3px;
+			}
+
+			.header__section button {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 2px;
+				border: none;
+				background-color: transparent;
+				cursor: pointer;
+				border-radius: 8px;
+				transition: background-color 0.2s ease-in-out;
+			}
+
+			.header__section button path,
+			.header__section button svg {
+				width: 35px;
+				height: 30px;
+				object-fit: cover;
+				fill: var(--text-color);
+				transition: fill 0.2s ease;
+			}
+
+			.header__section button:hover path,
+			.header__section button:hover svg {
+				fill: var(--button-background);
+			}
+
+			.header__section button:hover {
+				background-color: var(--header-pl-bg);
+			}
+
+			.con {
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.loginTwoSetupCon {
+				width: 100%;
+				height: 100vh;
+				overflow-y: hidden;
+			}
+
+			.content {
+				min-height: 100%;
+			}
+
+			@media (max-width: 600px) {
+				.loginTwoSetupCon {
+					overflow-y: visible;
+				}
+
+				.loginTwoSetup{
+					height: auto !important;
+				}
+			}
+
+			.airplane-middle {
+				height: 3.5rem;
+				width: 4rem;
+				top: 3rem;
+				left: -0.5em;
+				background-image: url('images/Logo (14).svg') !important;
+			}
+
+			.header {
+				position: relative;
+				width: 100%;
+				height: 123px;
+				border-radius: 0px 0px 50px 50px;
+				background: var(--header-background);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.header .bor {
+				position: absolute;
+				width: 120px;
+				height: 60px;
+				background: var(--header-border-background);
+				bottom: 0;
+				border-radius: 100px 100px 0px 0px;
+			}
+
+			.header .logo {
+				transform: none;
+				left: 12%;
+				height: 95px;
+				width: 95px;
+				top: 12%;
+			}
+
+			.loginTwoSetup {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100%;
+			}
+
+			.loginTwoSetup_form {
+				width: 360px;
+				padding: 50px 40px;
+				border-radius: 50px 50px 0px 0px;
+			}
+
+			.loginTwoSetup_title {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+
+			.loginTwoSetup_title h2 {
+				font-size: 24px;
+				font-weight: 700;
+				line-height: 32px;
+			}
+
+			.loginTwoSetup_title p {
+				font-size: 14px;
+				font-weight: 400;
+				line-height: 19px;
+				margin-top: 5px;
+				width: 225px;
+			}
+
+			.loginTwoSetup_title h2,
+			.loginTwoSetup_title p {
+				color: var(--text-color);
+				text-align: center;
+			}
+
+			#loginForm {
+				display: flex;
+				gap: 15px;
+				margin-top: 20px;
+			}
+
+			#licenseKey {
+				width: 100%;
+				padding: 10px 15px;
+				border: 1px solid var(--input-border-color);
+				border-radius: 10px;
+				background-color: var(--input-background);
+				color: var(--input-text-color);
+
+				font-size: 14px;
+				font-weight: 600;
+				line-height: 19px;
+			}
+
+			#licenseKey::placeholder {
+				color: var(--placeholder);
+			}
+
+			.loginTwoSetup_btn {
+				width: 100%;
+				padding: 10px 20px;
+				background: var(--button-background);
+				border: none;
+				border-radius: 10px;
+				cursor: pointer;
+				margin-top: 15px;
+
+				color: rgb(255, 255, 255);
+				font-size: 14px;
+				font-weight: 700;
+				line-height: 19px;
+				text-transform: uppercase;
+			}
+
+			.loginTwoSetup_btn:disabled {
+				opacity: 0.5;
+			}
+
+			#folderButton {
+				background-color: transparent;
+				border: none;
+				cursor: pointer;
+			}
+
+			#folderButton path {
+				fill: var(--button-background);
+			}
+
+			.titlebar {
+				-webkit-user-select: none;
+				-webkit-app-region: drag;
+			}
+
+			.titlebar button {
+				-webkit-app-region: no-drag;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="con">
+			<div class="loginTwoSetupCon">
+				<div class="header__section titlebar">
+					<button id="minimize-button">
+						<svg
+							width="34.208984"
+							height="23.797852"
+							viewBox="0 0 34.209 23.7979"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+							xmlns:xlink="http://www.w3.org/1999/xlink"
+						>
+							<defs />
+							<rect
+								id="Base"
+								width="34.209641"
+								height="23.798012"
+								fill="#FFFFFF"
+								fill-opacity="0"
+							/>
+							<path
+								id="Icon"
+								d="M13.61 11.87C13.65 11.88 13.7 11.89 13.75 11.89L20.45 11.89C20.5 11.89 20.55 11.88 20.59 11.87C20.64 11.85 20.68 11.82 20.71 11.79C20.74 11.75 20.77 11.71 20.79 11.67C20.81 11.62 20.82 11.57 20.82 11.52C20.82 11.47 20.81 11.43 20.79 11.38Q20.77 11.33 20.73 11.29Q20.72 11.27 20.71 11.26C20.68 11.23 20.64 11.2 20.59 11.18C20.55 11.16 20.5 11.15 20.45 11.15L13.75 11.15C13.7 11.15 13.65 11.16 13.61 11.18C13.56 11.2 13.53 11.23 13.49 11.26Q13.48 11.27 13.47 11.29Q13.43 11.33 13.41 11.38C13.39 11.43 13.38 11.47 13.38 11.52C13.38 11.57 13.39 11.62 13.41 11.67C13.43 11.71 13.46 11.75 13.49 11.79C13.53 11.82 13.56 11.85 13.61 11.87Z"
+								fill="#000E6A"
+								fill-opacity="1.000000"
+								fill-rule="evenodd"
+							/>
+						</svg></button
+					><button id="maximize-button">
+						<svg
+							width="34.208984"
+							height="23.797852"
+							viewBox="0 0 34.209 23.7979"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+							xmlns:xlink="http://www.w3.org/1999/xlink"
+						>
+							<defs />
+							<rect
+								id="Base"
+								width="34.209641"
+								height="23.798012"
+								fill="#FFFFFF"
+								fill-opacity="0"
+							/>
+							<path
+								id="Icon"
+								d="M14.06 15.53C14.19 15.58 14.33 15.61 14.48 15.61L19.72 15.61C19.87 15.61 20.01 15.58 20.14 15.53C20.27 15.47 20.39 15.39 20.49 15.29C20.59 15.18 20.67 15.07 20.73 14.93C20.79 14.8 20.82 14.66 20.82 14.52L20.82 9.27C20.82 9.13 20.79 8.99 20.73 8.85C20.67 8.72 20.59 8.61 20.49 8.51C20.39 8.4 20.27 8.32 20.14 8.27C20.01 8.21 19.87 8.18 19.72 8.18L14.48 8.18C14.33 8.18 14.19 8.21 14.06 8.27Q13.94 8.32 13.85 8.39Q13.77 8.44 13.71 8.51C13.61 8.61 13.53 8.72 13.47 8.85C13.41 8.99 13.38 9.13 13.38 9.27L13.38 14.52C13.38 14.66 13.41 14.8 13.47 14.93C13.53 15.07 13.61 15.18 13.71 15.29Q13.75 15.32 13.79 15.36Q13.91 15.46 14.06 15.53ZM19.84 14.84C19.8 14.86 19.75 14.87 19.7 14.87L14.5 14.87C14.44 14.87 14.4 14.86 14.35 14.84Q14.32 14.83 14.29 14.81Q14.26 14.79 14.23 14.76C14.2 14.73 14.17 14.69 14.15 14.64C14.13 14.6 14.12 14.55 14.12 14.5L14.12 9.29Q14.12 9.22 14.15 9.17Q14.15 9.16 14.15 9.15Q14.18 9.1 14.21 9.05Q14.22 9.04 14.23 9.03C14.27 9 14.31 8.97 14.35 8.95C14.4 8.93 14.44 8.92 14.5 8.92L19.7 8.92Q19.77 8.92 19.83 8.94Q19.84 8.95 19.84 8.95C19.89 8.97 19.93 9 19.96 9.03C20 9.06 20.02 9.1 20.04 9.15C20.06 9.19 20.07 9.24 20.07 9.29L20.07 14.5Q20.07 14.54 20.06 14.59Q20.05 14.62 20.04 14.64C20.02 14.69 20 14.73 19.96 14.76C19.93 14.79 19.89 14.82 19.84 14.84Z"
+								fill="#000E6A"
+								fill-opacity="1.000000"
+								fill-rule="evenodd"
+							/>
+						</svg></button
+					><button id="close-button">
+						<svg
+							width="34.208984"
+							height="23.797852"
+							viewBox="0 0 34.209 23.7979"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+							xmlns:xlink="http://www.w3.org/1999/xlink"
+						>
+							<defs />
+							<path
+								id="Base"
+								d="M0 0L29 0C31.87 0 34.2 2.33 34.2 5.2L34.2 23.79L0 23.79L0 0Z"
+								fill="#FFFFFF"
+								fill-opacity="0"
+								fill-rule="evenodd"
+							/>
+							<path
+								id="ChromeClose"
+								d="M14.02 15.5L17.1 12.42L20.18 15.5C20.26 15.58 20.34 15.61 20.45 15.61Q20.5 15.61 20.54 15.6Q20.57 15.59 20.59 15.58C20.64 15.56 20.68 15.54 20.71 15.5C20.74 15.47 20.77 15.43 20.79 15.38C20.81 15.34 20.82 15.29 20.82 15.24C20.82 15.14 20.78 15.05 20.71 14.98L17.63 11.89L20.71 8.81C20.78 8.74 20.82 8.65 20.82 8.55C20.82 8.5 20.81 8.45 20.79 8.4Q20.77 8.35 20.73 8.31Q20.72 8.3 20.71 8.28C20.68 8.25 20.64 8.22 20.59 8.2C20.55 8.19 20.5 8.18 20.45 8.18C20.34 8.18 20.26 8.21 20.18 8.28L17.1 11.37L14.02 8.28C13.95 8.21 13.86 8.18 13.76 8.18C13.71 8.18 13.66 8.19 13.61 8.2Q13.56 8.23 13.52 8.26Q13.5 8.27 13.49 8.28C13.46 8.32 13.43 8.35 13.41 8.4C13.39 8.45 13.38 8.5 13.38 8.55C13.38 8.65 13.42 8.74 13.49 8.81L16.57 11.89L13.49 14.98C13.42 15.05 13.38 15.14 13.38 15.24C13.38 15.35 13.42 15.43 13.49 15.51C13.56 15.58 13.65 15.61 13.76 15.61C13.86 15.61 13.95 15.58 14.02 15.5Z"
+								fill="#000E6A"
+								fill-opacity="1.000000"
+								fill-rule="evenodd"
+							/>
+						</svg>
+					</button>
+				</div>
+				<header class="header" id="header">
+					<div class="bor" id="headerBor">
+						<div class="main-containerHeader">
+							<svg class="bg-cirleHeader"></svg>
+							<div class="airplane airplane-left"></div>
+							<div class="airplane airplane-middle"></div>
+							<div class="airplane airplane-right"></div>
+						</div>
+					</div>
+				</header>
+				<div class="loginTwoSetup">
+					<div class="loginTwoSetup_form">
+						<div class="loginTwoSetup_title">
+							<h2 id="loginTitle">One last step</h2>
+							<p id="loginSubtitle">
+								Enter the path to your Telegram (.exe/.app)
+							</p>
+						</div>
+						<form id="loginForm">
+							<input
+								type="text"
+								id="licenseKey"
+								placeholder="C:\Users\default\AppData\Roaming\Telegram Desktop"
+								disabled
+							/>
+							<button type="button" id="folderButton">
+								<svg
+									width="20.000000"
+									height="16.000000"
+									viewBox="0 0 20 16"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+									xmlns:xlink="http://www.w3.org/1999/xlink"
+								>
+									<defs />
+									<path
+										id="Vector"
+										d="M7.16 2L9.16 4L18 4L18 14L2 14L2 2L7.16 2ZM8 0L2 0C0.89 0 0.01 0.89 0.01 2L0 14C0 15.1 0.89 16 2 16L18 16C19.1 16 20 15.1 20 14L20 4C20 2.89 19.1 2 18 2L10 2L8 0Z"
+										fill="#419FD9"
+										fill-opacity="1.000000"
+										fill-rule="nonzero"
+									/>
+								</svg>
+							</button>
+						</form>
+						<button id="submitBtn" class="loginTwoSetup_btn" disabled>
+							Connect
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="script.js"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				const submitBtn = document.getElementById('submitBtn')
+				const folderButton = document.getElementById('folderButton')
+
+				folderButton.addEventListener('click', function () {
+					submitBtn.disabled = false
+				})
+
+				submitBtn.addEventListener('click', function () {
+					if (!submitBtn.disabled) {
+						window.location.href = 'Home.html'
+					}
+				})
+			})
+		</script>
+	</body>
+</html>

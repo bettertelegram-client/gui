@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>BetterTelegram</title>
+
+		<style>
+			@import url('styles/Animation.css');
+			@import url('styles/switch.css');
+			@import url('styles/Loading.css');
+			@import url('styles/font.css');
+
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				font-family: 'Segoe UI Variable Static Display', sans-serif;
+				background: var(--background-color);
+			}
+
+			.phoneMenu {
+				display: flex;
+				width: 100%;
+				justify-content: center;
+				align-items: center;
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				background-color: var(--phonebg-color);
+				z-index: 9999;
+			}
+
+			.phoneMenu ul {
+				display: flex;
+				align-items: flex-end;
+				gap: 10px;
+				padding: 0;
+			}
+
+			.phoneMenu li {
+				list-style: none;
+
+				&:hover {
+					a {
+						color: var(--text-color);
+						path {
+							fill: var(--text-color);
+						}
+					}
+				}
+			}
+
+			.phoneMenu a {
+				padding: 10px 25px;
+				text-decoration: none;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 4px;
+				color: var(--phone-color);
+			}
+
+			.tabLink {
+				padding: 10px 25px;
+				text-decoration: none;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 4px;
+				color: var(--phone-color);
+			}
+
+			.tabLink.activeLink {
+				color: rgb(65, 159, 217) !important;
+			}
+			.tabLink.activeLink path {
+				fill: rgb(65, 159, 217) !important;
+			}
+
+			.phoneMenu a span {
+				font-size: 14px;
+				font-weight: 600;
+				line-height: 19px;
+				text-align: center;
+			}
+
+			.phoneMenu a path {
+				width: 24px;
+				height: 24px;
+				object-fit: contain;
+				fill: var(--phone-color);
+			}
+
+			.pluginsSpan {
+				padding: 8px 10px;
+				box-sizing: border-box;
+				border: 4px solid rgba(255, 255, 255, 0.11);
+				border-radius: 50px;
+				box-shadow: 0px 4px 12.6px 0px rgba(65, 159, 217, 0.2);
+				background: var(--logo-bg);
+			}
+
+			.activeLink {
+				color: var(--button-background) !important;
+			}
+
+			.header__section {
+				top: 0;
+				position: fixed;
+				width: 100%;
+				display: flex;
+				justify-content: right;
+				align-items: center;
+				gap: 3px;
+			}
+
+			.header__section button {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 2px;
+				border: none;
+				background-color: transparent;
+				cursor: pointer;
+				border-radius: 8px;
+				transition: background-color 0.2s ease-in-out;
+			}
+
+			.header__section button path,
+			.header__section button svg {
+				width: 35px;
+				height: 30px;
+				object-fit: cover;
+				fill: var(--text-color);
+				transition: fill 0.2s ease;
+			}
+
+			.header__section button:hover path,
+			.header__section button:hover svg {
+				fill: var(--button-background);
+			}
+
+			.header__section button:hover {
+				background-color: var(--header-pl-bg);
+			}
+
+			.indent {
+				padding-left: 4px;
+			}
+
+			.panel {
+				margin-bottom: 40px;
+			}
+
+			.progress-wrapper {
+				position: relative;
+			}
+
+			@keyframes moveUp {
+				0% {
+					transform: translateY(0);
+					width: 378.5px;
+					height: 378.5px;
+				}
+				100% {
+					height: 95px;
+					width: 95px;
+					transform: translate(-10px, -270px);
+				}
+			}
+			@keyframes moveUpSmall {
+				0% {
+					transform: translateY(0);
+					width: 378.5px;
+					height: 378.5px;
+				}
+				100% {
+					height: 95px;
+					width: 95px;
+					transform: translate(-10px, -235px);
+				}
+			}
+
+			@keyframes fadeIn {
+				0% {
+					opacity: 0;
+				}
+				100% {
+					opacity: 1;
+				}
+			}
+
+			@keyframes fadeInForm {
+				0% {
+					opacity: 0;
+					transform: translateY(20px);
+				}
+				100% {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			.login-loading {
+				position: absolute !important;
+				width: 378.5px;
+				height: 378.5px;
+				overflow: hidden;
+				z-index: 9999 !important;
+				animation: moveUp 0.8s ease-in-out forwards;
+				animation-delay: 2s;
+			}
+
+			@media (max-width: 844px) {
+				.login-loading {
+					animation: moveUpSmall 0.8s ease-in-out forwards;
+					animation-delay: 2s;
+				}
+			}
+
+			.airplane-default {
+				width: 3.7rem;
+				position: absolute;
+				height: 3.5rem;
+				top: 1.6rem;
+				left: 1.1rem;
+
+				opacity: 0;
+				animation: fadeIn 0.7s ease-in-out forwards;
+				animation-delay: 2s;
+				background-image: url('images/Logo (14).svg') !important;
+			}
+
+			.con {
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				min-height: 100vh;
+			}
+			@media (max-height: 640px) {
+				.con {
+					height: 640px;
+					overflow-y: auto;
+				}
+			}
+
+			.home {
+				position: relative;
+				width: 800px;
+				padding: 40px;
+				margin-bottom: 100px;
+				margin-top: 20px;
+
+				opacity: 0;
+				animation: fadeInForm 1s ease-in-out forwards;
+				animation-delay: 2.5s;
+			}
+
+			.phone-animation {
+				opacity: 0;
+				animation: fadeInForm 1s ease-in-out forwards;
+				animation-delay: 2.5s;
+			}
+
+			.home_header-logo {
+				position: relative;
+			}
+
+			.home .position {
+				left: -3rem;
+				top: -5rem;
+				border-radius: 50%;
+			}
+
+			.home_header {
+				position: relative;
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
+
+			.linkSetting {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				cursor: pointer;
+				border: none;
+				background-color: transparent;
+			}
+
+			.linkSetting svg {
+				width: 20px;
+				height: 20px;
+			}
+
+			.linkSetting span {
+				color: var(--icon-bg);
+				font-size: 15px;
+			}
+
+			.linkSetting circle,
+			ellipse {
+				fill: var(--icon-bg);
+			}
+
+			.linkSetting:hover {
+				span {
+					color: var(--input-text-color);
+				}
+				circle,
+				ellipse {
+					fill: var(--input-text-color);
+				}
+			}
+
+			.logo {
+				position: initial;
+				transform: translate3d(0px, 0px, 0px);
+			}
+
+			.home_title {
+				position: relative;
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				margin-top: 24px;
+			}
+
+			.home_title h2 {
+				color: var(--text-color) !important;
+				font-size: 24px;
+				font-weight: 700;
+				line-height: 32px;
+				text-align: center;
+				width: 11rem;
+				margin-right: 11px;
+			}
+
+			.home_image {
+				margin-top: 20px;
+			}
+
+			.home_image h3 {
+				color: var(--text-color);
+				font-size: 14px;
+				font-weight: 400;
+				line-height: 19px;
+				text-align: left;
+			}
+
+			.editorCode {
+				width: 100%;
+				box-sizing: border-box;
+				border: 1px solid var(--input-border-color);
+				border-radius: 15px;
+				margin-top: 10px;
+				padding: 10px 15px;
+				background-color: var(--editor-bg);
+				overflow-y: auto;
+				max-height: 300px;
+			}
+
+			.editorCode::-webkit-scrollbar {
+				width: 0;
+			}
+
+			textarea {
+				width: 100%;
+				box-sizing: border-box;
+				border: 1px solid var(--input-border-color);
+				margin-top: 10px;
+				padding: 10px 15px;
+				background-color: var(--editor-bg);
+				overflow-y: auto;
+				min-height: 200px;
+
+				color: var(--text-color);
+				font-family: 'Cascadia Code', sans-serif;
+				font-size: 14px;
+				font-weight: 350;
+				line-height: 14px;
+
+				outline: none;
+			}
+
+			textarea::-webkit-scrollbar {
+				width: 0;
+			}
+
+			.editorCode_content {
+				display: flex;
+				align-items: center;
+			}
+
+			.editorCode_content-num {
+				font-size: 12px;
+				font-weight: 350;
+				line-height: 14px;
+				padding: 2px 15px;
+				color: var(--editor-color-num);
+				text-align: left;
+			}
+
+			.editorCode_content p {
+				display: flex;
+				align-items: center;
+				flex-direction: row-reverse;
+				gap: 4px;
+				font-family: 'Cascadia Code', sans-serif;
+				font-size: 14px;
+				font-weight: 350;
+				line-height: 14px;
+				color: var(--text-color);
+			}
+
+			@media (max-width: 800px) {
+				.home {
+					width: 100%;
+					padding: 20px;
+				}
+
+				.home_header-logo {
+					margin-top: 100px;
+				}
+
+				.home_image {
+					width: 100%;
+					height: auto;
+				}
+			}
+
+			.titlebar {
+				-webkit-user-select: none;
+				-webkit-app-region: drag;
+			}
+
+			.titlebar button {
+				-webkit-app-region: no-drag;
+			}
+
+			.modal {
+				display: flex;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				overflow: hidden;
+				height: 0;
+				opacity: 0;
+				padding: 0;
+				z-index: 99999999;
+				justify-content: center;
+				align-items: center;
+				background-color: rgba(0, 0, 0, 0.5);
+				transition: height 0ms 400ms, padding 0ms 400ms, opacity 400ms 0ms;
+			}
+
+			.modal.show {
+				height: 100%;
+				opacity: 1;
+				transition: height 0ms 0ms, opacity 400ms 0ms;
+			}
+
+			.modal-content {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 12px;
+				background-color: var(--header-pl-bg);
+				padding: 20px;
+				border-radius: 10px;
+				width: 300px;
+				text-align: center;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+				transform: translateY(-20px);
+				transition: transform 0.3s ease;
+				overflow-wrap: break-word; /* Handle long strings */
+  				word-break: break-word;
+			}
+
+			.modal-content h4 {
+				color: var(--text-color);
+				font-size: 18px;
+				font-weight: 600;
+				line-height: 32px;
+			}
+
+			.modal.show .modal-content {
+				transform: translateY(0);
+			}
+
+			.modal-content p {
+				color: var(--text-color);
+				margin-bottom: 20px;
+				white-space: pre-wrap; /* Respect line breaks and wrap long lines */
+			}
+
+			.modal-btn {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+				width: 100%;
+			}
+
+			.modal-btn button {
+				width: 100%;
+				padding: 10px 20px;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+				background-color: var(--input-text-color);
+				color: white;
+				transition: all 0.3s ease-in;
+			}
+
+			.modal-btn button:hover {
+				box-shadow: 0px 6px 24px 0px var(--button-border-color);
+			}
+
+			.error-box {
+				position: fixed;
+				top: 0;
+				left: 50%;
+				transform: translateX(-50%);
+				background-color: var(--error-message);
+				color: white;
+				padding: 15px;
+				border-radius: 5px;
+				z-index: 1000;
+				transition: opacity 0.5s ease, transform 0.5s ease;
+				opacity: 0;
+				transform: translate(-50%, -20px);
+			}
+
+			.error-box.show {
+				opacity: 1;
+				transform: translate(-50%, 10px);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="loading-container login-loading">
+			<div class="bg-circle"></div>
+			<div class="airplane airplane-left"></div>
+			<div class="airplane airplane-middle"></div>
+			<div class="airplane airplane-default"></div>
+			<div class="airplane airplane-right"></div>
+		</div>
+		<div class="con">
+			<div class="header__section titlebar panel">
+				<button id="minimize-button">
+					<svg
+						width="34.208984"
+						height="23.797852"
+						viewBox="0 0 34.209 23.7979"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+						xmlns:xlink="http://www.w3.org/1999/xlink"
+					>
+						<defs />
+						<rect
+							id="Base"
+							width="34.209641"
+							height="23.798012"
+							fill="#FFFFFF"
+							fill-opacity="0"
+						/>
+						<path
+							id="Icon"
+							d="M13.61 11.87C13.65 11.88 13.7 11.89 13.75 11.89L20.45 11.89C20.5 11.89 20.55 11.88 20.59 11.87C20.64 11.85 20.68 11.82 20.71 11.79C20.74 11.75 20.77 11.71 20.79 11.67C20.81 11.62 20.82 11.57 20.82 11.52C20.82 11.47 20.81 11.43 20.79 11.38Q20.77 11.33 20.73 11.29Q20.72 11.27 20.71 11.26C20.68 11.23 20.64 11.2 20.59 11.18C20.55 11.16 20.5 11.15 20.45 11.15L13.75 11.15C13.7 11.15 13.65 11.16 13.61 11.18C13.56 11.2 13.53 11.23 13.49 11.26Q13.48 11.27 13.47 11.29Q13.43 11.33 13.41 11.38C13.39 11.43 13.38 11.47 13.38 11.52C13.38 11.57 13.39 11.62 13.41 11.67C13.43 11.71 13.46 11.75 13.49 11.79C13.53 11.82 13.56 11.85 13.61 11.87Z"
+							fill="#000E6A"
+							fill-opacity="1.000000"
+							fill-rule="evenodd"
+						/>
+					</svg></button
+				><button id="maximize-button">
+					<svg
+						width="34.208984"
+						height="23.797852"
+						viewBox="0 0 34.209 23.7979"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+						xmlns:xlink="http://www.w3.org/1999/xlink"
+					>
+						<defs />
+						<rect
+							id="Base"
+							width="34.209641"
+							height="23.798012"
+							fill="#FFFFFF"
+							fill-opacity="0"
+						/>
+						<path
+							id="Icon"
+							d="M14.06 15.53C14.19 15.58 14.33 15.61 14.48 15.61L19.72 15.61C19.87 15.61 20.01 15.58 20.14 15.53C20.27 15.47 20.39 15.39 20.49 15.29C20.59 15.18 20.67 15.07 20.73 14.93C20.79 14.8 20.82 14.66 20.82 14.52L20.82 9.27C20.82 9.13 20.79 8.99 20.73 8.85C20.67 8.72 20.59 8.61 20.49 8.51C20.39 8.4 20.27 8.32 20.14 8.27C20.01 8.21 19.87 8.18 19.72 8.18L14.48 8.18C14.33 8.18 14.19 8.21 14.06 8.27Q13.94 8.32 13.85 8.39Q13.77 8.44 13.71 8.51C13.61 8.61 13.53 8.72 13.47 8.85C13.41 8.99 13.38 9.13 13.38 9.27L13.38 14.52C13.38 14.66 13.41 14.8 13.47 14.93C13.53 15.07 13.61 15.18 13.71 15.29Q13.75 15.32 13.79 15.36Q13.91 15.46 14.06 15.53ZM19.84 14.84C19.8 14.86 19.75 14.87 19.7 14.87L14.5 14.87C14.44 14.87 14.4 14.86 14.35 14.84Q14.32 14.83 14.29 14.81Q14.26 14.79 14.23 14.76C14.2 14.73 14.17 14.69 14.15 14.64C14.13 14.6 14.12 14.55 14.12 14.5L14.12 9.29Q14.12 9.22 14.15 9.17Q14.15 9.16 14.15 9.15Q14.18 9.1 14.21 9.05Q14.22 9.04 14.23 9.03C14.27 9 14.31 8.97 14.35 8.95C14.4 8.93 14.44 8.92 14.5 8.92L19.7 8.92Q19.77 8.92 19.83 8.94Q19.84 8.95 19.84 8.95C19.89 8.97 19.93 9 19.96 9.03C20 9.06 20.02 9.1 20.04 9.15C20.06 9.19 20.07 9.24 20.07 9.29L20.07 14.5Q20.07 14.54 20.06 14.59Q20.05 14.62 20.04 14.64C20.02 14.69 20 14.73 19.96 14.76C19.93 14.79 19.89 14.82 19.84 14.84Z"
+							fill="#000E6A"
+							fill-opacity="1.000000"
+							fill-rule="evenodd"
+						/>
+					</svg></button
+				><button id="close-button">
+					<svg
+						width="34.208984"
+						height="23.797852"
+						viewBox="0 0 34.209 23.7979"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+						xmlns:xlink="http://www.w3.org/1999/xlink"
+					>
+						<defs />
+						<path
+							id="Base"
+							d="M0 0L29 0C31.87 0 34.2 2.33 34.2 5.2L34.2 23.79L0 23.79L0 0Z"
+							fill="#FFFFFF"
+							fill-opacity="0"
+							fill-rule="evenodd"
+						/>
+						<path
+							id="ChromeClose"
+							d="M14.02 15.5L17.1 12.42L20.18 15.5C20.26 15.58 20.34 15.61 20.45 15.61Q20.5 15.61 20.54 15.6Q20.57 15.59 20.59 15.58C20.64 15.56 20.68 15.54 20.71 15.5C20.74 15.47 20.77 15.43 20.79 15.38C20.81 15.34 20.82 15.29 20.82 15.24C20.82 15.14 20.78 15.05 20.71 14.98L17.63 11.89L20.71 8.81C20.78 8.74 20.82 8.65 20.82 8.55C20.82 8.5 20.81 8.45 20.79 8.4Q20.77 8.35 20.73 8.31Q20.72 8.3 20.71 8.28C20.68 8.25 20.64 8.22 20.59 8.2C20.55 8.19 20.5 8.18 20.45 8.18C20.34 8.18 20.26 8.21 20.18 8.28L17.1 11.37L14.02 8.28C13.95 8.21 13.86 8.18 13.76 8.18C13.71 8.18 13.66 8.19 13.61 8.2Q13.56 8.23 13.52 8.26Q13.5 8.27 13.49 8.28C13.46 8.32 13.43 8.35 13.41 8.4C13.39 8.45 13.38 8.5 13.38 8.55C13.38 8.65 13.42 8.74 13.49 8.81L16.57 11.89L13.49 14.98C13.42 15.05 13.38 15.14 13.38 15.24C13.38 15.35 13.42 15.43 13.49 15.51C13.56 15.58 13.65 15.61 13.76 15.61C13.86 15.61 13.95 15.58 14.02 15.5Z"
+							fill="#000E6A"
+							fill-opacity="1.000000"
+							fill-rule="evenodd"
+						/>
+					</svg>
+				</button>
+			</div>
+			<div class="home">
+				<header class="home_header">
+					<div class="left"></div>
+					<div class="home_header-logo"></div>
+					<button class="linkSetting">
+						<span>Settings</span>
+
+						<svg
+							width="18.000000"
+							height="18.000000"
+							viewBox="0 0 18 18"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+							xmlns:xlink="http://www.w3.org/1999/xlink"
+						>
+							<defs>
+								<clipPath id="clip245_21712">
+									<rect
+										id="Bold / Users / User Rounded"
+										rx="0.000000"
+										width="17.000000"
+										height="17.000000"
+										transform="translate(0.500000 0.500000)"
+										fill="white"
+										fill-opacity="0"
+									/>
+								</clipPath>
+							</defs>
+							<g clip-path="url(#clip245_21712)">
+								<circle
+									id="Vector"
+									cx="9.000000"
+									cy="4.500000"
+									r="3.000000"
+									fill="#FFFFFF"
+								/>
+								<ellipse
+									id="Vector"
+									cx="9.000000"
+									cy="12.750000"
+									rx="5.250000"
+									ry="3.000000"
+									fill="#FFFFFF"
+								/>
+							</g>
+						</svg>
+					</button>
+				</header>
+				<div class="home_title">
+					<h2 id="welcomeTitle">Welcome to BetterTelegram</h2>
+				</div>
+
+				<div class="home_image">
+					<h3 id="secureMessage">Secure OTR messaging for Telegram</h3>
+					<div id="editor" class="editorCode"></div>
+				</div>
+
+				<div class="progress-wrapper" style="display: none;">
+					<div class="download-info" id="download_info">Downloading Patch DLL: 0.00 / 0.00 Mb</div>
+					<div class="progress-container">
+					  <div class="progress-bar" id="progress_bar">0%</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="phoneMenu phone-animation">
+			<ul>
+				<li>
+					<a href="Home.html" class="tabLink activeLink" id="Main">
+						<span
+							><svg
+								width="18.500000"
+								height="19.501953"
+								viewBox="0 0 18.5 19.502"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+								xmlns:xlink="http://www.w3.org/1999/xlink"
+							>
+								<defs />
+								<path
+									id="Vector"
+									d="M7.91 2.34C8.71 1.88 9.78 1.88 10.58 2.34L16.75 5.86C17.23 6.14 17.84 5.97 18.11 5.49C18.39 5.01 18.22 4.4 17.74 4.13L11.58 0.6C10.16 -0.21 8.33 -0.21 6.91 0.6L0.75 4.13C0.27 4.4 0.1 5.01 0.38 5.49C0.65 5.97 1.26 6.14 1.74 5.86L7.91 2.34ZM11.46 4.27C10.12 3.38 8.37 3.38 7.03 4.27L1.44 7.99C0.99 8.29 0.63 8.69 0.38 9.16C0.13 9.63 -0.01 10.16 0 10.69L0 14.5C0 17.26 2.23 19.5 5 19.5L7.25 19.5L7.25 14C7.25 13.67 7.38 13.35 7.61 13.11C7.85 12.88 8.16 12.75 8.5 12.75L10 12.75C10.33 12.75 10.64 12.88 10.88 13.11C11.11 13.35 11.25 13.67 11.25 14L11.25 19.5L13.5 19.5C16.26 19.5 18.5 17.26 18.5 14.5L18.5 10.69C18.5 10.16 18.36 9.63 18.11 9.16C17.86 8.69 17.5 8.29 17.05 7.99L11.46 4.27ZM8.14 5.94C8.81 5.49 9.68 5.49 10.35 5.94L15.94 9.65C16.11 9.77 16.25 9.92 16.35 10.1C16.44 10.28 16.5 10.49 16.5 10.69L16.5 14.5C16.5 16.15 15.15 17.5 13.5 17.5L13.25 17.5L13.25 14C13.25 13.13 12.9 12.31 12.29 11.7C11.68 11.09 10.86 10.75 10 10.75L8.5 10.75C7.63 10.75 6.81 11.09 6.2 11.7C5.59 12.31 5.25 13.13 5.25 14L5.25 17.5L5 17.5C3.34 17.5 2 16.15 2 14.5L2 10.69C2 10.49 2.05 10.28 2.14 10.1C2.24 9.92 2.38 9.77 2.55 9.65L8.14 5.94Z"
+									fill="#419FD9"
+									fill-rule="evenodd"
+								/>
+							</svg>
+						</span>
+						<span>Main</span>
+					</a>
+				</li>
+				<li>
+					<a href="Plugins.html" class="tabLink" id="Plugins">
+						<span class="pluginsSpan"
+							><img src="./images/Home.svg" alt="Plugins"
+						/></span>
+						<span>Plugins</span>
+					</a>
+				</li>
+				<li>
+					<a href="About.html" class="tabLink" id="About">
+						<span
+							><svg
+								width="20.000000"
+								height="20.000000"
+								viewBox="0 0 20 20"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+								xmlns:xlink="http://www.w3.org/1999/xlink"
+							>
+								<defs />
+								<path
+									id="Vector"
+									d="M10 0C8.02 0 6.08 0.58 4.44 1.68C2.79 2.78 1.51 4.34 0.76 6.17C0 8 -0.2 10.01 0.19 11.95C0.57 13.89 1.53 15.67 2.92 17.07C4.32 18.46 6.1 19.42 8.04 19.8C9.98 20.19 11.99 19.99 13.82 19.23C15.65 18.48 17.21 17.2 18.31 15.55C19.41 13.91 20 11.97 20 10C19.99 7.34 18.94 4.8 17.06 2.93C15.19 1.05 12.65 0 10 0ZM10 18.18C8.3 18.14 6.66 17.61 5.26 16.65C5.86 15.99 6.59 15.46 7.4 15.09C8.22 14.73 9.1 14.54 10 14.54C10.89 14.54 11.77 14.73 12.59 15.09C13.4 15.46 14.13 15.99 14.73 16.65C13.34 17.63 11.69 18.16 10 18.18ZM16.08 15.44C15.31 14.59 14.38 13.9 13.33 13.43C12.28 12.96 11.14 12.72 10 12.72C8.85 12.72 7.71 12.96 6.66 13.43C5.61 13.9 4.68 14.59 3.91 15.44C2.85 14.27 2.16 12.81 1.91 11.25C1.67 9.69 1.88 8.09 2.52 6.64C3.17 5.2 4.21 3.97 5.54 3.11C6.87 2.25 8.41 1.79 10 1.79C11.58 1.79 13.12 2.25 14.45 3.11C15.78 3.97 16.82 5.2 17.47 6.64C18.11 8.09 18.32 9.69 18.08 11.25C17.83 12.81 17.14 14.27 16.08 15.44ZM10 4.54C9.28 4.54 8.57 4.75 7.97 5.15C7.38 5.55 6.91 6.12 6.64 6.79C6.36 7.45 6.29 8.18 6.43 8.89C6.57 9.59 6.91 10.24 7.42 10.75C7.93 11.26 8.58 11.6 9.29 11.74C9.99 11.88 10.72 11.81 11.39 11.54C12.05 11.26 12.62 10.8 13.02 10.2C13.42 9.6 13.63 8.9 13.63 8.18C13.63 7.21 13.25 6.29 12.57 5.61C11.88 4.92 10.96 4.54 10 4.54ZM10 10C9.64 10 9.28 9.89 8.98 9.69C8.69 9.49 8.45 9.2 8.32 8.87C8.18 8.54 8.14 8.17 8.21 7.82C8.28 7.47 8.45 7.15 8.71 6.89C8.96 6.64 9.29 6.46 9.64 6.39C9.99 6.32 10.36 6.36 10.69 6.5C11.02 6.63 11.31 6.87 11.51 7.17C11.71 7.47 11.81 7.82 11.81 8.18C11.81 8.66 11.62 9.12 11.28 9.46C10.94 9.8 10.48 10 10 10Z"
+									fill="#000E6A"
+									fill-rule="nonzero"
+								/>
+							</svg>
+						</span>
+						<span>About</span>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<div id="modal" class="modal">
+			<div class="modal-content">
+				<p id="modal-message"></p>
+				<div class="modal-btn">
+					<button id="modal-ok">OK</button>
+				</div>
+			</div>
+		</div>
+		<div id="errorBox" class="error-box" style="display: none">
+			<p id="errorMessage">This is an error message!</p>
+		</div>
+	</body>
+	<script src="script.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const con = document.querySelector('.con')
+			function adjustContainer() {
+				const windowHeight = window.innerHeight
+				if (windowHeight < 640) {
+					con.style.height = '640px'
+					con.style.overflowY = 'auto'
+				} else {
+					con.style.height = 'auto'
+					con.style.overflowY = 'visible'
+				}
+			}
+
+			adjustContainer();
+			window.addEventListener('resize', adjustContainer);
+			document.querySelector('.linkSetting').addEventListener('click', () => window.location.href = 'Setting.html');
+		});
+	</script>
+</html>

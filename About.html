@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>BetterTelegram</title>
+		<style>
+			@import url('styles/Animation.css');
+			@import url('styles/switch.css');
+			@import url('styles/font.css');
+
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				font-family: 'Segoe UI Variable Static Display', sans-serif;
+				background-color: var(--background-color);
+				margin: 0;
+				padding: 0;
+				height: auto !important;
+			}
+
+			.phoneMenu {
+				display: flex;
+				width: 100%;
+				justify-content: center;
+				align-items: center;
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				background-color: var(--phonebg-color);
+				z-index: 9999;
+			}
+
+			.phoneMenu ul {
+				display: flex;
+				align-items: flex-end;
+				gap: 10px;
+				padding: 0;
+			}
+
+			.phoneMenu li {
+				list-style: none;
+
+				&:hover {
+					a {
+						color: var(--text-color);
+						path {
+							fill: var(--text-color);
+						}
+					}
+				}
+			}
+
+			.phoneMenu a {
+				padding: 10px 25px;
+				text-decoration: none;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 4px;
+				color: var(--phone-color);
+			}
+
+			.tabLink {
+				padding: 10px 25px;
+				text-decoration: none;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 4px;
+				color: var(--phone-color);
+			}
+
+			.tabLink.activeLink {
+				color: rgb(65, 159, 217) !important;
+			}
+			.tabLink.activeLink path {
+				fill: rgb(65, 159, 217) !important;
+			}
+
+			.phoneMenu a span {
+				font-size: 14px;
+				font-weight: 600;
+				line-height: 19px;
+				text-align: center;
+			}
+
+			.phoneMenu a path {
+				width: 24px;
+				height: 24px;
+				object-fit: contain;
+				fill: var(--phone-color);
+			}
+
+			.pluginsSpan {
+				padding: 8px 10px;
+				box-sizing: border-box;
+				border: 4px solid rgba(255, 255, 255, 0.11);
+				border-radius: 50px;
+				box-shadow: 0px 4px 12.6px 0px rgba(65, 159, 217, 0.2);
+				background: var(--logo-bg);
+			}
+
+			.activeLink {
+				color: var(--button-background) !important;
+			}
+
+			.header__section {
+				top: 0;
+				position: fixed;
+				width: 100%;
+				display: flex;
+				justify-content: right;
+				align-items: center;
+				gap: 3px;
+				background-color: var(--phonebg-color) !important;
+				z-index: 999999;
+			}
+
+			.header__section button {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 2px;
+				border: none;
+				background-color: transparent;
+				cursor: pointer;
+				border-radius: 8px;
+				transition: background-color 0.2s ease-in-out;
+			}
+
+			.header__section button path,
+			.header__section button svg {
+				width: 35px;
+				height: 30px;
+				object-fit: cover;
+				fill: var(--text-color);
+				transition: fill 0.2s ease;
+			}
+
+			.header__section button:hover path,
+			.header__section button:hover svg {
+				fill: var(--button-background);
+			}
+
+			.header__section button:hover {
+				background-color: var(--header-pl-bg);
+			}
+
+			.airplane-middle {
+				height: 3.5rem;
+				width: 4rem;
+				top: 3rem;
+				left: -0.5em;
+				background-image: url('images/Logo (14).svg') !important;
+			}
+
+			.con {
+				margin-bottom: 100px;
+				width: 100%;
+			}
+
+			.about {
+				width: 800px;
+				padding: 40px;
+				margin: 0 auto;
+				margin-top: 10px;
+			}
+
+			@media (max-height: 700px) {
+				.about {
+					margin-top: 40px !important;
+				}
+			}
+
+			.about-logo {
+				position: relative;
+			}
+
+			.about-position {
+				left: 0;
+				top: -5rem;
+				border-radius: 50%;
+			}
+
+			.about_container {
+				display: flex;
+				gap: 20px;
+				margin-top: 45px;
+			}
+
+			.left,
+			.right {
+				flex: 1;
+			}
+
+			.left_top,
+			.left_bottom,
+			.top,
+			.bottom {
+				padding: 20px;
+				border-radius: 15px;
+				background-color: var(--header-pl-bg);
+				margin-bottom: 10px;
+			}
+
+			.left_top .descr {
+				margin-top: 24px;
+			}
+
+			.descr h2 {
+				color: var(--text-color);
+				font-size: 20px;
+				font-weight: 600;
+				line-height: 27px;
+			}
+
+			.descr p {
+				color: var(--text-color);
+				font-size: 12px;
+				font-weight: 400;
+				line-height: 16px;
+				margin: 10px 0;
+			}
+
+			.descr span {
+				color: var(--placeholder);
+				font-size: 12px;
+				font-weight: 700;
+				line-height: 16px;
+			}
+
+			.version_info {
+				display: flex;
+				flex-direction: row;
+				gap: 10px;
+			}
+
+			.version_info-col {
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				gap: 2px;
+				margin-bottom: 10px;
+			}
+
+			.version_info-col span {
+				color: var(--placeholder);
+				font-size: 12px;
+				font-weight: 600;
+				line-height: 16px;
+			}
+
+			.version_info-col b {
+				color: var(--text-color);
+				font-size: 16px;
+				font-weight: 600;
+				line-height: 21px;
+			}
+
+			.about_btns {
+				display: flex;
+				gap: 10px;
+				margin-top: 20px;
+			}
+
+			.about_btns button path {
+				fill: var(--button-background);
+			}
+
+			.btnText {
+				padding: 10px 20px;
+				border-radius: 10px;
+				border: none;
+				cursor: pointer;
+				background-color: transparent;
+				font-size: 14px;
+				font-weight: 700;
+				text-transform: uppercase;
+				white-space: nowrap;
+			}
+
+			.btnText a {
+				display: flex;
+				align-items: center;
+				text-decoration: none;
+				color: var(--button-background);
+				gap: 10px;
+			}
+
+			.left_bottom p {
+				color: rgb(65, 159, 217);
+				font-size: 12px;
+				font-weight: 600;
+				line-height: 16px;
+			}
+
+			.left_bottom button {
+				padding: 10px 20px;
+				color: var(--button-text-color);
+				font-size: 14px;
+				font-weight: 700;
+				background-color: transparent;
+				border: none;
+				cursor: pointer;
+				margin-top: 10px;
+				text-transform: uppercase;
+			}
+
+			.status {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+			}
+
+			.status span {
+				padding: 4px;
+				border: 5px solid var(--text-color);
+				border-radius: 100%;
+			}
+
+			.status strong {
+				color: var(--text-color);
+				font-size: 12px;
+				font-weight: 700;
+			}
+
+			.status_active {
+				background-color: var(--input-background);
+				padding: 13px 17px;
+				border-radius: 15px;
+				margin-top: 10px;
+			}
+
+			.online {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+			}
+
+			.online span {
+				padding: 5px;
+				border: 6px solid rgb(59, 190, 73);
+				border-radius: 100%;
+			}
+
+			.online h2 {
+				color: rgb(59, 190, 73);
+				font-size: 20px;
+				font-weight: 700;
+				line-height: 27px;
+				text-transform: uppercase;
+			}
+
+			.status_active p {
+				color: var(--placeholder);
+				font-size: 12px;
+				font-weight: 600;
+				line-height: 16px;
+				margin-top: 4px;
+			}
+
+			.bottom_status {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+			}
+
+			.bottom_status span {
+				padding: 4px;
+				border: 5px solid rgb(255, 38, 66);
+				border-radius: 100%;
+			}
+
+			.bottom_status strong {
+				color: rgb(255, 38, 66);
+				font-size: 12px;
+				font-weight: 700;
+				line-height: 16px;
+			}
+
+			.bottom_descr {
+				display: flex;
+				flex-direction: column;
+				gap: 5px;
+				margin: 10px 0;
+			}
+
+			.bottom_descr p {
+				background-color: var(--input-background);
+				color: var(--text-color);
+				font-size: 12px;
+				padding: 5px 10px;
+				border-radius: 10px;
+				font-weight: 600;
+				line-height: 16px;
+			}
+
+			#seeLogBtn {
+				padding: 10px 14px;
+				color: var(--button-background);
+				font-size: 14px;
+				font-weight: 700;
+				background-color: transparent;
+				border: none;
+				cursor: pointer;
+				margin-top: 10px;
+				text-transform: uppercase;
+			}
+
+			.accordion {
+				margin-top: 34px;
+			}
+
+			.accordion h2 {
+				font-size: 24px;
+				font-weight: 700;
+				text-align: center;
+				color: var(--text-color);
+				margin-bottom: 20px;
+			}
+
+			.accordion_col {
+				background-color: var(--header-pl-bg);
+				border-radius: 12px;
+				padding: 8px 12px;
+				margin-top: 10px;
+			}
+
+			.title {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				cursor: pointer;
+			}
+
+			.title_btn path {
+				fill: var(--text-color);
+			}
+			.title_btn {
+				padding: 10px 14px;
+				border: none;
+				cursor: pointer;
+				background-color: transparent;
+				transform: rotate(-90deg);
+				transition: transform 0.3s ease-in-out;
+			}
+
+			.title_btn.rotate {
+				transform: rotate(90deg);
+			}
+
+			.title h3 {
+				font-size: 16px;
+				font-weight: 700;
+				color: var(--text-color);
+			}
+
+			.content {
+				max-height: 0;
+				overflow: hidden;
+				transition: max-height 0.3s ease;
+			}
+
+			.content p {
+				color: var(--text-color);
+				font-size: 14px;
+				line-height: 21px;
+				margin-top: 10px;
+			}
+
+			.content.open {
+				max-height: 200px;
+			}
+
+			@media (max-width: 800px) {
+				.about {
+					width: 100%;
+					padding: 20px;
+				}
+				.con {
+					margin-bottom: 100px;
+				}
+
+				.about_container {
+					flex-direction: column;
+				}
+			}
+			@media (max-width: 425px) {
+				.title h3 {
+					font-size: 14px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="con">
+			<div class="header__section titlebar">
+				<button id="minimize-button">
+					<svg
+						width="34.208984"
+						height="23.797852"
+						viewBox="0 0 34.209 23.7979"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+						xmlns:xlink="http://www.w3.org/1999/xlink"
+					>
+						<defs />
+						<rect
+							id="Base"
+							width="34.209641"
+							height="23.798012"
+							fill="#FFFFFF"
+							fill-opacity="0"
+						/>
+						<path
+							id="Icon"
+							d="M13.61 11.87C13.65 11.88 13.7 11.89 13.75 11.89L20.45 11.89C20.5 11.89 20.55 11.88 20.59 11.87C20.64 11.85 20.68 11.82 20.71 11.79C20.74 11.75 20.77 11.71 20.79 11.67C20.81 11.62 20.82 11.57 20.82 11.52C20.82 11.47 20.81 11.43 20.79 11.38Q20.77 11.33 20.73 11.29Q20.72 11.27 20.71 11.26C20.68 11.23 20.64 11.2 20.59 11.18C20.55 11.16 20.5 11.15 20.45 11.15L13.75 11.15C13.7 11.15 13.65 11.16 13.61 11.18C13.56 11.2 13.53 11.23 13.49 11.26Q13.48 11.27 13.47 11.29Q13.43 11.33 13.41 11.38C13.39 11.43 13.38 11.47 13.38 11.52C13.38 11.57 13.39 11.62 13.41 11.67C13.43 11.71 13.46 11.75 13.49 11.79C13.53 11.82 13.56 11.85 13.61 11.87Z"
+							fill="#000E6A"
+							fill-opacity="1.000000"
+							fill-rule="evenodd"
+						/>
+					</svg></button
+				><button id="maximize-button">
+					<svg
+						width="34.208984"
+						height="23.797852"
+						viewBox="0 0 34.209 23.7979"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+						xmlns:xlink="http://www.w3.org/1999/xlink"
+					>
+						<defs />
+						<rect
+							id="Base"
+							width="34.209641"
+							height="23.798012"
+							fill="#FFFFFF"
+							fill-opacity="0"
+						/>
+						<path
+							id="Icon"
+							d="M14.06 15.53C14.19 15.58 14.33 15.61 14.48 15.61L19.72 15.61C19.87 15.61 20.01 15.58 20.14 15.53C20.27 15.47 20.39 15.39 20.49 15.29C20.59 15.18 20.67 15.07 20.73 14.93C20.79 14.8 20.82 14.66 20.82 14.52L20.82 9.27C20.82 9.13 20.79 8.99 20.73 8.85C20.67 8.72 20.59 8.61 20.49 8.51C20.39 8.4 20.27 8.32 20.14 8.27C20.01 8.21 19.87 8.18 19.72 8.18L14.48 8.18C14.33 8.18 14.19 8.21 14.06 8.27Q13.94 8.32 13.85 8.39Q13.77 8.44 13.71 8.51C13.61 8.61 13.53 8.72 13.47 8.85C13.41 8.99 13.38 9.13 13.38 9.27L13.38 14.52C13.38 14.66 13.41 14.8 13.47 14.93C13.53 15.07 13.61 15.18 13.71 15.29Q13.75 15.32 13.79 15.36Q13.91 15.46 14.06 15.53ZM19.84 14.84C19.8 14.86 19.75 14.87 19.7 14.87L14.5 14.87C14.44 14.87 14.4 14.86 14.35 14.84Q14.32 14.83 14.29 14.81Q14.26 14.79 14.23 14.76C14.2 14.73 14.17 14.69 14.15 14.64C14.13 14.6 14.12 14.55 14.12 14.5L14.12 9.29Q14.12 9.22 14.15 9.17Q14.15 9.16 14.15 9.15Q14.18 9.1 14.21 9.05Q14.22 9.04 14.23 9.03C14.27 9 14.31 8.97 14.35 8.95C14.4 8.93 14.44 8.92 14.5 8.92L19.7 8.92Q19.77 8.92 19.83 8.94Q19.84 8.95 19.84 8.95C19.89 8.97 19.93 9 19.96 9.03C20 9.06 20.02 9.1 20.04 9.15C20.06 9.19 20.07 9.24 20.07 9.29L20.07 14.5Q20.07 14.54 20.06 14.59Q20.05 14.62 20.04 14.64C20.02 14.69 20 14.73 19.96 14.76C19.93 14.79 19.89 14.82 19.84 14.84Z"
+							fill="#000E6A"
+							fill-opacity="1.000000"
+							fill-rule="evenodd"
+						/>
+					</svg></button
+				><button id="close-button">
+					<svg
+						width="34.208984"
+						height="23.797852"
+						viewBox="0 0 34.209 23.7979"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+						xmlns:xlink="http://www.w3.org/1999/xlink"
+					>
+						<defs />
+						<path
+							id="Base"
+							d="M0 0L29 0C31.87 0 34.2 2.33 34.2 5.2L34.2 23.79L0 23.79L0 0Z"
+							fill="#FFFFFF"
+							fill-opacity="0"
+							fill-rule="evenodd"
+						/>
+						<path
+							id="ChromeClose"
+							d="M14.02 15.5L17.1 12.42L20.18 15.5C20.26 15.58 20.34 15.61 20.45 15.61Q20.5 15.61 20.54 15.6Q20.57 15.59 20.59 15.58C20.64 15.56 20.68 15.54 20.71 15.5C20.74 15.47 20.77 15.43 20.79 15.38C20.81 15.34 20.82 15.29 20.82 15.24C20.82 15.14 20.78 15.05 20.71 14.98L17.63 11.89L20.71 8.81C20.78 8.74 20.82 8.65 20.82 8.55C20.82 8.5 20.81 8.45 20.79 8.4Q20.77 8.35 20.73 8.31Q20.72 8.3 20.71 8.28C20.68 8.25 20.64 8.22 20.59 8.2C20.55 8.19 20.5 8.18 20.45 8.18C20.34 8.18 20.26 8.21 20.18 8.28L17.1 11.37L14.02 8.28C13.95 8.21 13.86 8.18 13.76 8.18C13.71 8.18 13.66 8.19 13.61 8.2Q13.56 8.23 13.52 8.26Q13.5 8.27 13.49 8.28C13.46 8.32 13.43 8.35 13.41 8.4C13.39 8.45 13.38 8.5 13.38 8.55C13.38 8.65 13.42 8.74 13.49 8.81L16.57 11.89L13.49 14.98C13.42 15.05 13.38 15.14 13.38 15.24C13.38 15.35 13.42 15.43 13.49 15.51C13.56 15.58 13.65 15.61 13.76 15.61C13.86 15.61 13.95 15.58 14.02 15.5Z"
+							fill="#000E6A"
+							fill-opacity="1.000000"
+							fill-rule="evenodd"
+						/>
+					</svg>
+				</button>
+			</div>
+			<div class="about">
+				<div class="about_container">
+					<!-- Left Section -->
+					<div class="left">
+						<div class="left_top" id="leftTop">
+							<div class="about-logo">
+								<div class="main-containerHeader about-position">
+									<svg class="bg-cirleHeader"></svg>
+									<div class="airplane airplane-left"></div>
+									<div class="airplane airplane-middle"></div>
+									<div class="airplane airplane-right"></div>
+								</div>
+							</div>
+							<div class="descr">
+								<h2 id="betterTelegramTitle">BetterTelegram</h2>
+								<p id="betterTelegramDescription">
+									BetterTelegram is a framework for Telegram that enhances chat
+									security with OTR encryption, stealth mode, and message protection
+									capabilities.
+								</p>
+								<span id="copyrightText"
+									>BetterTelegram © 2025. All rights reserved</span
+								>
+							</div>
+							<div class="about_btns">
+								<button id="officialSiteBtn" class="btnText">
+									<a href="#">
+										<svg
+											width="17.000000"
+											height="17.000000"
+											viewBox="0 0 17 17"
+											fill="none"
+											xmlns="http://www.w3.org/2000/svg"
+											xmlns:xlink="http://www.w3.org/1999/xlink"
+										>
+											<defs />
+											<path
+												id="Vector"
+												d="M10 1C10 1.55 10.44 2 11 2L13.58 2L8.29 7.29C7.9 7.68 7.9 8.31 8.29 8.7C8.68 9.09 9.31 9.09 9.7 8.7L15 3.41L15 6C15 6.55 15.44 7 16 7C16.55 7 17 6.55 17 6L17 1C17 0.44 16.55 0 16 0L11 0C10.44 0 10 0.44 10 1ZM4.16 1L2.8 1.03C2.41 1.06 2.01 1.13 1.63 1.32C1.07 1.61 0.61 2.07 0.32 2.63C0.13 3.01 0.06 3.4 0.03 3.8C0 4.17 0 4.63 0 5.16L0 12.83C0 13.36 0 13.82 0.03 14.19C0.06 14.59 0.13 14.98 0.32 15.36C0.61 15.92 1.07 16.38 1.63 16.67C2.01 16.86 2.4 16.93 2.8 16.96C3.17 17 3.63 17 4.15 17L11.84 17C12.36 17 12.82 17 13.19 16.96C13.59 16.93 13.98 16.86 14.36 16.67C14.92 16.38 15.38 15.92 15.67 15.36L15.67 15.36C15.86 14.98 15.93 14.59 15.96 14.19C16 13.82 16 13.36 16 12.84L16 11C16 10.44 15.55 10 15 10C14.44 10 14 10.44 14 11L14 12.8C14 13.37 13.99 13.75 13.97 14.03C13.95 14.3 13.91 14.4 13.89 14.45C13.79 14.64 13.64 14.79 13.45 14.89C13.4 14.91 13.3 14.95 13.03 14.97C12.75 14.99 12.37 15 11.8 15L4.19 15C3.62 15 3.25 14.99 2.96 14.97C2.69 14.95 2.59 14.91 2.54 14.89C2.35 14.79 2.2 14.64 2.1 14.45C2.08 14.4 2.04 14.3 2.02 14.03C2 13.74 2 13.37 2 12.8L2 5.19C2 4.62 2 4.25 2.02 3.96C2.04 3.69 2.08 3.59 2.1 3.54C2.2 3.35 2.35 3.2 2.54 3.1C2.59 3.08 2.69 3.04 2.96 3.02C3.25 3 3.62 3 4.2 3L6 3C6.55 3 7 2.55 7 2C7 1.44 6.55 1 6 1L4.16 1Z"
+												fill="#419FD9"
+												fill-opacity="1.000000"
+												fill-rule="evenodd"
+											/>
+										</svg>
+
+										Official site
+									</a>
+								</button>
+								<button id="createAccountBtn" class="btnText">
+									<a href="#">contact us</a>
+								</button>
+							</div>
+						</div>
+						<div class="left_bottom" id="leftBottom">
+							<div class="version_info" id="versionInfo">
+								<div class="version_info-col">
+									<span> Current App Version: </span>
+									<b id="app_version"></b>
+								</div>
+								<div class="version_info-col">
+									<span> Current DLL Version: </span>
+									<b id="dll_version"></b>
+								</div>
+							</div>
+							<p>
+								Your app version is up to date! Product will update
+								automatically
+							</p>
+							<button id="changelogBtn" class="btnText">
+								<a href="Notes.html">Changelog</a>
+							</button>
+						</div>
+					</div>
+
+					<!-- Right Section -->
+					<div class="right">
+						<div class="top" id="statusSection">
+							<div class="status">
+								<span></span>
+								<strong>Current Status</strong>
+							</div>
+							<div class="status_active">
+								<div class="online">
+									<span></span>
+									<h2>Up</h2>
+								</div>
+								<p id="uptime_date"></p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Accordion Section -->
+				<div class="accordion">
+					<h2>FAQ</h2>
+					<div id="accordionContainer"></div>
+				</div>
+			</div>
+		</div>
+		<div class="phoneMenu">
+			<ul>
+				<li>
+					<a href="Home.html" class="tabLink" id="Main">
+						<span
+							><svg
+								width="18.500000"
+								height="19.501953"
+								viewBox="0 0 18.5 19.502"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+								xmlns:xlink="http://www.w3.org/1999/xlink"
+							>
+								<defs />
+								<path
+									id="Vector"
+									d="M7.91 2.34C8.71 1.88 9.78 1.88 10.58 2.34L16.75 5.86C17.23 6.14 17.84 5.97 18.11 5.49C18.39 5.01 18.22 4.4 17.74 4.13L11.58 0.6C10.16 -0.21 8.33 -0.21 6.91 0.6L0.75 4.13C0.27 4.4 0.1 5.01 0.38 5.49C0.65 5.97 1.26 6.14 1.74 5.86L7.91 2.34ZM11.46 4.27C10.12 3.38 8.37 3.38 7.03 4.27L1.44 7.99C0.99 8.29 0.63 8.69 0.38 9.16C0.13 9.63 -0.01 10.16 0 10.69L0 14.5C0 17.26 2.23 19.5 5 19.5L7.25 19.5L7.25 14C7.25 13.67 7.38 13.35 7.61 13.11C7.85 12.88 8.16 12.75 8.5 12.75L10 12.75C10.33 12.75 10.64 12.88 10.88 13.11C11.11 13.35 11.25 13.67 11.25 14L11.25 19.5L13.5 19.5C16.26 19.5 18.5 17.26 18.5 14.5L18.5 10.69C18.5 10.16 18.36 9.63 18.11 9.16C17.86 8.69 17.5 8.29 17.05 7.99L11.46 4.27ZM8.14 5.94C8.81 5.49 9.68 5.49 10.35 5.94L15.94 9.65C16.11 9.77 16.25 9.92 16.35 10.1C16.44 10.28 16.5 10.49 16.5 10.69L16.5 14.5C16.5 16.15 15.15 17.5 13.5 17.5L13.25 17.5L13.25 14C13.25 13.13 12.9 12.31 12.29 11.7C11.68 11.09 10.86 10.75 10 10.75L8.5 10.75C7.63 10.75 6.81 11.09 6.2 11.7C5.59 12.31 5.25 13.13 5.25 14L5.25 17.5L5 17.5C3.34 17.5 2 16.15 2 14.5L2 10.69C2 10.49 2.05 10.28 2.14 10.1C2.24 9.92 2.38 9.77 2.55 9.65L8.14 5.94Z"
+									fill="#419FD9"
+									fill-rule="evenodd"
+								/>
+							</svg>
+						</span>
+						<span>Main</span>
+					</a>
+				</li>
+				<li>
+					<a href="Plugins.html" class="tabLink" id="Plugins">
+						<span class="pluginsSpan"
+							><img src="./images/Home.svg" alt="Plugins"
+						/></span>
+						<span>Plugins</span>
+					</a>
+				</li>
+				<li>
+					<a href="About.html" class="tabLink activeLink" id="About">
+						<span
+							><svg
+								width="20.000000"
+								height="20.000000"
+								viewBox="0 0 20 20"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+								xmlns:xlink="http://www.w3.org/1999/xlink"
+							>
+								<defs />
+								<path
+									id="Vector"
+									d="M10 0C8.02 0 6.08 0.58 4.44 1.68C2.79 2.78 1.51 4.34 0.76 6.17C0 8 -0.2 10.01 0.19 11.95C0.57 13.89 1.53 15.67 2.92 17.07C4.32 18.46 6.1 19.42 8.04 19.8C9.98 20.19 11.99 19.99 13.82 19.23C15.65 18.48 17.21 17.2 18.31 15.55C19.41 13.91 20 11.97 20 10C19.99 7.34 18.94 4.8 17.06 2.93C15.19 1.05 12.65 0 10 0ZM10 18.18C8.3 18.14 6.66 17.61 5.26 16.65C5.86 15.99 6.59 15.46 7.4 15.09C8.22 14.73 9.1 14.54 10 14.54C10.89 14.54 11.77 14.73 12.59 15.09C13.4 15.46 14.13 15.99 14.73 16.65C13.34 17.63 11.69 18.16 10 18.18ZM16.08 15.44C15.31 14.59 14.38 13.9 13.33 13.43C12.28 12.96 11.14 12.72 10 12.72C8.85 12.72 7.71 12.96 6.66 13.43C5.61 13.9 4.68 14.59 3.91 15.44C2.85 14.27 2.16 12.81 1.91 11.25C1.67 9.69 1.88 8.09 2.52 6.64C3.17 5.2 4.21 3.97 5.54 3.11C6.87 2.25 8.41 1.79 10 1.79C11.58 1.79 13.12 2.25 14.45 3.11C15.78 3.97 16.82 5.2 17.47 6.64C18.11 8.09 18.32 9.69 18.08 11.25C17.83 12.81 17.14 14.27 16.08 15.44ZM10 4.54C9.28 4.54 8.57 4.75 7.97 5.15C7.38 5.55 6.91 6.12 6.64 6.79C6.36 7.45 6.29 8.18 6.43 8.89C6.57 9.59 6.91 10.24 7.42 10.75C7.93 11.26 8.58 11.6 9.29 11.74C9.99 11.88 10.72 11.81 11.39 11.54C12.05 11.26 12.62 10.8 13.02 10.2C13.42 9.6 13.63 8.9 13.63 8.18C13.63 7.21 13.25 6.29 12.57 5.61C11.88 4.92 10.96 4.54 10 4.54ZM10 10C9.64 10 9.28 9.89 8.98 9.69C8.69 9.49 8.45 9.2 8.32 8.87C8.18 8.54 8.14 8.17 8.21 7.82C8.28 7.47 8.45 7.15 8.71 6.89C8.96 6.64 9.29 6.46 9.64 6.39C9.99 6.32 10.36 6.36 10.69 6.5C11.02 6.63 11.31 6.87 11.51 7.17C11.71 7.47 11.81 7.82 11.81 8.18C11.81 8.66 11.62 9.12 11.28 9.46C10.94 9.8 10.48 10 10 10Z"
+									fill="#000E6A"
+									fill-rule="nonzero"
+								/>
+							</svg>
+						</span>
+						<span>About</span>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<script src="script.js"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				const headerSection = document.querySelector('.header__section')
+				const phoneMenu = document.querySelector('.phoneMenu')
+				const con = document.querySelector('.con')
+				const aboutLogo = document.querySelector('.about-logo')
+				const aboutContainer = document.querySelector('.about_container')
+
+				function setMargins() {
+					const headerHeight = headerSection.offsetHeight
+					const phoneMenuHeight = phoneMenu.offsetHeight
+
+					con.style.paddingTop = `${headerHeight}px`
+					con.style.paddingBottom = `${phoneMenuHeight}px`
+
+					aboutContainer.style.marginTop = `${headerHeight + 5}px`
+				}
+
+				setMargins()
+
+				window.addEventListener('resize', setMargins)
+
+				window.addEventListener('resize', function () {
+					const newHeaderHeight = headerSection.offsetHeight
+					const newPhoneMenuHeight = phoneMenu.offsetHeight
+					con.style.paddingTop = `${newHeaderHeight}px`
+					con.style.paddingBottom = `${newPhoneMenuHeight}px`
+				})
+
+				const isBackground = false
+
+				const leftTop = document.getElementById('leftTop')
+				const leftBottom = document.getElementById('leftBottom')
+				const statusSection = document.getElementById('statusSection')
+				const downtimeSection = document.getElementById('downtimeSection')
+
+				if (isBackground) {
+					leftTop.style.backgroundColor = 'rgb(23,33,44)'
+					leftBottom.style.backgroundColor = 'rgb(23,33,44)'
+					statusSection.style.backgroundColor = 'rgb(23,33,44)'
+					downtimeSection.style.backgroundColor = 'rgb(23,33,44)'
+				}
+
+				const accordionData = [
+					{ label: 'What is BetterTelegram?' },
+					{ label: 'How does the OTR plugin work?' },
+					{ label: 'How does Message-Protection plugin work?' },
+					{ label: 'Tell me about the Ghost-Mode plugin?' },
+					{ label: 'Can I use my licence on more than one computer?' },
+					{ label: 'How often will new updates be added?' },
+					{ label: 'What if Telegram releases an update?' },
+					{ label: 'Where can I message the BetterTelegram team?' },
+				]
+
+				const accordionContainer = document.getElementById('accordionContainer')
+
+				function createAccordion() {
+					accordionData.forEach((item, index) => {
+						const accordionCol = document.createElement('div')
+						accordionCol.className = 'accordion_col'
+
+						const title = document.createElement('div')
+						title.className = 'title'
+						title.onclick = () => toggleAccordion(index)
+
+						const h3 = document.createElement('h3')
+						h3.textContent = item.label
+
+						const button = document.createElement('button')
+						button.className = 'title_btn'
+						button.innerHTML = `<svg width="7.364258" height="12.728027" viewBox="0 0 7.36426 12.728" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+							<defs/>
+							<path id="Vector" d="M0.29 7.07L5.95 12.72L7.36 11.31L2.41 6.36L7.36 1.41L5.95 0L0.29 5.65C0.1 5.84 0 6.09 0 6.36C0 6.62 0.1 6.88 0.29 7.07Z" fill="#000E6A" fill-opacity="0.250000" fill-rule="evenodd"/>
+					</svg>`
+
+						title.appendChild(h3)
+						title.appendChild(button)
+
+						const content = document.createElement('div')
+						content.className = 'content'
+						
+						var faq_content = '';
+						switch (index) {
+							case 0: 
+							faq_content = `BetterTelegram is the only plugin framework in existence which
+							injects a DLL/SO/DYLIB (Windows, Linux, MacOS) into the native Telegram Client.
+							After which, it uses dynamic signature scanning, in order to hook vital MTP
+							networking functions to alter the behavior of Telegrams' functionality.`;
+							break;
+							case 1:
+							faq_content = `The OTR plugin performs AKE (authenticated key exchange) between you &
+							your peer(s) in order to securely (en/de)crypt incoming/outgoing messages. The plugin
+							takes full advantage of LibOTR (https://otr.cypherpunks.ca) to guarantee that Telegram 
+							and/or government agencies cannot monitor your communications.
+							
+							Additionally, BetterTelegram has developed a proprietary protocol which enables the use
+							of OTR communication within group chats of multiple peers.`;
+							break;
+							case 2:
+							faq_content = `The purpose of the Message-Protection plugin is to prevent your peers
+							from deleting messages on your side. When the plugin is enabled, in any chat you are apart of
+							your buddies will not be able to force-delete messages from your side. This can be useful in
+							several scenarios, not limited to; preventing scammers from deleting messages on your side or
+							in case you would like to keep an archive of all your existing chats.`;
+							break;
+							case 3:
+							faq_content = `With the Ghost-Mode plugin enabled, your Telegram client will not send read
+							receipts to your peer(s), in case you want to feel anonymous, you can read messages without
+							the other parties knowing. Additionally, the plugin will make sure that your peer(s) cannot
+							see if you are typing a message.`;
+							break;
+							case 4:
+							faq_content = `We allow you to use the same licence on up to 2 computers. The reason behind
+							this is simply compensational. We are putting a lot of work into the development of this project
+							As such, we are not flooding the app with ads or any other sort of monetization. So therefore we 
+							cannot allow the same licence to be reused by multiple users. Thank you for your understanding!`;
+							break;
+							case 5:
+							faq_content = `So essentially, Telegram releases a new version update every 2-4 weeks. Usually, it
+							will take us up to 3 days to determine the new function-hook signature pattern & release an update.
+							In between signature updates, we hope to receive enough feedback from users who wish to see a new
+							plugin added to the BetterTelegram framework. We will try to address every one of your requests
+							within a reasonable timeframe. Additionally, it is our goal to make a weekly routine of updates to
+							the core framework, where we will fix all reported bugs and aim to maximize the stability of use of
+							BetterTelegram.`;
+							break;
+							case 6:
+							faq_content = `We made a workaround which forcefully disables Telegrams update behavior, in order
+							to make sure that our framework will always continue to work regardless if Telegram issues a new update.
+							We will try our best to notify all users whenever the latest BetterTelegram patch for a newer Telegram
+							version is available.`;
+							break;
+							case 7:
+							faq_content = `Currently, you are able to get in touch with us either on our official Telegram Channel
+							or through whichever forum you saw our ad. However, in the future, we plan to make a ticketing & chat
+							interface which will be available to all users directly within our GUI client.`;
+							break;
+						}
+
+						content.innerHTML = `<p>${faq_content}</p>`;						
+						accordionCol.appendChild(title)
+						accordionCol.appendChild(content)
+						accordionContainer.appendChild(accordionCol)
+					})
+				}
+
+				function toggleAccordion(index) {
+					const content = document.querySelectorAll('.accordion_col .content')[
+						index
+					]
+					const button = document.querySelectorAll('.title_btn')[index]
+
+					content.classList.toggle('open')
+					button.classList.toggle('rotate')
+				}
+
+				createAccordion()
+			})
+		</script>
+	</body>
+</html>

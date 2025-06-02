@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>BetterTelegram</title>
+		<style>
+			@import url('styles/Animation.css');
+			@import url('styles/switch.css');
+			@import url('styles/Loading.css');
+			@import url('styles/font.css');
+
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				font-family: 'Segoe UI Variable Static Display', sans-serif;
+				background-color: var(--background-color);
+				height: 100vh;
+				overflow: hidden;
+			}
+
+			.header__section {
+				width: 100%;
+				display: flex;
+				justify-content: right;
+				align-items: center;
+				gap: 3px;
+			}
+
+			.header__section button {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 2px;
+				border: none;
+				background-color: transparent;
+				cursor: pointer;
+				border-radius: 8px;
+				transition: background-color 0.2s ease-in-out;
+			}
+
+			.header__section button path,
+			.header__section button svg {
+				width: 35px;
+				height: 30px;
+				object-fit: cover;
+				fill: var(--text-color);
+				transition: fill 0.2s ease;
+			}
+
+			.header__section button:hover path,
+			.header__section button:hover svg {
+				fill: var(--button-background);
+			}
+
+			.header__section button:hover {
+				background-color: var(--header-pl-bg);
+			}
+
+			@keyframes moveUp {
+				0% {
+					transform: translateY(0);
+					width: 378.5px;
+					height: 378.5px;
+				}
+				100% {
+					height: 95px;
+					width: 95px;
+					transform: translateY(calc(-25vh + 60px));
+				}
+			}
+
+			@keyframes fadeIn {
+				0% {
+					opacity: 0;
+				}
+				100% {
+					opacity: 1;
+				}
+			}
+
+			@keyframes fadeInForm {
+				0% {
+					opacity: 0;
+					transform: translateY(20px);
+				}
+				100% {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			.login-loading {
+				position: absolute !important;
+				width: 378.5px;
+				height: 378.5px;
+				overflow: hidden;
+				z-index: 9999 !important;
+				animation: moveUp 0.65s ease-in-out forwards;
+				animation-delay: 2s;
+			}
+
+			.airplane-default {
+				width: 4rem;
+				position: absolute;
+				height: 4rem;
+				top: 1.4rem;
+				left: 0.9rem;
+				opacity: 0;
+				background-image: url('images/Logo (14).svg') !important;
+				animation: fadeIn 0.7s ease-in-out forwards;
+				animation-delay: 2s;
+			}
+
+			.main-containerHeader {
+				animation: fadeIn 0.7s ease-in-out forwards;
+				animation-delay: 2.7s;
+			}
+
+			.con {
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.loginCon {
+				width: 100%;
+				height: 100vh;
+				overflow-y: hidden;
+			}
+
+			.content {
+				min-height: 100%;
+			}
+
+			@media (max-width: 600px) {
+				.loginCon {
+					overflow-y: visible;
+				}
+			}
+
+			#nightModeText path {
+				fill: var(--text-color);
+			}
+
+			.login {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				margin-bottom: 100px;
+
+				opacity: 0;
+				animation: fadeInForm 1s ease-in-out forwards;
+				animation-delay: 2.7s;
+			}
+
+			.login_title {
+				display: flex;
+				flex-direction: column;
+				gap: 5px;
+				text-align: center;
+			}
+
+			.login_title h2 {
+				color: var(--text-color);
+				font-size: 24px;
+				font-weight: 700;
+				line-height: 32px;
+				letter-spacing: 0%;
+				text-align: center;
+			}
+
+			.login_title p {
+				color: var(--text-color);
+				font-size: 14px;
+				font-weight: 400;
+				line-height: 19px;
+				letter-spacing: 0%;
+				text-align: center;
+			}
+
+			.login_form {
+				width: 340px;
+				padding: 50px 40px 40px 40px;
+				border-radius: 50px 50px 0px 0px;
+			}
+
+			.login_form form {
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+				width: 100%;
+				margin-top: 20px;
+			}
+
+			.login_form form input {
+				width: 100%;
+				box-sizing: border-box;
+				border: 1px solid var(--input-border-color);
+				border-radius: 10px;
+				padding: 10px 15px;
+				font-size: 14px;
+				font-weight: 600;
+				line-height: 19px;
+				letter-spacing: 0%;
+				text-align: left;
+				outline: none;
+				background-color: var(--input-background);
+				color: var(--input-text-color);
+				transition: all 0.3s ease-in;
+			}
+
+			.login_form form input:hover {
+				border-color: rgba(128, 128, 128, 0.418);
+			}
+
+			.login_form form input::placeholder {
+				color: var(--placeholder);
+				font-size: 14px;
+				font-weight: 600;
+				line-height: 19px;
+				letter-spacing: 0%;
+				text-align: left;
+			}
+
+			.login_form form button {
+				color: rgb(255, 255, 255);
+				font-size: 14px;
+				font-weight: 700;
+				line-height: 19px;
+				letter-spacing: 0%;
+				text-align: center;
+				text-transform: uppercase;
+				border: none;
+				padding: 10px 20px;
+				border-radius: 10px;
+				box-shadow: 0px 4px 12.6px 0px rgba(65, 159, 217, 0.2);
+				background-color: var(--input-text-color);
+				cursor: pointer;
+				transition: all 0.3s ease-in;
+			}
+
+			.login_form form button:disabled {
+				border-radius: 10px;
+				box-shadow: 0px 4px 12.6px 0px rgba(65, 159, 217, 0.2);
+				background-color: var(--input-text-color);
+				opacity: 0.5;
+			}
+
+			.login_form form button:hover {
+				box-shadow: 0px 6px 24px 0px rgba(65, 159, 217, 0.3);
+			}
+
+			.login_btn {
+				width: 100%;
+				font-size: 14px;
+				font-weight: 700;
+				line-height: 19px;
+				letter-spacing: 0%;
+				text-align: center;
+				text-transform: uppercase;
+				padding: 10px 20px;
+				box-sizing: border-box;
+				border: 1px solid;
+				border-radius: 10px;
+				cursor: pointer;
+				margin-top: 20px;
+				border-color: var(--button-border-color);
+				color: var(--button-text-color);
+				background-color: transparent;
+			}
+
+			.nightSwitch {
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-top: 20px;
+				cursor: pointer;
+				border-radius: 10px;
+			}
+
+			.nightSwitch span {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 10px;
+
+				color: var(--text-color);
+				font-size: 14px;
+				font-weight: 600;
+				line-height: 19px;
+			}
+
+			.nightSwitch span img {
+				width: 19.31px;
+				height: 20px;
+			}
+
+			.nightModeswitch {
+				position: relative;
+				display: inline-block;
+				width: 32px;
+				height: 20px;
+				margin: 9px;
+			}
+
+			.nightModeswitch input {
+				opacity: 0;
+				width: 0;
+				height: 0;
+			}
+
+			.slider {
+				position: absolute;
+				cursor: pointer;
+				top: 0;
+				left: 6px;
+				right: 0;
+				bottom: 0;
+				background-color: #ccc;
+				-webkit-transition: 0.4s;
+				transition: 0.4s cubic-bezier(0, 1, 0.5, 1);
+				border-radius: 55px;
+				border: none;
+			}
+			.slider::before {
+				position: absolute;
+				content: '';
+				height: 20px;
+				width: 20px;
+				left: -12px;
+				bottom: -3px;
+				background-color: white;
+				-webkit-transition: 0.4s;
+				transition: 0.4s cubic-bezier(0, 1, 0.5, 1);
+				border-radius: 50%;
+				border: 2px solid rgba(0, 14, 106, 0.25);
+			}
+
+			.active::before {
+				border: 2px solid rgb(65, 159, 217) !important;
+			}
+
+			input:checked + .slider {
+				background: rgb(65, 159, 217);
+			}
+
+			input:checked + .slider:before {
+				-webkit-transform: translateX(26px);
+				-ms-transform: translateX(26px);
+				transform: translateX(26px);
+			}
+
+			.header {
+				position: relative;
+				width: 100%;
+				height: 123px;
+				border-radius: 0px 0px 50px 50px;
+
+				background: var(--header-background);
+
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				opacity: 0;
+				animation: fadeIn 1s ease-in-out forwards;
+				animation-delay: 2s;
+			}
+
+			.header .bor {
+				position: absolute;
+				width: 120px;
+				height: 60px;
+				background: var(--header-border-background);
+				bottom: 0;
+				border-radius: 100px 100px 0px 0px;
+			}
+
+			.header .logo {
+				transform: none;
+				left: 12%;
+				height: 95px;
+				width: 95px;
+				top: 12%;
+			}
+
+			.titlebar {
+				-webkit-user-select: none;
+				-webkit-app-region: drag;
+			}
+
+			.titlebar button {
+				-webkit-app-region: no-drag;
+			}
+
+			.modal {
+				display: flex;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				overflow: hidden;
+				height: 0;
+				opacity: 0;
+				padding: 0;
+				z-index: 99999999;
+				justify-content: center;
+				align-items: center;
+				background-color: rgba(0, 0, 0, 0.5);
+				transition: height 0ms 400ms, padding 0ms 400ms, opacity 400ms 0ms;
+			}
+
+			.modal.show {
+				height: 100%;
+				opacity: 1;
+				transition: height 0ms 0ms, opacity 400ms 0ms;
+			}
+
+			.modal-content {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 12px;
+				background-color: var(--header-pl-bg);
+				padding: 20px;
+				border-radius: 10px;
+				width: 300px;
+				text-align: center;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+				transform: translateY(-20px);
+				transition: transform 0.3s ease;
+				overflow-wrap: break-word; /* Handle long strings */
+  				word-break: break-word;
+			}
+
+			.modal-content h4 {
+				color: var(--text-color);
+				font-size: 18px;
+				font-weight: 600;
+				line-height: 32px;
+			}
+
+			.modal.show .modal-content {
+				transform: translateY(0);
+			}
+
+			.modal-content p {
+				color: var(--text-color);
+				margin-bottom: 20px;
+				white-space: pre-wrap; /* Respect line breaks and wrap long lines */
+			}
+
+			.modal-btn {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+				width: 100%;
+			}
+
+			.modal-btn button {
+				width: 100%;
+				padding: 10px 20px;
+				border: none;
+				border-radius: 5px;
+				cursor: pointer;
+				background-color: var(--input-text-color);
+				color: white;
+				transition: all 0.3s ease-in;
+			}
+
+			.modal-btn button:hover {
+				box-shadow: 0px 6px 24px 0px var(--button-border-color);
+			}
+
+			.error-box {
+				position: fixed;
+				top: 0;
+				left: 50%;
+				transform: translateX(-50%);
+				background-color: var(--error-message);
+				color: white;
+				padding: 15px;
+				border-radius: 5px;
+				z-index: 1000;
+				transition: opacity 0.5s ease, transform 0.5s ease;
+				opacity: 0;
+				transform: translate(-50%, -20px);
+			}
+
+			.error-box.show {
+				opacity: 1;
+				transform: translate(-50%, 10px);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="con">
+			<div class="loading-container login-loading" id="loadingContainer">
+				<div class="bg-circle"></div>
+				<div class="airplane airplane-left"></div>
+				<div class="airplane airplane-middle"></div>
+				<div class="airplane airplane-default"></div>
+				<div class="airplane airplane-right"></div>
+			</div>
+			<div class="loginCon">
+				<div class="header__section titlebar">
+					<button id="minimize-button">
+						<svg
+							width="34.208984"
+							height="23.797852"
+							viewBox="0 0 34.209 23.7979"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+							xmlns:xlink="http://www.w3.org/1999/xlink"
+						>
+							<defs />
+							<rect
+								id="Base"
+								width="34.209641"
+								height="23.798012"
+								fill="#FFFFFF"
+								fill-opacity="0"
+							/>
+							<path
+								id="Icon"
+								d="M13.61 11.87C13.65 11.88 13.7 11.89 13.75 11.89L20.45 11.89C20.5 11.89 20.55 11.88 20.59 11.87C20.64 11.85 20.68 11.82 20.71 11.79C20.74 11.75 20.77 11.71 20.79 11.67C20.81 11.62 20.82 11.57 20.82 11.52C20.82 11.47 20.81 11.43 20.79 11.38Q20.77 11.33 20.73 11.29Q20.72 11.27 20.71 11.26C20.68 11.23 20.64 11.2 20.59 11.18C20.55 11.16 20.5 11.15 20.45 11.15L13.75 11.15C13.7 11.15 13.65 11.16 13.61 11.18C13.56 11.2 13.53 11.23 13.49 11.26Q13.48 11.27 13.47 11.29Q13.43 11.33 13.41 11.38C13.39 11.43 13.38 11.47 13.38 11.52C13.38 11.57 13.39 11.62 13.41 11.67C13.43 11.71 13.46 11.75 13.49 11.79C13.53 11.82 13.56 11.85 13.61 11.87Z"
+								fill="#000E6A"
+								fill-opacity="1.000000"
+								fill-rule="evenodd"
+							/>
+						</svg></button
+					><button id="maximize-button">
+						<svg
+							width="34.208984"
+							height="23.797852"
+							viewBox="0 0 34.209 23.7979"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+							xmlns:xlink="http://www.w3.org/1999/xlink"
+						>
+							<defs />
+							<rect
+								id="Base"
+								width="34.209641"
+								height="23.798012"
+								fill="#FFFFFF"
+								fill-opacity="0"
+							/>
+							<path
+								id="Icon"
+								d="M14.06 15.53C14.19 15.58 14.33 15.61 14.48 15.61L19.72 15.61C19.87 15.61 20.01 15.58 20.14 15.53C20.27 15.47 20.39 15.39 20.49 15.29C20.59 15.18 20.67 15.07 20.73 14.93C20.79 14.8 20.82 14.66 20.82 14.52L20.82 9.27C20.82 9.13 20.79 8.99 20.73 8.85C20.67 8.72 20.59 8.61 20.49 8.51C20.39 8.4 20.27 8.32 20.14 8.27C20.01 8.21 19.87 8.18 19.72 8.18L14.48 8.18C14.33 8.18 14.19 8.21 14.06 8.27Q13.94 8.32 13.85 8.39Q13.77 8.44 13.71 8.51C13.61 8.61 13.53 8.72 13.47 8.85C13.41 8.99 13.38 9.13 13.38 9.27L13.38 14.52C13.38 14.66 13.41 14.8 13.47 14.93C13.53 15.07 13.61 15.18 13.71 15.29Q13.75 15.32 13.79 15.36Q13.91 15.46 14.06 15.53ZM19.84 14.84C19.8 14.86 19.75 14.87 19.7 14.87L14.5 14.87C14.44 14.87 14.4 14.86 14.35 14.84Q14.32 14.83 14.29 14.81Q14.26 14.79 14.23 14.76C14.2 14.73 14.17 14.69 14.15 14.64C14.13 14.6 14.12 14.55 14.12 14.5L14.12 9.29Q14.12 9.22 14.15 9.17Q14.15 9.16 14.15 9.15Q14.18 9.1 14.21 9.05Q14.22 9.04 14.23 9.03C14.27 9 14.31 8.97 14.35 8.95C14.4 8.93 14.44 8.92 14.5 8.92L19.7 8.92Q19.77 8.92 19.83 8.94Q19.84 8.95 19.84 8.95C19.89 8.97 19.93 9 19.96 9.03C20 9.06 20.02 9.1 20.04 9.15C20.06 9.19 20.07 9.24 20.07 9.29L20.07 14.5Q20.07 14.54 20.06 14.59Q20.05 14.62 20.04 14.64C20.02 14.69 20 14.73 19.96 14.76C19.93 14.79 19.89 14.82 19.84 14.84Z"
+								fill="#000E6A"
+								fill-opacity="1.000000"
+								fill-rule="evenodd"
+							/>
+						</svg></button
+					><button id="close-button">
+						<svg
+							width="34.208984"
+							height="23.797852"
+							viewBox="0 0 34.209 23.7979"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+							xmlns:xlink="http://www.w3.org/1999/xlink"
+						>
+							<defs />
+							<path
+								id="Base"
+								d="M0 0L29 0C31.87 0 34.2 2.33 34.2 5.2L34.2 23.79L0 23.79L0 0Z"
+								fill="#FFFFFF"
+								fill-opacity="0"
+								fill-rule="evenodd"
+							/>
+							<path
+								id="ChromeClose"
+								d="M14.02 15.5L17.1 12.42L20.18 15.5C20.26 15.58 20.34 15.61 20.45 15.61Q20.5 15.61 20.54 15.6Q20.57 15.59 20.59 15.58C20.64 15.56 20.68 15.54 20.71 15.5C20.74 15.47 20.77 15.43 20.79 15.38C20.81 15.34 20.82 15.29 20.82 15.24C20.82 15.14 20.78 15.05 20.71 14.98L17.63 11.89L20.71 8.81C20.78 8.74 20.82 8.65 20.82 8.55C20.82 8.5 20.81 8.45 20.79 8.4Q20.77 8.35 20.73 8.31Q20.72 8.3 20.71 8.28C20.68 8.25 20.64 8.22 20.59 8.2C20.55 8.19 20.5 8.18 20.45 8.18C20.34 8.18 20.26 8.21 20.18 8.28L17.1 11.37L14.02 8.28C13.95 8.21 13.86 8.18 13.76 8.18C13.71 8.18 13.66 8.19 13.61 8.2Q13.56 8.23 13.52 8.26Q13.5 8.27 13.49 8.28C13.46 8.32 13.43 8.35 13.41 8.4C13.39 8.45 13.38 8.5 13.38 8.55C13.38 8.65 13.42 8.74 13.49 8.81L16.57 11.89L13.49 14.98C13.42 15.05 13.38 15.14 13.38 15.24C13.38 15.35 13.42 15.43 13.49 15.51C13.56 15.58 13.65 15.61 13.76 15.61C13.86 15.61 13.95 15.58 14.02 15.5Z"
+								fill="#000E6A"
+								fill-opacity="1.000000"
+								fill-rule="evenodd"
+							/>
+						</svg>
+					</button>
+				</div>
+				<header class="header" id="header">
+					<div class="bor" id="headerBor">
+						<div class="main-containerHeader">
+							<svg class="bg-cirleHeader"></svg>
+							<div class="airplane airplane-default"></div>
+						</div>
+					</div>
+				</header>
+				<div class="login">
+					<div class="login_form">
+						<div class="login_title">
+							<h2 id="loginTitle">Log In</h2>
+							<p id="loginSubtitle">Enter your licence key</p>
+						</div>
+						<form id="loginForm">
+							<input
+								type="text"
+								id="licenseKey"
+								placeholder="0000 0000 0000 0000"
+								maxlength="19"
+							/>
+							<button type="submit" id="submitBtn" disabled>Log In</button>
+						</form>
+						<div class="nightSwitch">
+							<span id="nightModeText">
+								<svg
+									width="19.310913"
+									height="20.000000"
+									viewBox="0 0 19.3109 20"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+									xmlns:xlink="http://www.w3.org/1999/xlink"
+								>
+									<defs />
+									<path
+										id="Vector"
+										d="M8.15 2.21C7.36 2.4 6.59 2.71 5.88 3.13C4.64 3.88 3.62 4.95 2.94 6.22C2.26 7.5 1.93 8.94 2 10.39C2.08 11.83 2.54 13.23 3.34 14.44C4.15 15.64 5.26 16.6 6.57 17.22C7.88 17.84 9.33 18.1 10.77 17.96C12.21 17.82 13.59 17.29 14.75 16.43C15.32 16 15.83 15.51 16.27 14.96C15.14 15.07 13.99 14.94 12.9 14.59C11.01 13.99 9.39 12.74 8.32 11.06C7.25 9.38 6.81 7.39 7.06 5.41C7.21 4.28 7.58 3.19 8.15 2.21ZM10.12 0L10.39 0C10.8 0 11.17 0.25 11.32 0.64C11.47 1.02 11.37 1.46 11.07 1.74C9.95 2.77 9.24 4.16 9.04 5.67C8.85 7.18 9.19 8.7 10.01 9.99C10.82 11.27 12.06 12.23 13.51 12.69C14.96 13.15 16.52 13.09 17.93 12.52C18.3 12.37 18.73 12.46 19.02 12.75C19.3 13.03 19.38 13.46 19.23 13.83C18.53 15.5 17.4 16.96 15.94 18.03C14.49 19.11 12.77 19.77 10.97 19.95C9.17 20.12 7.35 19.81 5.71 19.03C4.08 18.26 2.68 17.05 1.68 15.55C0.67 14.04 0.1 12.29 0.01 10.48C-0.08 8.67 0.32 6.88 1.18 5.28C2.03 3.68 3.3 2.35 4.85 1.42C6.41 0.49 8.18 0 9.99 0C10.04 0 10.08 0 10.12 0Z"
+										fill="#000E6A"
+										fill-opacity="0.250000"
+										fill-rule="evenodd"
+									/>
+								</svg>
+
+								Night Mode
+							</span>
+							<label class="nightModeswitch">
+								<input type="checkbox" id="nightModeToggle" />
+								<span class="slider" id="round"></span>
+							</label>
+						</div>
+						<button class="login_btn" id="createAccountBtn">
+							Create an account
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="modal" class="modal">
+			<div class="modal-content">
+				<p id="modal-message"></p>
+				<div class="modal-btn">
+					<button id="modal-ok">OK</button>
+				</div>
+			</div>
+		</div>
+		<div id="errorBox" class="error-box" style="display: none">
+			<p id="errorMessage">This is an error message!</p>
+		</div>
+	</body>
+	<script src="script.js"></script>
+	<script>
+		document
+			.getElementById('licenseKey')
+			.addEventListener('input', function (e) {
+				this.value = this.value.replace(/\D/g, '')
+
+				if (this.value.length > 4) {
+					this.value = this.value.match(/.{1,4}/g).join(' ')
+				}
+
+				const submitBtn = document.getElementById('submitBtn')
+				if (this.value.replace(/\s/g, '').length === 16) {
+					submitBtn.disabled = false
+				} else {
+					submitBtn.disabled = true
+				}
+			})
+
+		const loginCon = document.getElementById('loginCon')
+		const loadingContainer = document.getElementById('loadingContainer')
+		const header = document.getElementById('header')
+		const headerBor = document.getElementById('headerBor')
+		const loadingDelay = 3200
+
+		const borRect = headerBor.getBoundingClientRect()
+		const borCenterX = borRect.left + borRect.width / 2
+		const borCenterY = borRect.top + borRect.height / 2
+
+		const loadingRect = loadingContainer.getBoundingClientRect()
+		const loadingCenterX = loadingRect.left + loadingRect.width / 2
+		const loadingCenterY = loadingRect.top + loadingRect.height / 2
+
+		const translateX = borCenterX - loadingCenterX
+		const translateY = borCenterY - loadingCenterY + 25
+
+		const moveUpAnimation = `
+				@keyframes moveUp {
+						0% {
+								transform: translate(0, 0);
+								width: 378.5px;
+								height: 378.5px;
+						}
+						100% {
+								height: 95px;
+								width: 95px;
+								transform: translate(${translateX}px, ${translateY}px);
+						}
+				}
+		`
+
+		const styleSheet = document.createElement('style')
+		styleSheet.type = 'text/css'
+		styleSheet.innerText = moveUpAnimation
+		document.head.appendChild(styleSheet)
+
+		setTimeout(() => {
+			if (loadingContainer) {
+				loadingContainer.style.display = 'none'
+			}
+			if (header) {
+				header.style.opacity = '1'
+			}
+		}, loadingDelay)
+	</script>
+</html>

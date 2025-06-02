@@ -1,0 +1,84 @@
+/* Светлая тема */
+body.light {
+	--background-color: linear-gradient(
+		180deg,
+		rgb(255, 255, 255),
+		rgb(235, 240, 250) 100%
+	);
+	--phonebg-color: rgb(255, 255, 255);
+	--header-background: linear-gradient(
+		161.42deg,
+		rgb(65, 159, 217) 27.928%,
+		rgb(22, 138, 205) 71.827%
+	);
+	--header-border-background: #ffffff;
+	--text-color: rgb(0, 14, 106);
+	--input-border-color: rgba(0, 14, 106, 0.1);
+	--input-background: #ffffff;
+	--input-text-color: rgb(65, 159, 217);
+	--button-background: rgb(65, 159, 217);
+	--button-text-color: rgb(65, 159, 217);
+	--button-disabled-background: rgba(65, 159, 217, 0.5);
+	--switch-background: #ccc;
+	--switch-slider-background: #fff;
+	--switch-checked-background: rgb(56, 109, 158);
+	--button-border-color: rgba(65, 159, 217, 0.2);
+	--placeholder: rgba(0, 14, 106, 0.25);
+	--editor-color-num: rgba(255, 255, 255, 0.25);
+
+	--logo-bg: radial-gradient(
+			80.8% 71.4% at 36% 28.000000000000004%,
+			rgb(65, 159, 217),
+			rgb(22, 138, 205) 100%
+		)
+		/* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */;
+	--header-pl-bg: rgb(235, 240, 250);
+	--btn-pl-bg: rgba(59, 104, 193, 0.1);
+	--icon-bg: rgba(150, 153, 180);
+	--phone-color: rgb(177, 184, 213);
+	--editor-bg: rgb(36, 47, 61);
+	--editor-bg: rgb(255, 255, 255);
+	--editor-color-num: rgba(0, 14, 106, 0.25);
+	--link-color: rgb(153 156 179);
+	--error-message: #f44336da;
+}
+
+/* Темная тема */
+body.dark {
+	--phonebg-color: rgb(19, 28, 38);
+	--background-color: rgb(19, 28, 38);
+	--header-background: linear-gradient(
+		161.42deg,
+		rgb(56, 109, 158) 27.928%,
+		rgb(43, 83, 120) 71.827%
+	);
+	--header-border-background: rgb(17, 26, 35);
+	--text-color: #ffffff;
+	--input-border-color: rgb(43, 55, 70);
+	--input-background: rgb(36, 47, 61);
+	--input-text-color: rgb(56, 109, 158);
+	--button-background: rgb(56, 109, 158);
+	--button-text-color: rgb(56, 109, 158);
+	--button-disabled-background: rgba(56, 109, 158, 0.5);
+	--switch-background: #444;
+	--switch-slider-background: #fff;
+	--switch-checked-background: rgb(43, 83, 120);
+	--button-border-color: rgb(27, 47, 65);
+	--placeholder: rgb(91, 99, 110);
+	--editor-color-num: rgba(255, 255, 255, 0.25);
+
+	--logo-bg: radial-gradient(
+			80.8% 71.4% at 36% 28.000000000000004%,
+			rgb(56, 109, 158),
+			rgb(43, 83, 120) 100%
+		)
+		/* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */;
+	--header-pl-bg: rgb(23, 33, 44);
+	--btn-pl-bg: rgb(35, 44, 53);
+	--icon-bg: rgb(70, 75, 85);
+	--phone-color: rgb(80, 88, 95);
+	--editor-bg: rgb(36, 47, 61);
+	--editor-color-num: rgba(255, 255, 255, 0.25);
+	--link-color: rgb(91, 99, 110);
+	--error-message: #f43636ad;
+}

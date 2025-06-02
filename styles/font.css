@@ -1,0 +1,8 @@
+@font-face {
+	font-family: 'Segoe UI Variable Static Display';
+	src: local('Segoe UI Variable Static Display'),
+		url('./SegoeUIVariableStaticTextSemilight.ttf') format('opentype')
+			tech(color-COLRv1),
+		url('./SegoeUIVariableStaticTextSemilight.ttf') format('opentype'),
+		url('./SegoeUIVariableStaticTextSemilight.ttf') format('woff');
+}

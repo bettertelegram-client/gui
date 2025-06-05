@@ -64,12 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
   ipcRenderer.on('supported-versions', (e, svs) => {
 	setTimeout(() => {
 		const json = JSON.parse(svs);
-		if ('svs' in json) {
-			show_modal(`Unfortunately BetterTelegram doesnt currently support your version of Telegram. The latest supported versions of Telegram are as follows\n\n${json.svs.slice(0, 10).join('\n')}\n\nTo enjoy BetterTelegram, navigate to 'https://github.com/telegramdesktop/tdesktop/releases/tag/v${json.svs[0]}'\n\nDownload the Telegram EXE, and then replace your existing Telegram EXE with the downloaded one & then restart BetterTelegram! Optionally, you can wait up to 24-96 hours & we will make sure to cook up support for the latest version of Telegram by then!\n\nWe'd like to thank you for your understanding!`);
-		} else
-		if ('err' in json) {
-			show_error(`Unfortunately an error ocurred while trying to download the latest BetterTelegram patch. We apologize for this inconvenience, please restart BetterTelegram and the client will try to resolve this issue.\n\nIf the problem persists, kindly reach out to us in support & one of our team members will be sure to assist you!`);
-		}
+		show_modal(`Unfortunately BetterTelegram doesnt currently support your version of Telegram. The latest supported versions of Telegram are as follows\n\n${json.slice(0, 10).join('\n')}\n\nTo enjoy BetterTelegram, navigate to 'https://github.com/telegramdesktop/tdesktop/releases/tag/v${json[0]}'\n\nDownload the Telegram EXE, and then replace your existing Telegram EXE with the downloaded one & then restart BetterTelegram! Optionally, you can wait up to 24-96 hours & we will make sure to cook up support for the latest version of Telegram by then!\n\nWe'd like to thank you for your understanding!`);
 	}, 1111);
   });
 

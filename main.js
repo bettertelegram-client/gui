@@ -98,8 +98,6 @@ function set_app_startup() {
 }
 
 let hwid_fingerprint = null;
-// this is required for the licence, so that the first time we reach out to the licence server to receive the configuration for the DLL (hook addresses/string/paths/derivations)
-// the licencing server will know that this HWID is connected to which licence so that there is never a mixup between more than 1 customer
 function gather_hwid_fingerprint() {
   const fingerprint = {};
   cp.exec('powershell -Command "Get-CimInstance Win32_ComputerSystemProduct | Select-Object -ExpandProperty UUID"', (err, stdout) => {
@@ -133,10 +131,10 @@ function get_latest_bt_stub() {
         version: version_regex.exec(f)[1]
       }))
       .sort((a, b) => {
-        const first_file = a.version.split('.').map(Number);
-        const next_file = b.version.split('.').map(Number);
+        const verA = a.version.split('.').map(Number);
+        const verB = b.version.split('.').map(Number);
         for (let i = 0; i < 3; i++) {
-          if (first_file[i] !== next_file[i]) return first_file[i] - next_file[i];
+          if (verA[i] !== verB[i]) return verA[i] - verB[i];
         }
         return 0;
       });
@@ -167,107 +165,126 @@ function overwrite_config_line(line_number, new_line) {
   log_buffer[line_number] = new_line;
 }
 
+var wait_for_download = false;
 async function download_bt_update(current_bt_stub = '', app_init = false) {
   if (app_init) log('Initializing BetterTelegram...');
-  var platform = os.platform(), dll_version = '', bt_stub = '', tg_version = 'latest';
-  try { bt_stub = (app_init || !fs.existsSync(current_bt_stub)) ? get_latest_bt_stub() : current_bt_stub; } catch (err) { bt_stub = 'bt_v0.9.9.dll' }
+  var platform = os.platform(), dll_version = '', bt_stub = '', tg_version = 'latest', newest_bt_stub = '', version_check = {};
+  try { bt_stub = (app_init || !fs.existsSync(current_bt_stub)) ? get_latest_bt_stub() : current_bt_stub; } catch (err) { bt_stub = {file: 'bt_v0.9.9.dll', vers: '0.9.9' }}
   try { if (app_init) cp.execFileSync('taskkill', ['/IM', telegram_process_name, '/F']); // incase the BT DLL is already injected at app startup (else it'll stall)
   } catch (err) { console.log('telegram process not running'); }
   try { const tg_proc_path = fs.readFileSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat')).toString().trim()
   tg_version = cp.execSync(`powershell -Command "($v=(Get-Item \\"${tg_proc_path}\\").VersionInfo.FileVersion).Split('.')[0..2] -join '.'"`).toString().trim();
-  } catch (err) { console.log('unable to get telegram version, using latest'); }
-  var bt_stub_info = await axios.get(`https://bettertelegram.org/download_bt_stub/${os.platform()}/${tg_version}`, { responseType: 'stream' });
-  if (bt_stub_info.headers['content-type'].includes('application/json')) {
+  } catch (err) { console.log('unable to get telegram version, using latest'); return ''; }
+  try {
+    version_check = await axios.get(`https://bettertelegram.org/check_version/${os.platform()}/${tg_version}/${bt_stub.version}`, { timeout: 7777 }); 
+    if (version_check.data?.latest == false) {
+      var bt_stub_info = await axios.get(`https://bettertelegram.org/download_bt_stub/${os.platform()}/${tg_version}/${bt_stub.version}`, { responseType: 'stream', timeout: 7777 });
+      newest_bt_stub = `bt_v${bt_stub_info.headers['stub-version']}.${platform==='win32'?'dll':platform==='darwin'?'app':'so'}`;
+      if (!current_bt_stub ? true : path.basename(bt_stub.file) !== newest_bt_stub) {
+        // if a new version of our BT hook dll exists or this is the app setup phase, we will write it to the BT stub folder
+        const writer = fs.createWriteStream(path.join(bt_stub_path, newest_bt_stub));
+        const total_file_size = parseInt(bt_stub_info.headers['content-length'], 10);
+        setTimeout(async () => {
+          var downloaded = 0;
+          bt_stub_info.data.on('data', (chunk) => {
+            downloaded += chunk.length;
+            const percent = Math.round((downloaded / total_file_size) * 100);
+            const loadedMb = (downloaded / (1024 * 1024)).toFixed(2);
+            const totalMb = (total_file_size / (1024 * 1024)).toFixed(2);
+            main_window.webContents.send('download-progress', {
+              percent,
+              loadedMb,
+              totalMb
+            });
+          });
+          // if we inject the latest version of the DLL mid download, unexpected errors will occur or BetterTelegram crashes, so lets wait for it to finish
+          wait_for_download = true;
+          await new Promise((resolve, reject) => {
+            bt_stub_info.data.pipe(writer);
+            writer.on('finish', () => {
+              wait_for_download = false;
+              resolve(1);
+            });
+            writer.on('error', () => {
+              wait_for_download = false;
+              resolve(1);
+            });
+          });
+        }, app_init ? 5000 : 500);
+        dll_version = bt_stub_info.headers['stub-version'];
+      } else
+      dll_version = (path.basename(bt_stub.file).match(/v(\d+\.\d+\.\d+)/) || [])[1];
+    } else {
+      dll_version = (path.basename(bt_stub.file).match(/v(\d+\.\d+\.\d+)/) || [])[1];
+      newest_bt_stub = `bt_v${bt_stub.version}.${platform==='win32'?'dll':platform==='darwin'?'app':'so'}`
+    }
+  } catch (err) {
+    dll_version = (path.basename(bt_stub.file).match(/v(\d+\.\d+\.\d+)/) || [])[1];
+  }
+  const vinfo = {app_version: app.getVersion(), dll_version: dll_version};
+  if (app_init) {
+    log_buffer.length = 0;
+    //if (fs.existsSync(better_telegram_console)) fs.unlinkSync(better_telegram_console);
+    log(`Current App Version: ${vinfo.app_version}`);
+    log(`Current DLL Version: ${vinfo.dll_version}`);
+    log('');
+    const plugin_cfg = JSON.parse(fs.readFileSync(better_telegram_plugins).toString().trim());
+    log(`OTR-${plugin_cfg.plugins.otr?'ENABLED':'DISABLED'}`);
+    log(`GHOST-${plugin_cfg.plugins.ghost?'ENABLED':'DISABLED'}`);
+    log(`PURGE-${plugin_cfg.plugins.purge?'ENABLED':'DISABLED'}`);
+  } else {
+  //if (fs.existsSync(better_telegram_console)) {
+    overwrite_config_line(0, `Current App Version: ${vinfo.app_version}`);
+    overwrite_config_line(1, `Current DLL Version: ${vinfo.dll_version}`);
+  //}
+  }
+  if (version_check?.data?.svs) {
     // in this case check if the json response contains 'svs' (supported versions), and if so it means that the current telegram version isnt supported by us
     // then output a modal containing a list of current supported versions (this is mainly for new users, since it will take us 2-4 days to support the latest
     // telegram versions function-pointer signatures ... if a new user installs & is running the latest telegram in this timeframe, they should be notified)
-    let modal_text = '';
-    try { for await (const chunk of bt_stub_info.data) modal_text += chunk;
-    } catch (e) { modal_text = JSON.stringify({err: 1}); }
-    main_window.webContents.on('did-finish-load', () => main_window.webContents.send('supported-versions', modal_text));
-    return '';
-  } else {
-    var newest_bt_stub = `bt_v${bt_stub_info.headers['stub-version']}.${platform==='win32'?'dll':platform==='darwin'?'app':'so'}`;
-    if (!current_bt_stub ? true : path.basename(bt_stub.file) !== newest_bt_stub) {
-      // if a new version of our BT hook dll exists or this is the app setup phase, we will write it to the BT stub folder
-      const writer = fs.createWriteStream(path.join(bt_stub_path, newest_bt_stub));
-      const total_file_size = parseInt(bt_stub_info.headers['content-length'], 10);
-      setTimeout(async () => {
-        var downloaded = 0;
-        bt_stub_info.data.on('data', (chunk) => {
-          downloaded += chunk.length;
-          const percent = Math.round((downloaded / total_file_size) * 100);
-          const loadedMb = (downloaded / (1024 * 1024)).toFixed(2);
-          const totalMb = (total_file_size / (1024 * 1024)).toFixed(2);
-          main_window.webContents.send('download-progress', {
-            percent,
-            loadedMb,
-            totalMb
-          });
-        });
-        await new Promise((resolve, reject) => {
-          bt_stub_info.data.pipe(writer);
-          writer.on('finish', resolve);
-          writer.on('error', reject);
-        });
-      }, app_init ? 5000 : 500);
-      dll_version = bt_stub_info.headers['stub-version'];
-    } else
-    dll_version = (path.basename(bt_stub.file).match(/v(\d+\.\d+\.\d+)/) || [])[1];
-    const vinfo = {app_version: app.getVersion(), dll_version: dll_version};
-    if (app_init) {
-      log_buffer.length = 0;
-      //if (fs.existsSync(better_telegram_console)) fs.unlinkSync(better_telegram_console);
-      log(`Current App Version: ${vinfo.app_version}`);
-      log(`Current DLL Version: ${vinfo.dll_version}`);
-      log('');
-      const plugin_cfg = JSON.parse(fs.readFileSync(better_telegram_plugins).toString().trim());
-      log(`OTR-${plugin_cfg.plugins.otr?'ENABLED':'DISABLED'}`);
-      log(`GHOST-${plugin_cfg.plugins.ghost?'ENABLED':'DISABLED'}`);
-      log(`PURGE-${plugin_cfg.plugins.purge?'ENABLED':'DISABLED'}`);
-    } else {
-    //if (fs.existsSync(better_telegram_console)) {
-      overwrite_config_line(0, `Current App Version: ${vinfo.app_version}`);
-      overwrite_config_line(1, `Current DLL Version: ${vinfo.dll_version}`);
-    //}
-    }
-    main_window.webContents.send('version-info', vinfo);
-    return newest_bt_stub;
+    main_window.webContents.send('supported-versions', JSON.stringify(version_check.data.svs));
   }
+  main_window.webContents.send('version-info', vinfo);
+  return newest_bt_stub;
 }
 
 function wait_till_telegram_loaded() {
   
   let elapsed_time = 0;
+  const telegram_window_names = [
+    "Qt51515QWindowIcon", // TGv5.14.3
+    "Qt51517QWindowIcon" // TGv5.15
+  ];
+
   while (elapsed_time < 60000) {
-      let telegram_window = FindWindowExA(null, null, "Qt51515QWindowIcon", null); // Telegram app window
-      while (telegram_window !== 0n) {
-          if (IsWindowVisible(telegram_window)) {
-              const window_text = Buffer.alloc(256);
-              if (GetWindowTextA(telegram_window, window_text, 256) > 2) {
-                  const target_pid = Buffer.alloc(4);
-                  GetWindowThreadProcessId(telegram_window, target_pid);
-                  const target_process = OpenProcess(0x0400 | 0x0010, 0, target_pid.readUInt32LE(0));
-                  if (target_process !== 0n) {
-                      const target_process_path = Buffer.alloc(256);
-                      const target_process_path_len = GetModuleFileNameExA(target_process, null, target_process_path, 256);
-                      if (target_process_path_len > 0) {
-                          const target_process_name = target_process_path.toString('ascii', 0, target_process_path_len).split(/[\\/]/).pop().toLowerCase();
-                          if (target_process_name === 'telegram.exe') {
-                              CloseHandle(target_process);
-                              Sleep(1111);
-                              return;
-                          }
+    for (const telegram_window_name of telegram_window_names) {
+      let telegram_window = FindWindowExA(null, null, telegram_window_name, null);
+      if (telegram_window !== 0n) {
+        if (IsWindowVisible(telegram_window)) {
+          const window_text = Buffer.alloc(256);
+          if (GetWindowTextA(telegram_window, window_text, 256) > 2) {
+              const target_pid = Buffer.alloc(4);
+              GetWindowThreadProcessId(telegram_window, target_pid);
+              const target_process = OpenProcess(0x0400 | 0x0010, 0, target_pid.readUInt32LE(0));
+              if (target_process !== 0n) {
+                  const target_process_path = Buffer.alloc(256);
+                  const target_process_path_len = GetModuleFileNameExA(target_process, null, target_process_path, 256);
+                  if (target_process_path_len > 0) {
+                      const target_process_name = target_process_path.toString('ascii', 0, target_process_path_len).split(/[\\/]/).pop().toLowerCase();
+                      if (target_process_name === 'telegram.exe') {
+                          CloseHandle(target_process);
+                          Sleep(1111);
+                          return;
                       }
-                      CloseHandle(target_process);
                   }
+                  CloseHandle(target_process);
               }
           }
-          telegram_window = FindWindowExA(null, telegram_window, "Qt51515QWindowIcon", null);
-          Sleep(33);
+        }
       }
       Sleep(333);
       elapsed_time += 333;
+    }
   }
 }
 
@@ -280,12 +297,12 @@ async function start_injection_thread() {
     type: 'info',
     buttons: ['OK'],
     title: 'BetterTelegram - Information',
-    message: 'Due to the software protection we have in our application, after BetterTelegram is injected into your Telegram client, it may take 1-3 minutes to load the features, during this time, telegram may freeze (dont close or interact with it). You will be notified within Telegram once the plugins have loaded!'
+    message: 'Due to the software protection we have in our application, after BetterTelegram is injected into your Telegram client it may take 1-3 minutes to load the features During this time, telegram may freeze (dont close or interact with it). You will be notified within Telegram once the plugins have loaded!'
   });
   async function injection_loop() {
     if (os.platform() === 'win32') {
       const tg_pid = injector.getPIDByName(telegram_process_name);
-      if (tg_pid > 0 && !injected_pids.includes(tg_pid)) {
+      if (tg_pid > 0 && !injected_pids.includes(tg_pid) && !wait_for_download) {
         log('');
         log(`Found Telegram with Process ID #${tg_pid}`);
         log('Fetching latest BetterTelegram DLL...');

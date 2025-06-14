@@ -1,6 +1,6 @@
 {
   "name": "bt",
-  "version": "1.2.29",
+  "version": "1.2.38",
   "main": "main.js",
   "author": "",
   "license": "ISC",
@@ -24,6 +24,8 @@
     "node-abi": "^4.2.0",
     "os": "^0.1.2",
     "path": "^0.12.7",
+    "pngjs": "^7.0.0",
+    "tesseract.js": "^6.0.1",
     "winreg": "^1.2.5"
   },
   "devDependencies": {

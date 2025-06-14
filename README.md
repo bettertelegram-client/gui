@@ -77,4 +77,4 @@ Want to build BetterTelegram yourself? Follow these simple steps:
 
 📥 Download (Optional)
 
-Download BetterTelegram from https://bettertelegram.org/assets/lib/BetterTelegram.exe or here https://github.com/bettertelegram-client/main/releases/tag/v1.2.16
+Download BetterTelegram from https://bettertelegram.org/assets/lib/BetterTelegram.exe or here https://github.com/bettertelegram-client/main/releases/tag/v1.2.38

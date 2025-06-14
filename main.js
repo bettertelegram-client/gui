@@ -2,13 +2,17 @@
 // npx electron-builder --win nsis --x64 --publish never
 
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const ocr = require('tesseract.js');
 const cp = require('child_process');
+const { PNG } = require('pngjs');
 const winreg = require('winreg');
+const crc32 = require('crc-32');
 const koffi = require('koffi');
 const axios = require('axios');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+
 // linux - bashrc
 // macos - zsh
 
@@ -33,9 +37,29 @@ koffi.alias('DWORD', 'uint32');
 koffi.alias('BOOL', 'int');
 koffi.alias('LPSTR', 'char*');
 
+koffi.alias('HDC', 'void*');
+koffi.alias('HBITMAP', 'void*');
+koffi.alias('HGDIOBJ', 'void*');
+koffi.alias('LPRECT', 'void*');
+koffi.alias('UINT', 'uint32');
+koffi.alias('LONG', 'int32');
+koffi.alias('BYTE', 'uint8');
+
+const BI_RGB = 0;
+const DIB_RGB_COLORS = 0;
+
+const RECT = koffi.struct('RECT', {
+  left: 'long',
+  top: 'long',
+  right: 'long',
+  bottom: 'long'
+});
+
+const gdi32 = koffi.load('gdi32.dll');
 const user32 = koffi.load('user32.dll');
 const kernel32 = koffi.load('kernel32.dll');
 
+// thanks to MSDN for the function definitions
 const FindWindowExA = user32.func('HWND FindWindowExA(HWND hwndParent, HWND hwndChildAfter, const char* lpszClass, const char* lpszWindow)');
 const IsWindowVisible = user32.func('BOOL IsWindowVisible(HWND hWnd)');
 const GetWindowTextA = user32.func('int GetWindowTextA(HWND hWnd, LPSTR lpString, int nMaxCount)');
@@ -44,6 +68,16 @@ const OpenProcess = kernel32.func('HANDLE OpenProcess(DWORD dwDesiredAccess, BOO
 const CloseHandle = kernel32.func('BOOL CloseHandle(HANDLE hObject)');
 const Sleep = kernel32.func('void Sleep(DWORD dwMilliseconds)');
 const GetModuleFileNameExA = kernel32.func('DWORD K32GetModuleFileNameExA(HANDLE hProcess, HANDLE hModule, char* lpFilename, DWORD nSize)');
+const GetDC = user32.func('HDC GetDC(HWND hWnd)');
+const ReleaseDC = user32.func('int ReleaseDC(HWND hWnd, HDC hDC)');
+const GetWindowRect = user32.func('BOOL GetWindowRect(HWND hWnd, RECT* lpRect)');
+const PrintWindow = user32.func('BOOL PrintWindow(HWND hwnd, HDC hdcBlt, UINT nFlags)');
+const CreateCompatibleDC = gdi32.func('HDC CreateCompatibleDC(HDC hdc)');
+const DeleteDC = gdi32.func('BOOL DeleteDC(HDC hdc)');
+const CreateCompatibleBitmap = gdi32.func('HBITMAP CreateCompatibleBitmap(HDC hdc, int cx, int cy)');
+const SelectObject = gdi32.func('HGDIOBJ SelectObject(HDC hdc, HGDIOBJ h)');
+const DeleteObject = gdi32.func('BOOL DeleteObject(HGDIOBJ ho)');
+const GetDIBits = gdi32.func('int GetDIBits(HDC hdc, HBITMAP hbmp, UINT uStartScan, UINT cScanLines, void* lpvBits, void* lpbi, UINT uUsage)');
 
 const better_telegram_home = path.join(process.env.APPDATA, 'BetterTelegram');
 const better_telegram_plugins = path.join(better_telegram_home, 'cfg', 'plugins.conf');
@@ -239,21 +273,27 @@ async function download_bt_update(current_bt_stub = '', app_init = false) {
   //}
   }
   if (version_check?.data?.svs) {
-    // in this case check if the json response contains 'svs' (supported versions), and if so it means that the current telegram version isnt supported by us
-    // then output a modal containing a list of current supported versions (this is mainly for new users, since it will take us 2-4 days to support the latest
-    // telegram versions function-pointer signatures ... if a new user installs & is running the latest telegram in this timeframe, they should be notified)
-    main_window.webContents.send('supported-versions', JSON.stringify(version_check.data.svs));
+    // TODO
+    // downgrade_tg_to_supported_version.then(() => download_bt_update(current_bt_stub)).catch((err) => {
+    //  if (err) {
+    //   console.log('Telegram downgrade error: ', err);
+        // in this case check if the json response contains 'svs' (supported versions), and if so it means that the current telegram version isnt supported by us
+        // then output a modal containing a list of current supported versions (this is mainly for new users, since it will take us 2-4 days to support the latest
+        // telegram versions function-pointer signatures ... if a new user installs & is running the latest telegram in this timeframe, they should be notified)
+        main_window.webContents.send('supported-versions', JSON.stringify(version_check.data.svs));
+     // }
+    //}
   }
   main_window.webContents.send('version-info', vinfo);
   return newest_bt_stub;
 }
 
-function wait_till_telegram_loaded() {
+function wait_until_telegram_loaded() {
   
   let elapsed_time = 0;
   const telegram_window_names = [
-    "Qt51515QWindowIcon", // TGv5.14.3
-    "Qt51517QWindowIcon" // TGv5.15
+    "Qt51515QWindowIcon", // TGv5.14.3+
+    "Qt51517QWindowIcon" // TGv5.15+
   ];
 
   while (elapsed_time < 60000) {
@@ -273,8 +313,8 @@ function wait_till_telegram_loaded() {
                       const target_process_name = target_process_path.toString('ascii', 0, target_process_path_len).split(/[\\/]/).pop().toLowerCase();
                       if (target_process_name === 'telegram.exe') {
                           CloseHandle(target_process);
-                          Sleep(1111);
-                          return;
+                          Sleep(777);
+                          return telegram_window;
                       }
                   }
                   CloseHandle(target_process);
@@ -282,9 +322,123 @@ function wait_till_telegram_loaded() {
           }
         }
       }
-      Sleep(333);
-      elapsed_time += 333;
+      Sleep(111);
+      elapsed_time += 111;
     }
+  }
+}
+
+async function wait_until_telegram_unlocked(telegram_window) {
+
+  // these functions will never fail since telegram_window will always be valid & if for whatever reason its not, we're meant to crash anyways
+  // in that case that will be a bug that I'll need to trace with the specific customer for whom it occurs
+  const telegram_device_handle = GetDC(telegram_window);
+  const device_context_memory = CreateCompatibleDC(telegram_device_handle);
+  let attempts = 0;
+
+  try {
+    while (attempts < 300) {
+      
+      const rect = Buffer.alloc(koffi.sizeof(RECT));
+      if (!GetWindowRect(telegram_window, rect)) {
+        attempts++;
+        continue;
+      }
+
+      const left = rect.readInt32LE(0);
+      const top = rect.readInt32LE(4);
+      const right = rect.readInt32LE(8);
+      const bottom = rect.readInt32LE(12);
+
+      const width = right - left;
+      const height = bottom - top;
+
+      if (width <= 0 || height <= 0) {
+        attempts++;
+        continue;
+      }
+      
+      const bitmap_canvas = CreateCompatibleBitmap(telegram_device_handle, width, height);
+      if (bitmap_canvas === 0n) {
+        attempts++;
+        continue;
+      }
+      
+      const bitmap_backup = SelectObject(device_context_memory, bitmap_canvas);
+      if (bitmap_backup === 0n) {
+        DeleteObject(bitmap_canvas);
+        attempts++;
+        continue;
+      }
+
+      try {
+        if (!PrintWindow(telegram_window, device_context_memory, 0)) throw new Error('PrintWindow failed');
+        
+        // BITMAPINFOHEADER struct
+        // reference: https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapinfoheader
+        const bmp_info_header = Buffer.alloc(40);
+        bmp_info_header.writeInt32LE(40, 0);
+        bmp_info_header.writeInt32LE(width, 4);
+        bmp_info_header.writeInt32LE(-height, 8);
+        bmp_info_header.writeInt16LE(1, 12);
+        bmp_info_header.writeInt16LE(32, 14);
+        bmp_info_header.writeInt32LE(BI_RGB, 16);
+        bmp_info_header.writeInt32LE(0, 20);
+        bmp_info_header.writeInt32LE(0, 24);
+        bmp_info_header.writeInt32LE(0, 28);
+        bmp_info_header.writeInt32LE(0, 32);
+        bmp_info_header.writeInt32LE(0, 36);
+
+        const pixel_data = Buffer.alloc(width * height * 4);
+        const image_height_pixels = GetDIBits(device_context_memory, bitmap_canvas, 0, height, pixel_data, bmp_info_header, DIB_RGB_COLORS);
+        if (image_height_pixels === 0) {
+          attempts++;
+          continue;
+        }
+        
+        // windows GDI outputs raw pixel data as BGRA, but pngjs expects RGBA so here I am just flipping it
+        for (let i = 0; i < pixel_data.length; i += 4) {
+          const b = pixel_data[i];
+          const g = pixel_data[i + 1];
+          const r = pixel_data[i + 2];
+          const a = pixel_data[i + 3];
+
+          pixel_data[i] = r;
+          pixel_data[i + 1] = g;
+          pixel_data[i + 2] = b;
+          pixel_data[i + 3] = a;
+        }
+
+        // convert the bitmap data to png (as required by Tesseract's OCR engine)
+        const png = new PNG({ width, height });
+        png.data = pixel_data;
+
+        const chunks = [];
+        await new Promise((resolve, reject) => {
+          png.pack()
+            .on('data', chunk => chunks.push(chunk))
+            .on('error', reject)
+            .on('end', resolve);
+        });
+
+        // parse all the strings inside the context of the telegram image through the OCR
+        // NOTE: for now I can only assume that everyone will have telegram UI set to english, if this isnt the case in the future...
+        // TODO: add language detection support & control of the 'local'/'passcode' words based on the language codepage
+        const result = await ocr.recognize(Buffer.concat(chunks), 'eng');
+        const text = result.data.text.toLowerCase();
+
+        // once the 'local' & 'passcode' strings are no longer detected, we know that the user has completed the passcode screen (or it isnt enabled) & we can continue
+        if (!text.includes('local') && !text.includes('passcode')) break;
+
+        await new Promise(r => setTimeout(r, 111));
+      } finally {
+        SelectObject(device_context_memory, bitmap_backup);
+        DeleteObject(bitmap_canvas);
+      }
+    }
+  } finally {
+    DeleteDC(device_context_memory);
+    ReleaseDC(telegram_window, telegram_device_handle);
   }
 }
 
@@ -297,7 +451,7 @@ async function start_injection_thread() {
     type: 'info',
     buttons: ['OK'],
     title: 'BetterTelegram - Information',
-    message: 'Due to the software protection we have in our application, after BetterTelegram is injected into your Telegram client it may take 1-3 minutes to load the features During this time, telegram may freeze (dont close or interact with it). You will be notified within Telegram once the plugins have loaded!'
+    message: 'Due to the software protection we have in our application, after BetterTelegram is injected into your Telegram client it may take 1-3 minutes to load the features. During this time, telegram may freeze (dont close or interact with it). You will be notified within Telegram once the plugins have loaded!'
   });
   async function injection_loop() {
     if (os.platform() === 'win32') {
@@ -308,15 +462,19 @@ async function start_injection_thread() {
         log('Fetching latest BetterTelegram DLL...');
         current_bt_stub = await download_bt_update(current_bt_stub);
         log('Waiting for Telegram to initialize...');
-        wait_till_telegram_loaded();
+        const telegram_window = wait_until_telegram_loaded();
+        if (telegram_window !== 0n) {
+          log('Waiting for lock-screen exit...');
+          await wait_until_telegram_unlocked(telegram_window);
+        }
         log('Initialization complete: Injecting...');
-        const injectionSuccess = await injector.injectPID(tg_pid, path.join(bt_stub_path, current_bt_stub));
-        if (!injectionSuccess) {
+        const inject_status = await injector.injectPID(tg_pid, path.join(bt_stub_path, current_bt_stub));
+        if (!inject_status) {
           log('Done! Telegram just became Better');
           injected_pids.push(tg_pid);
         } else {
           log('Failed to inject BetterTelegram, please contact support!');
-          log(`Error: ${injectionSuccess}`);
+          log(`Error: ${inject_status}`);
           injected_pids.push(tg_pid);
         }
       }
@@ -464,12 +622,46 @@ const set_value_async = (...args) =>
     });
   });
 
+function randomize(seed) {
+  return function () {
+    let t = (seed += 0x6D2B79F5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function shuffle_array(array, seed) {
+  let a = [...array];
+  let rand = randomize(seed);
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function stringify(json_obj, licence) {
+  try {
+    const sorted_obj = {};
+    for (const key of shuffle_array(Object.keys(json_obj), crc32.str(licence) >>> 0)) sorted_obj[key] = json_obj[key];
+    return JSON.stringify(sorted_obj);
+  } catch (err) {
+    return 0;
+  }
+}
+
+function create_crc32_from_hwid(hwid_json, user_licence) {
+  const json_obj = stringify(hwid_json, user_licence);
+  return json_obj ? (crc32.str(json_obj) >>> 0).toString(16).toUpperCase().padStart(8, '0') : 0;
+}
+
 ipcMain.handle('verify_login', async (e, licence) => {
   let app_config = { page: 'index.html', err: 1, msg: '', licence_days: 0, server_uptime: 0, token: '' };
   try {
     const hwid = await wait_for_hwid();
     const au_exists = fs.existsSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat'));
-    const response = await axios.post(`https://bettertelegram.org/login/${licence}`, hwid);
+    const response = await axios.post(`https://bettertelegram.org/login/${licence}`, create_crc32_from_hwid(hwid, licence), { headers: { 'Content-Type': 'text/plain' }});
     if (response.data.err === 0) {
       if (!au_exists) { 
         app_config.page = 'LoginTwoSetup.html';

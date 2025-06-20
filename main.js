@@ -66,7 +66,6 @@ const GetWindowTextA = user32.func('int GetWindowTextA(HWND hWnd, LPSTR lpString
 const GetWindowThreadProcessId = user32.func('DWORD GetWindowThreadProcessId(HWND hWnd, DWORD* lpdwProcessId)');
 const OpenProcess = kernel32.func('HANDLE OpenProcess(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId)');
 const CloseHandle = kernel32.func('BOOL CloseHandle(HANDLE hObject)');
-const Sleep = kernel32.func('void Sleep(DWORD dwMilliseconds)');
 const GetModuleFileNameExA = kernel32.func('DWORD K32GetModuleFileNameExA(HANDLE hProcess, HANDLE hModule, char* lpFilename, DWORD nSize)');
 const GetDC = user32.func('HDC GetDC(HWND hWnd)');
 const ReleaseDC = user32.func('int ReleaseDC(HWND hWnd, HDC hDC)');
@@ -288,7 +287,7 @@ async function download_bt_update(current_bt_stub = '', app_init = false) {
   return newest_bt_stub;
 }
 
-function wait_until_telegram_loaded() {
+async function wait_until_telegram_loaded() {
   
   let elapsed_time = 0;
   const telegram_window_names = [
@@ -296,7 +295,7 @@ function wait_until_telegram_loaded() {
     "Qt51517QWindowIcon" // TGv5.15+
   ];
 
-  while (elapsed_time < 60000) {
+  while (elapsed_time < 300000) {
     for (const telegram_window_name of telegram_window_names) {
       let telegram_window = FindWindowExA(null, null, telegram_window_name, null);
       if (telegram_window !== 0n) {
@@ -313,7 +312,6 @@ function wait_until_telegram_loaded() {
                       const target_process_name = target_process_path.toString('ascii', 0, target_process_path_len).split(/[\\/]/).pop().toLowerCase();
                       if (target_process_name === 'telegram.exe') {
                           CloseHandle(target_process);
-                          Sleep(777);
                           return telegram_window;
                       }
                   }
@@ -322,10 +320,11 @@ function wait_until_telegram_loaded() {
           }
         }
       }
-      Sleep(111);
+      await new Promise(r => setTimeout(r, 111));
       elapsed_time += 111;
     }
   }
+  return 0n;
 }
 
 async function wait_until_telegram_unlocked(telegram_window) {
@@ -462,7 +461,7 @@ async function start_injection_thread() {
         log('Fetching latest BetterTelegram DLL...');
         current_bt_stub = await download_bt_update(current_bt_stub);
         log('Waiting for Telegram to initialize...');
-        const telegram_window = wait_until_telegram_loaded();
+        const telegram_window = await wait_until_telegram_loaded();
         if (telegram_window !== 0n) {
           log('Waiting for lock-screen exit...');
           await wait_until_telegram_unlocked(telegram_window);

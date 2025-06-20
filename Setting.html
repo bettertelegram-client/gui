@@ -1389,7 +1389,7 @@
 							<div class="total">
 								<h3>Total:</h3>
 								<div class="infoTotal">
-									<span id="total_licence_cost">$2.99</span>
+									<span id="total_licence_cost">$0.89</span>
 									<b id="total_licence_days">/ 1 DAY</b>
 								</div>
 							</div>
@@ -1557,7 +1557,7 @@
 				const discount_el = document.getElementById('discount_percent');
 				discount_el.innerHTML = `${discount_amnt} <span>%</span>`;
 				discount_el.value = discount_amnt;
-				const cost = ((2.69 * counter) * (1 - discount_amnt / 100)).toFixed(2);
+				const cost = ((0.89 * counter) * (1 - discount_amnt / 100)).toFixed(2);
 				document.getElementById('total_licence_cost').innerHTML = cost;
 			}
 

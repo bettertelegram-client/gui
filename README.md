@@ -61,6 +61,7 @@ Want to build BetterTelegram yourself? Follow these simple steps:
 
 4. Install Electron
     - Run: `npm install -g electron`
+    - Optional, to build Node 110 dll-inject ABI, run: `npx electron-rebuild -v 22.3.26 -f -w @ffxiv-teamcraft/dll-inject`
 
 5. Navigate to the Project Directory
     - Run: `cd %USERPROFILE%\Documents\BetterTelegram`
@@ -77,4 +78,4 @@ Want to build BetterTelegram yourself? Follow these simple steps:
 
 📥 Download (Optional)
 
-Download BetterTelegram from https://bettertelegram.org/assets/lib/BetterTelegram.exe or here https://github.com/bettertelegram-client/main/releases/tag/v1.2.38
+Download BetterTelegram from https://bettertelegram.org/assets/lib/BetterTelegram.exe or here https://github.com/bettertelegram-client/main/releases/tag/v1.2.41

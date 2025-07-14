@@ -384,9 +384,692 @@
 					-webkit-app-region: no-drag;
 				}
 			}
+
+			.block_settings {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+			}
+
+			.block_settings button {
+				background-color: transparent;
+				border: none;
+				cursor: pointer;
+				margin-top: 3px;
+			}
+
+			.block_settings button path {
+				fill: var(--text-color);
+			}
+
+			.setting_corr {
+				position: fixed;
+				top: -100%;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				display: flex;
+				justify-content: center;
+				background: var(--background-color);
+				z-index: 9999;
+				transition: top 0.3s ease-out;
+				padding: 20px;
+				box-sizing: border-box;
+				overflow-y: auto;
+				padding-bottom: 100px;
+			}
+
+			.setting_corr.visible {
+				top: 0;
+			}
+
+			.setting_corr-content {
+				width: 800px;
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+			}
+
+			.header_settings {
+				position: sticky;
+				top: 10px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				background: var(--background-color);
+				padding: 10px 0;
+				z-index: 1000;
+			}
+
+			.header_settings button:nth-child(1) {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				border: none;
+				font-weight: 700;
+				font-size: 14px;
+				line-height: 100%;
+				text-transform: uppercase;
+				background: transparent;
+				cursor: pointer;
+				color: var(--text-color);
+			}
+
+			.header_settings button svg path {
+				fill: var(--text-color);
+			}
+
+			.header_settings button:nth-child(2) {
+				padding: 10px 14px;
+				height: 39px;
+				font-weight: 700;
+				font-size: 14px;
+				line-height: 100%;
+				text-transform: uppercase;
+				border-radius: 10px;
+				box-shadow: 0px 4px 12.6px 0px rgba(56, 109, 158, 0.2);
+				border: none;
+				background: var(--button-background);
+				cursor: pointer;
+				color: white;
+			}
+
+			.base_settings h3 {
+				color: var(--text-color);
+				font-weight: 600;
+				font-size: 14px;
+				line-height: 100%;
+				margin: 10px 0;
+			}
+
+			.base_block-settings,
+			.base_block-setting_add {
+				display: flex;
+				flex-direction: column;
+				gap: 5px;
+				padding: 20px 20px 20px 30px;
+				border-radius: 10px;
+				background: var(--header-pl-bg);
+			}
+
+			.base_block-settings .blocks1 {
+				width: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 8px;
+			}
+
+			.base_block-settings .blocks1 .blocks_left {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+			}
+
+			.base_block-settings .blocks1 .blocks_left svg {
+				width: 15px;
+				height: 12px;
+				object-fit: cover;
+			}
+
+			.base_block-settings .blocks1 .blocks_left svg path {
+				fill: var(--text-color);
+			}
+
+			.base_block-settings .blocks1 .blocks_left h4 {
+				font-weight: 600;
+				font-size: 14px;
+				line-height: 100%;
+				color: var(--text-color);
+			}
+
+			.blocks_left-title {
+				display: flex;
+				flex-direction: column;
+				gap: 4px;
+			}
+
+			.blocks_left-title h4 {
+				font-weight: 600;
+				font-size: 14px;
+				line-height: 100%;
+				color: var(--text-color);
+			}
+
+			.blocks_left-title p {
+				font-weight: 600;
+				font-size: 12px;
+				line-height: 100%;
+				color: var(--editor-color-num);
+			}
+
+			.base_block-setting_add {
+				gap: 15px;
+			}
+
+			.blocks1_add {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
+
+			@media (max-width: 550px) {
+				.block_wrap {
+					width: 100%;
+					flex-direction: column;
+					gap: 10px;
+				}
+
+				.full-width,
+				.dropdown-toggle,
+				.dropdown,
+				.dropdown-container {
+					width: 100%;
+					min-width: 100% !important;
+				}
+			}
+
+			.blocks_left-custom {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+			}
+
+			.blocks_left-custom .folder_open {
+				display: flex;
+				align-items: center;
+				margin-left: 20px;
+			}
+
+			.folders_check {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				height: 30px;
+			}
+
+			.blocks_left-custom .folder_open .folders_check label {
+				font-weight: 600;
+				font-size: 14px;
+				line-height: 100%;
+				color: var(--text-color);
+			}
+
+			.radio_block,
+			.inputs-text_block {
+				display: flex;
+				flex-direction: column;
+				gap: 0;
+			}
+
+			.inputs-text_block {
+				gap: 20px;
+			}
+
+			.blocks_small {
+				width: 34px;
+				height: 16px;
+			}
+
+			.blocks_small .slider::before {
+				position: absolute;
+				content: '';
+				height: 16px;
+				width: 16px;
+				left: -9px;
+				bottom: -2px;
+				background-color: white;
+				-webkit-transition: 0.4s;
+				transition: 0.4s cubic-bezier(0, 1, 0.5, 1);
+				border-radius: 50%;
+				border: 2px solid rgba(0, 14, 106, 0.25);
+			}
+
+			.text_blocks {
+				position: relative;
+				border: none;
+				color: var(--button-background);
+				background-color: transparent;
+				font-size: 14px;
+				cursor: pointer;
+				transition: all 0.3s ease;
+			}
+
+			.text_blocks::before {
+				content: '';
+				position: absolute;
+				width: 100%;
+				height: 0;
+				bottom: -2px;
+				transition: all 0.3s ease;
+			}
+
+			.text_blocks.clicked {
+				color: var(--text-color);
+			}
+
+			.text_blocks.clicked::before {
+				height: 1.5px;
+				background-color: var(--button-background);
+			}
+
+			.option_block-setting svg path {
+				width: 6px;
+				filter: brightness(0) saturate(100%) invert(31%) sepia(4%)
+					saturate(1793%) hue-rotate(175deg) brightness(97%) contrast(84%);
+			}
+
+			.table_setting-block {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 10px;
+				width: 100%;
+			}
+
+			@media (max-width: 550px) {
+				.table_setting-block {
+					flex-direction: column;
+				}
+			}
+
+			.table_setting-block .col-left,
+			.col-right {
+				display: flex;
+				align-items: center;
+				flex-direction: column;
+				padding: 20px;
+				background: var(--header-pl-bg);
+				border-radius: 10px;
+				flex-grow: 1;
+				width: 100%;
+			}
+
+			.table_setting-block .col-left button,
+			.col-right button {
+				padding: 12px 15px;
+				font-weight: 600;
+				font-size: 14px;
+				line-height: 100%;
+				color: var(--text-color);
+				border: none;
+				background-color: transparent;
+				cursor: pointer;
+				width: 100%;
+				text-align: left;
+				transition: background 0.3s ease;
+			}
+
+			.folder_open {
+				display: flex;
+				flex-direction: column;
+			}
+
+			.table_setting-block .col-left button:nth-child(1),
+			.col-right button:nth-child(1) {
+				border-top-right-radius: 10px;
+				border-top-left-radius: 10px;
+			}
+			.table_setting-block .col-left button:nth-child(4),
+			.col-right button:nth-child(4) {
+				border-bottom-right-radius: 10px;
+				border-bottom-left-radius: 10px;
+			}
+
+			.table_setting-block .col-left button:hover,
+			.col-right button:hover {
+				background: var(--btn-pl-bg);
+			}
+
+			.col-left button.selected,
+			.col-right button.selected {
+				background: var(--btn-pl-bg);
+			}
+
+			.controler {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 10px;
+				min-width: 118px;
+			}
+
+			.controler button {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				font-weight: 700;
+				color: var(--button-background);
+				font-size: 14px;
+				line-height: 100%;
+				height: 40px;
+				text-transform: uppercase;
+				border: 1px solid var(--button-background);
+				padding: 10px 20px;
+				border-radius: 10px;
+				background-color: transparent;
+				cursor: pointer;
+				width: 100%;
+				align-items: center;
+				opacity: 0.25;
+			}
+
+			.controler button svg:nth-child(1) {
+				transform: rotate(-90deg);
+			}
+
+			.controler button span {
+				transform: rotate(180deg);
+				margin-top: 3px;
+			}
+
+			.controler button svg path {
+				fill: var(--button-background);
+			}
+
+			.controler button.active {
+				opacity: 1;
+				cursor: pointer;
+			}
+
+			.moving {
+				animation: slide 0.5s ease-in-out;
+			}
+
+			@keyframes slide {
+				0% {
+					transform: translateX(0);
+				}
+				50% {
+					transform: translateX(5px);
+				}
+				100% {
+					transform: translateX(0);
+				}
+			}
+
+			.dropdown {
+				position: relative;
+				display: inline-block;
+				width: 100%;
+			}
+
+			.dropdown-content {
+				display: none;
+				position: absolute;
+				background-color: var(--block_fixeds);
+				min-width: 160px;
+				box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+				z-index: 1;
+				border-radius: 10px;
+				border: 1px solid rgb(60, 75, 91);
+				width: 100%;
+			}
+
+			.dropdown-content a {
+				color: white;
+				padding: 12px 16px;
+				text-decoration: none;
+				display: block;
+				font-size: 14px;
+			}
+
+			.dropdown-content a:hover {
+				background-color: #768ca11a;
+			}
+
+			.show {
+				display: block;
+			}
+
+			.dropdown {
+				position: relative;
+				display: inline-block;
+			}
+
+			.dropdown.open .dropdown-toggle {
+				color: var(--text-color);
+			}
+
+			.dropdown.open .dropdown-toggle svg {
+				transform: rotate(0deg);
+			}
+
+			.dropdown.open .dropdown-toggle svg path {
+				filter: var(--button-background);
+			}
+
+			.dropdown-toggle {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 12px 16px;
+				border-radius: 10px;
+				height: 40px;
+				background-color: var(--block_fixeds);
+				border: 1px solid var(--block_fixeds-border);
+				color: var(--placeholder);
+				font-weight: 600;
+				font-size: 14px;
+				cursor: pointer;
+				transition: color 0.3s ease, background-color 0.3s ease;
+				min-width: 180px;
+				margin-bottom: 10px;
+			}
+
+			.dropdown-toggle svg {
+				width: 12px;
+				height: 7px;
+				transform: rotate(180deg);
+				transition: transform 0.35s ease;
+			}
+
+			.dropdown-toggle svg path {
+				width: 6px;
+				filter: var(--fill_setting);
+			}
+
+			.dropdown-menu {
+				position: absolute;
+				top: 100%;
+				left: 0;
+				width: 100%;
+				background-color: var(--block_fixeds);
+				border: 1px solid var(--block_fixeds-border);
+				border-radius: 10px;
+				font-weight: 600;
+				font-size: 14px;
+				overflow: hidden;
+				z-index: 100;
+				max-height: 0;
+				opacity: 0;
+				visibility: hidden;
+				transition: max-height 0.35s ease, opacity 0.3s ease,
+					visibility 0s linear 0.3s;
+			}
+
+			.dropdown.open .dropdown-menu {
+				max-height: 300px;
+				opacity: 1;
+				visibility: visible;
+				transition: max-height 0.35s ease, opacity 0.3s ease, visibility 0s;
+			}
+
+			.dropdown-item {
+				padding: 12px 16px;
+				color: var(--text-color);
+				cursor: pointer;
+				transition: background-color 0.2s ease;
+			}
+
+			.dropdown-item:hover {
+				background-color: #768ca11a;
+			}
+
+			.dropdown-item.selected {
+				color: rgb(65, 159, 217);
+			}
+
+			.custom-radio {
+				position: relative;
+				width: 20px;
+				height: 20px;
+				border: 2px solid var(--text-color);
+				border-radius: 50%;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin: 10px 0;
+				opacity: 0.25;
+			}
+
+			.custom-radio span {
+				width: 12px;
+				height: 12px;
+				background-color: var(--button-background);
+				border-radius: 50%;
+				opacity: 0;
+				transition: opacity 0.3s ease;
+			}
+
+			.custom-radio.active {
+				opacity: 1;
+				border-color: var(--button-background);
+			}
+
+			.last_block {
+				padding-bottom: 100px;
+			}
+
+			.custom-radio.active span {
+				opacity: 1;
+			}
+
+			.custom-checkbox {
+				position: relative;
+				width: 18px;
+				height: 18px;
+				border: 2px solid var(--text-color);
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin: 10px 0;
+				border-radius: 3px;
+				opacity: 0.25;
+			}
+
+			.custom-checkbox span {
+				width: 10px;
+				height: 10px;
+				background-color: white;
+				clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+				opacity: 0;
+				transition: opacity 0.3s ease;
+			}
+
+			.custom-checkbox.active {
+				background-color: var(--button-background);
+				border: 2px solid var(--button-background);
+				opacity: 1;
+			}
+
+			.custom-checkbox.active span {
+				opacity: 1;
+			}
+
+			.setting-fix_icons {
+				padding: 20px;
+				background: var(--header-pl-bg);
+				border-radius: 10px;
+			}
+
+			.header_fix-icons {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
+
+			.header_fix-icons h4 {
+				color: var(--text-color);
+				font-weight: 700;
+				font-size: 12px;
+				line-height: 100%;
+			}
+
+			.header_fix-icons .action-btn_size {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+			}
+
+			.header_fix-icons .action-btn_size button {
+				color: var(--button-background);
+				height: 24px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-weight: 700;
+				font-size: 9px;
+				line-height: 11px;
+				text-transform: lowercase;
+				padding: 9px 10px;
+				background-color: transparent;
+				border: 1px solid var(--btn-pl-bg);
+				border-radius: 6.15px;
+				cursor: pointer;
+				transition: background 0.3s ease;
+			}
+
+			.header_fix-icons .action-btn_size button:hover {
+				background: var(--btn-pl-bg);
+			}
+
+			.icons_block {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+				padding: 10px;
+				border-radius: 10px;
+				background-color: var(--block_fixeds);
+				margin-top: 10px;
+			}
+
+			.icons_block .icon1 {
+				position: relative;
+				max-width: 32px;
+				height: 32px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 4px;
+				border-radius: 6px;
+				border: 1px solid #768ca11a;
+				cursor: pointer;
+				transition: background 0.3s ease;
+			}
+
+			.icons_block .icon1:hover {
+				background: #768ca11a;
+			}
+
+			.icons_block .icon1 .close_icon {
+				position: absolute;
+				top: -4px;
+				right: -4px;
+			}
+
+			.available_block {
+				margin-top: 20px;
+			}
+
+			*::-webkit-scrollbar {
+				width: 0;
+			}
 		</style>
 	</head>
-	<body>
+	<body class="light">
 		<div class="con">
 			<div class="header__section titlebar">
 				<button id="minimize-button">
@@ -496,18 +1179,72 @@
 							</p>
 						</div>
 					</div>
-					<label class="nightModeswitch">
-						<input type="checkbox" id="switch" class="plugin-toggle-otr"/>
-						<span class="slider" id="round" style="width: 26px"></span>
-					</label>
+					<div class="block_settings">
+						<button id="settings-button">
+							<svg
+								width="24.000000"
+								height="24.000000"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+								xmlns:xlink="http://www.w3.org/1999/xlink"
+							>
+								<defs>
+									<clipPath id="clip130_14447">
+										<rect
+											id="Options"
+											rx="0.000000"
+											width="23.000000"
+											height="23.000000"
+											transform="translate(0.500000 0.500000)"
+											fill="white"
+											fill-opacity="0"
+										/>
+									</clipPath>
+								</defs>
+								<rect
+									id="Options"
+									rx="0.000000"
+									width="23.000000"
+									height="23.000000"
+									transform="translate(0.500000 0.500000)"
+									fill="#FFFFFF"
+									fill-opacity="0"
+								/>
+								<g clip-path="url(#clip130_14447)">
+									<path
+										id="Vector"
+										d="M8.28 4.09C8.61 2.84 9.75 2 11.03 2L12.96 2C14.24 2 15.38 2.84 15.71 4.09L15.89 4.74C16.15 4.87 16.4 5.02 16.64 5.17L17.42 4.96C18.66 4.63 20.01 5.13 20.68 6.23L21.59 7.71C22.28 8.83 22.07 10.26 21.1 11.14L20.49 11.69C20.49 11.7 20.49 11.7 20.49 11.7C20.5 11.8 20.5 11.9 20.5 12C20.5 12.09 20.5 12.19 20.49 12.29C20.49 12.29 20.49 12.3 20.49 12.3L21.1 12.85C22.07 13.73 22.28 15.16 21.59 16.28L20.68 17.76C20.01 18.86 18.66 19.36 17.42 19.03L16.64 18.82C16.4 18.97 16.15 19.12 15.89 19.25L15.71 19.9C15.38 21.15 14.24 22 12.96 22L11.03 22C9.75 22 8.61 21.15 8.28 19.9L8.15 19.41C7.8 19.26 7.46 19.08 7.13 18.88L6.57 19.03C5.33 19.36 3.98 18.86 3.31 17.76L2.4 16.28C1.71 15.16 1.92 13.74 2.89 12.85L3.2 12.56C3.2 12.56 3.2 12.56 3.2 12.56C3.19 12.37 3.18 12.18 3.18 12C3.18 11.81 3.19 11.62 3.2 11.43C3.2 11.43 3.2 11.43 3.2 11.43L2.89 11.14C1.92 10.26 1.71 8.83 2.4 7.71L3.31 6.23C3.98 5.13 5.33 4.63 6.57 4.96L7.13 5.11C7.46 4.91 7.8 4.73 8.15 4.58L8.28 4.09ZM11.03 4C10.63 4 10.3 4.26 10.21 4.6L10.07 5.12C9.91 5.72 9.48 6.17 8.97 6.4C8.69 6.52 8.43 6.66 8.18 6.82C7.74 7.08 7.19 7.2 6.64 7.05L6.05 6.89C5.64 6.78 5.21 6.96 5.01 7.28L4.11 8.76C3.92 9.06 3.97 9.42 4.23 9.66L4.57 9.97C5.05 10.4 5.24 11.01 5.2 11.57C5.19 11.71 5.18 11.85 5.18 12C5.18 12.14 5.19 12.28 5.2 12.42C5.24 12.98 5.05 13.59 4.57 14.02L4.23 14.33C3.97 14.57 3.92 14.93 4.11 15.23L5.01 16.71C5.21 17.03 5.64 17.21 6.05 17.1L6.64 16.94C7.19 16.79 7.74 16.91 8.18 17.17C8.43 17.33 8.69 17.47 8.97 17.59C9.48 17.82 9.91 18.27 10.07 18.87L10.21 19.39C10.3 19.73 10.63 20 11.03 20L12.96 20C13.36 20 13.69 19.73 13.78 19.39L13.96 18.7C14.11 18.13 14.51 17.7 14.99 17.46C15.19 17.36 15.39 17.25 15.57 17.13C16.01 16.85 16.57 16.73 17.13 16.88L17.94 17.1C18.35 17.21 18.78 17.03 18.98 16.71L19.88 15.23C20.07 14.93 20.02 14.57 19.76 14.33L19.13 13.76C18.67 13.34 18.47 12.76 18.49 12.22C18.5 12.14 18.5 12.07 18.5 12C18.5 11.92 18.5 11.85 18.49 11.77C18.47 11.23 18.67 10.65 19.13 10.23L19.76 9.66C20.02 9.42 20.07 9.06 19.88 8.76L18.98 7.28C18.78 6.96 18.35 6.78 17.94 6.89L17.13 7.11C16.57 7.26 16.01 7.14 15.57 6.86C15.39 6.74 15.19 6.63 14.99 6.53C14.51 6.29 14.11 5.86 13.96 5.29L13.78 4.6C13.69 4.26 13.36 4 12.96 4L11.03 4ZM12 11C11.44 11 11 11.44 11 12C11 12.55 11.44 13 12 13C12.55 13 13 12.55 13 12C13 11.44 12.55 11 12 11ZM9 12C9 10.34 10.34 9 12 9C13.65 9 15 10.34 15 12C15 13.65 13.65 15 12 15C10.34 15 9 13.65 9 12Z"
+										fill="#000E6A"
+										fill-opacity="0.250000"
+										fill-rule="evenodd"
+									/>
+								</g>
+							</svg>
+						</button>
+						<label class="nightModeswitch">
+							<input type="checkbox" id="switch" class="plugin-toggle-otr" />
+							<span class="slider" id="round" style="width: 26px"></span>
+						</label>
+					</div>
 				</div>
 
 				<div class="plugins_header" id="pluginsHeader">
 					<div class="plugins_header-left">
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M12 2C14.3869 2 16.6761 2.94821 18.364 4.63604C20.0518 6.32387 21 8.61305 21 11V18.5C21.0004 19.2479 20.7611 19.9763 20.3173 20.5784C19.8735 21.1804 19.2486 21.6245 18.534 21.8455C17.8194 22.0664 17.0529 22.0527 16.3467 21.8062C15.6406 21.5598 15.0319 21.0936 14.61 20.476C14.3488 20.9387 13.9693 21.3236 13.5105 21.5915C13.0516 21.8594 12.5298 22.0005 11.9985 22.0005C11.4672 22.0005 10.9454 21.8594 10.4865 21.5915C10.0277 21.3236 9.64823 20.9387 9.387 20.476C8.97402 21.0788 8.3827 21.5373 7.69598 21.7871C7.00927 22.0369 6.26158 22.0655 5.5578 21.8689C4.85401 21.6722 4.22941 21.2603 3.7716 20.6907C3.31379 20.1212 3.04572 19.4226 3.005 18.693L3 18.499V11C3 8.61305 3.94821 6.32387 5.63604 4.63604C7.32387 2.94821 9.61305 2 12 2ZM12 4C10.185 3.99997 8.44098 4.70489 7.13577 5.96607C5.83056 7.22726 5.06623 8.94609 5.004 10.76L5 11V18.446L5.002 18.584C5.01923 18.8838 5.12604 19.1715 5.3086 19.4099C5.49116 19.6483 5.74107 19.8264 6.02599 19.9212C6.31091 20.016 6.61773 20.0231 6.90672 19.9416C7.19572 19.8601 7.45361 19.6937 7.647 19.464L7.735 19.348C7.92648 19.0672 8.18636 18.8399 8.49009 18.6874C8.79382 18.535 9.13139 18.4624 9.47094 18.4766C9.81049 18.4908 10.1408 18.5913 10.4307 18.7687C10.7207 18.946 10.9606 19.1942 11.128 19.49C11.2147 19.6443 11.3409 19.7728 11.4936 19.8623C11.6463 19.9518 11.8201 19.9992 11.9971 19.9995C12.1741 19.9998 12.3481 19.9531 12.5011 19.8641C12.6541 19.7751 12.7807 19.647 12.868 19.493C13.0281 19.2088 13.2552 18.9681 13.5296 18.7919C13.8041 18.6156 14.1174 18.5091 14.4424 18.4817C14.7674 18.4543 15.0942 18.5068 15.3943 18.6346C15.6943 18.7624 15.9586 18.9617 16.164 19.215L16.261 19.345C16.4347 19.5996 16.6826 19.7944 16.971 19.9031C17.2594 20.0118 17.5743 20.029 17.8728 19.9524C18.1713 19.8758 18.439 19.7091 18.6394 19.475C18.8398 19.2409 18.9633 18.9508 18.993 18.644L19 18.5V11C19 9.14348 18.2625 7.36301 16.9497 6.05025C15.637 4.7375 13.8565 4 12 4ZM12 12C13.105 12 14 13.12 14 14.5C14 15.88 13.105 17 12 17C10.895 17 10 15.88 10 14.5C10 13.12 10.895 12 12 12ZM9.5 8C9.89782 8 10.2794 8.15804 10.5607 8.43934C10.842 8.72064 11 9.10218 11 9.5C11 9.89782 10.842 10.2794 10.5607 10.5607C10.2794 10.842 9.89782 11 9.5 11C9.10218 11 8.72064 10.842 8.43934 10.5607C8.15804 10.2794 8 9.89782 8 9.5C8 9.10218 8.15804 8.72064 8.43934 8.43934C8.72064 8.15804 9.10218 8 9.5 8ZM14.5 8C14.8978 8 15.2794 8.15804 15.5607 8.43934C15.842 8.72064 16 9.10218 16 9.5C16 9.89782 15.842 10.2794 15.5607 10.5607C15.2794 10.842 14.8978 11 14.5 11C14.1022 11 13.7206 10.842 13.4393 10.5607C13.158 10.2794 13 9.89782 13 9.5C13 9.10218 13.158 8.72064 13.4393 8.43934C13.7206 8.15804 14.1022 8 14.5 8Z" fill="#000E6A" fill-opacity="0.25"/>
+						<svg
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M12 2C14.3869 2 16.6761 2.94821 18.364 4.63604C20.0518 6.32387 21 8.61305 21 11V18.5C21.0004 19.2479 20.7611 19.9763 20.3173 20.5784C19.8735 21.1804 19.2486 21.6245 18.534 21.8455C17.8194 22.0664 17.0529 22.0527 16.3467 21.8062C15.6406 21.5598 15.0319 21.0936 14.61 20.476C14.3488 20.9387 13.9693 21.3236 13.5105 21.5915C13.0516 21.8594 12.5298 22.0005 11.9985 22.0005C11.4672 22.0005 10.9454 21.8594 10.4865 21.5915C10.0277 21.3236 9.64823 20.9387 9.387 20.476C8.97402 21.0788 8.3827 21.5373 7.69598 21.7871C7.00927 22.0369 6.26158 22.0655 5.5578 21.8689C4.85401 21.6722 4.22941 21.2603 3.7716 20.6907C3.31379 20.1212 3.04572 19.4226 3.005 18.693L3 18.499V11C3 8.61305 3.94821 6.32387 5.63604 4.63604C7.32387 2.94821 9.61305 2 12 2ZM12 4C10.185 3.99997 8.44098 4.70489 7.13577 5.96607C5.83056 7.22726 5.06623 8.94609 5.004 10.76L5 11V18.446L5.002 18.584C5.01923 18.8838 5.12604 19.1715 5.3086 19.4099C5.49116 19.6483 5.74107 19.8264 6.02599 19.9212C6.31091 20.016 6.61773 20.0231 6.90672 19.9416C7.19572 19.8601 7.45361 19.6937 7.647 19.464L7.735 19.348C7.92648 19.0672 8.18636 18.8399 8.49009 18.6874C8.79382 18.535 9.13139 18.4624 9.47094 18.4766C9.81049 18.4908 10.1408 18.5913 10.4307 18.7687C10.7207 18.946 10.9606 19.1942 11.128 19.49C11.2147 19.6443 11.3409 19.7728 11.4936 19.8623C11.6463 19.9518 11.8201 19.9992 11.9971 19.9995C12.1741 19.9998 12.3481 19.9531 12.5011 19.8641C12.6541 19.7751 12.7807 19.647 12.868 19.493C13.0281 19.2088 13.2552 18.9681 13.5296 18.7919C13.8041 18.6156 14.1174 18.5091 14.4424 18.4817C14.7674 18.4543 15.0942 18.5068 15.3943 18.6346C15.6943 18.7624 15.9586 18.9617 16.164 19.215L16.261 19.345C16.4347 19.5996 16.6826 19.7944 16.971 19.9031C17.2594 20.0118 17.5743 20.029 17.8728 19.9524C18.1713 19.8758 18.439 19.7091 18.6394 19.475C18.8398 19.2409 18.9633 18.9508 18.993 18.644L19 18.5V11C19 9.14348 18.2625 7.36301 16.9497 6.05025C15.637 4.7375 13.8565 4 12 4ZM12 12C13.105 12 14 13.12 14 14.5C14 15.88 13.105 17 12 17C10.895 17 10 15.88 10 14.5C10 13.12 10.895 12 12 12ZM9.5 8C9.89782 8 10.2794 8.15804 10.5607 8.43934C10.842 8.72064 11 9.10218 11 9.5C11 9.89782 10.842 10.2794 10.5607 10.5607C10.2794 10.842 9.89782 11 9.5 11C9.10218 11 8.72064 10.842 8.43934 10.5607C8.15804 10.2794 8 9.89782 8 9.5C8 9.10218 8.15804 8.72064 8.43934 8.43934C8.72064 8.15804 9.10218 8 9.5 8ZM14.5 8C14.8978 8 15.2794 8.15804 15.5607 8.43934C15.842 8.72064 16 9.10218 16 9.5C16 9.89782 15.842 10.2794 15.5607 10.5607C15.2794 10.842 14.8978 11 14.5 11C14.1022 11 13.7206 10.842 13.4393 10.5607C13.158 10.2794 13 9.89782 13 9.5C13 9.10218 13.158 8.72064 13.4393 8.43934C13.7206 8.15804 14.1022 8 14.5 8Z"
+								fill="#000E6A"
+								fill-opacity="0.25"
+							/>
 						</svg>
-							
+
 						<div class="plugins_header-descr">
 							<h3 id="enableOTRTitle">Ghost Mode</h3>
 							<p id="enableOTRDescription">
@@ -516,16 +1253,32 @@
 						</div>
 					</div>
 					<label class="nightModeswitch">
-						<input type="checkbox" id="switch" class="plugin-toggle-ghost"/>
+						<input type="checkbox" id="switch" class="plugin-toggle-ghost" />
 						<span class="slider" id="round" style="width: 26px"></span>
 					</label>
 				</div>
 
 				<div class="plugins_header" id="pluginsHeader">
 					<div class="plugins_header-left">
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path fill-rule="evenodd" clip-rule="evenodd" d="M10.849 22C10.8259 22.0002 10.8029 22.0002 10.7798 22C9.60176 21.9927 8.47377 21.5203 7.64186 20.6861L4.31315 17.3574C3.89685 16.9413 3.5666 16.4473 3.34129 15.9036C3.11597 15.3599 3 14.7771 3 14.1885C3 13.6 3.11597 13.0172 3.34129 12.4735C3.56656 11.9298 3.89695 11.4357 4.31315 11.0197L5.57657 9.75629C5.58545 9.74672 5.59456 9.73727 5.60389 9.72797C5.61256 9.71932 5.62135 9.71087 5.63026 9.7026L11.0199 4.31293C11.4359 3.89673 11.9298 3.56656 12.4735 3.34129C13.0172 3.11597 13.6 3 14.1885 3C14.7771 3 15.3599 3.11597 15.9036 3.34129C16.4473 3.5666 16.9413 3.89685 17.3574 4.31315L20.6871 7.64293C21.1035 8.05892 21.4337 8.55287 21.6591 9.09655C21.8845 9.64039 22.0006 10.2233 22.0006 10.812C22.0006 11.4007 21.8845 11.9837 21.6591 12.5275C21.4337 13.0712 21.1031 13.5655 20.6868 13.9815L15.2974 19.3699C15.2889 19.3791 15.2801 19.3882 15.2711 19.3971L14.6683 20H19.808C20.3603 20 20.808 20.4478 20.808 21C20.808 21.5523 20.3603 22 19.808 22H10.849ZM14.5862 17.2536L7.74694 10.4144L5.72714 12.4341C5.49669 12.6645 5.31365 12.9381 5.18893 13.2391C5.0642 13.5401 5 13.8627 5 14.1885C5 14.5143 5.0642 14.837 5.18893 15.1379C5.31365 15.4389 5.49647 15.7124 5.72692 15.9427L9.05821 19.274C9.51768 19.7349 10.1404 19.9957 10.7911 20H10.8407C11.1541 19.997 11.4641 19.9343 11.7542 19.8153C12.058 19.6906 12.334 19.5066 12.5658 19.274L14.5862 17.2536Z" fill="#000E6A" fill-opacity="0.25"/>
-							<path d="M8 1.39604L6.59406 0L4.49505 2.09901L2.39604 0L1 1.39604L3.09901 3.49505L1 5.59406L2.39604 7L4.49505 4.89109L6.59406 7L8 5.59406L5.89109 3.49505L8 1.39604Z" fill="#000E6A" fill-opacity="0.25"/>
+						<svg
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								fill-rule="evenodd"
+								clip-rule="evenodd"
+								d="M10.849 22C10.8259 22.0002 10.8029 22.0002 10.7798 22C9.60176 21.9927 8.47377 21.5203 7.64186 20.6861L4.31315 17.3574C3.89685 16.9413 3.5666 16.4473 3.34129 15.9036C3.11597 15.3599 3 14.7771 3 14.1885C3 13.6 3.11597 13.0172 3.34129 12.4735C3.56656 11.9298 3.89695 11.4357 4.31315 11.0197L5.57657 9.75629C5.58545 9.74672 5.59456 9.73727 5.60389 9.72797C5.61256 9.71932 5.62135 9.71087 5.63026 9.7026L11.0199 4.31293C11.4359 3.89673 11.9298 3.56656 12.4735 3.34129C13.0172 3.11597 13.6 3 14.1885 3C14.7771 3 15.3599 3.11597 15.9036 3.34129C16.4473 3.5666 16.9413 3.89685 17.3574 4.31315L20.6871 7.64293C21.1035 8.05892 21.4337 8.55287 21.6591 9.09655C21.8845 9.64039 22.0006 10.2233 22.0006 10.812C22.0006 11.4007 21.8845 11.9837 21.6591 12.5275C21.4337 13.0712 21.1031 13.5655 20.6868 13.9815L15.2974 19.3699C15.2889 19.3791 15.2801 19.3882 15.2711 19.3971L14.6683 20H19.808C20.3603 20 20.808 20.4478 20.808 21C20.808 21.5523 20.3603 22 19.808 22H10.849ZM14.5862 17.2536L7.74694 10.4144L5.72714 12.4341C5.49669 12.6645 5.31365 12.9381 5.18893 13.2391C5.0642 13.5401 5 13.8627 5 14.1885C5 14.5143 5.0642 14.837 5.18893 15.1379C5.31365 15.4389 5.49647 15.7124 5.72692 15.9427L9.05821 19.274C9.51768 19.7349 10.1404 19.9957 10.7911 20H10.8407C11.1541 19.997 11.4641 19.9343 11.7542 19.8153C12.058 19.6906 12.334 19.5066 12.5658 19.274L14.5862 17.2536Z"
+								fill="#000E6A"
+								fill-opacity="0.25"
+							/>
+							<path
+								d="M8 1.39604L6.59406 0L4.49505 2.09901L2.39604 0L1 1.39604L3.09901 3.49505L1 5.59406L2.39604 7L4.49505 4.89109L6.59406 7L8 5.59406L5.89109 3.49505L8 1.39604Z"
+								fill="#000E6A"
+								fill-opacity="0.25"
+							/>
 						</svg>
 
 						<div class="plugins_header-descr">
@@ -536,12 +1289,630 @@
 						</div>
 					</div>
 					<label class="nightModeswitch">
-						<input type="checkbox" id="switch" class="plugin-toggle-purge"/>
+						<input type="checkbox" id="switch" class="plugin-toggle-purge" />
 						<span class="slider" id="round" style="width: 26px"></span>
 					</label>
 				</div>
-					
+
+				<div class="plugins_header" id="pluginsHeader">
+					<div class="plugins_header-left">
+						<svg
+							width="21"
+							height="20"
+							viewBox="0 0 21 20"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								fill-rule="evenodd"
+								clip-rule="evenodd"
+								d="M9.89713 16.9405L5.19146 19.8233C4.70221 20.123 4.06256 19.9694 3.76281 19.48C3.61641 19.2411 3.57277 18.9531 3.64178 18.6815L4.37021 15.8144C4.63317 14.7793 5.3414 13.9142 6.30404 13.452L11.4376 10.9873C11.6771 10.8724 11.7779 10.5852 11.663 10.3459C11.5699 10.1521 11.3594 10.0436 11.1476 10.0802L5.43322 11.0695C4.27165 11.2706 3.08044 10.9499 2.17688 10.1927L0.371661 8.6799C-0.0681392 8.3113 -0.12588 7.65596 0.242678 7.21619C0.421938 7.00231 0.679708 6.86955 0.957945 6.84777L6.47341 6.41607C6.86304 6.38556 7.20264 6.13901 7.3522 5.77791L9.47999 0.641617C9.69959 0.111487 10.3074 -0.140236 10.8375 0.0793774C11.092 0.184823 11.2943 0.387067 11.3998 0.641617L13.5275 5.77791C13.6772 6.13901 14.0167 6.38556 14.4064 6.41607L19.9522 6.85012C20.5242 6.8949 20.9517 7.39495 20.9069 7.96701C20.8853 8.2422 20.7552 8.49748 20.5452 8.67662L16.3156 12.2824C16.0179 12.5362 15.8879 12.9358 15.9795 13.3162L17.2798 18.7179C17.4141 19.2757 17.0707 19.8368 16.5129 19.9712C16.2448 20.0357 15.962 19.991 15.7269 19.8469L10.9827 16.9405C10.6496 16.7365 10.2302 16.7365 9.89713 16.9405Z"
+								fill="white"
+								fill-opacity="0.25"
+							/>
+						</svg>
+
+						<div class="plugins_header-descr">
+							<h3 id="enableOTRTitle">Premium Bypass</h3>
+							<p id="enableOTRDescription">
+								Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+							</p>
+						</div>
+					</div>
+					<label class="nightModeswitch">
+						<input type="checkbox" id="switch" class="plugin-toggle-purge" />
+						<span class="slider" id="round" style="width: 26px"></span>
+					</label>
+				</div>
+
 				<div id="pluginsMessages"></div>
+			</div>
+
+			<div class="setting_corr" id="settingsPanel">
+				<div class="setting_corr-content">
+					<div class="header_settings">
+						<button id="back-button">
+							<svg
+								width="16"
+								height="16"
+								viewBox="0 0 16 16"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="M16 7H3.83L9.42 1.41L8 0L0 8L8 16L9.41 14.59L3.83 9H16V7Z"
+									fill="white"
+								/>
+							</svg>
+							Back
+						</button>
+
+						<button>Save</button>
+					</div>
+
+					<div class="base_settings">
+						<h3>Base Settings</h3>
+
+						<div class="base_block-settings">
+							<div class="blocks1">
+								<div class="blocks_left">
+									<svg
+										width="16"
+										height="13"
+										viewBox="0 0 16 13"
+										fill="none"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path
+											d="M5.8775 2L7.3775 3.5H14V11H2V2H5.8775ZM6.5 0.5H2C1.175 0.5 0.5075 1.175 0.5075 2L0.5 11C0.5 11.825 1.175 12.5 2 12.5H14C14.825 12.5 15.5 11.825 15.5 11V3.5C15.5 2.675 14.825 2 14 2H8L6.5 0.5Z"
+											fill="white"
+											fill-opacity="0.25"
+										/>
+									</svg>
+									<h4>Setting name</h4>
+								</div>
+								<label class="nightModeswitch blocks_small">
+									<input
+										type="checkbox"
+										id="switch"
+										class="plugin-toggle-purge"
+									/>
+									<span class="slider" id="round" style="width: 26px"></span>
+								</label>
+							</div>
+							<div class="blocks1">
+								<div class="blocks_left">
+									<svg
+										width="16"
+										height="13"
+										viewBox="0 0 16 13"
+										fill="none"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path
+											d="M5.8775 2L7.3775 3.5H14V11H2V2H5.8775ZM6.5 0.5H2C1.175 0.5 0.5075 1.175 0.5075 2L0.5 11C0.5 11.825 1.175 12.5 2 12.5H14C14.825 12.5 15.5 11.825 15.5 11V3.5C15.5 2.675 14.825 2 14 2H8L6.5 0.5Z"
+											fill="white"
+											fill-opacity="0.25"
+										/>
+									</svg>
+									<h4>Setting name</h4>
+								</div>
+								<label class="nightModeswitch blocks_small">
+									<input
+										type="checkbox"
+										id="switch"
+										class="plugin-toggle-purge"
+									/>
+									<span class="slider" id="round" style="width: 26px"></span>
+								</label>
+							</div>
+							<div class="blocks1">
+								<div class="blocks_left">
+									<svg
+										width="16"
+										height="13"
+										viewBox="0 0 16 13"
+										fill="none"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path
+											d="M5.8775 2L7.3775 3.5H14V11H2V2H5.8775ZM6.5 0.5H2C1.175 0.5 0.5075 1.175 0.5075 2L0.5 11C0.5 11.825 1.175 12.5 2 12.5H14C14.825 12.5 15.5 11.825 15.5 11V3.5C15.5 2.675 14.825 2 14 2H8L6.5 0.5Z"
+											fill="white"
+											fill-opacity="0.25"
+										/>
+									</svg>
+									<h4>Setting name</h4>
+								</div>
+								<label class="nightModeswitch blocks_small">
+									<input
+										type="checkbox"
+										id="switch"
+										class="plugin-toggle-purge"
+									/>
+									<span class="slider" id="round" style="width: 26px"></span>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<div class="base_settings">
+						<h3>Settings with Additional text</h3>
+
+						<div class="base_block-setting_add">
+							<div class="blocks1_add">
+								<div class="blocks_left-title">
+									<h4>Setting with additional text</h4>
+									<p>Additional text</p>
+								</div>
+								<label class="nightModeswitch blocks_small">
+									<input
+										type="checkbox"
+										id="switch"
+										class="plugin-toggle-purge"
+									/>
+									<span class="slider" id="round" style="width: 26px"></span>
+								</label>
+							</div>
+							<div class="blocks1_add">
+								<div class="blocks_left-title">
+									<h4>Setting with additional text</h4>
+									<p>Additional text</p>
+								</div>
+								<label class="nightModeswitch blocks_small">
+									<input
+										type="checkbox"
+										id="switch"
+										class="plugin-toggle-purge"
+									/>
+									<span class="slider" id="round" style="width: 26px"></span>
+								</label>
+							</div>
+							<div class="blocks1_add">
+								<div class="blocks_left-title">
+									<h4>Setting with additional text</h4>
+									<p>Additional text</p>
+								</div>
+								<label class="nightModeswitch blocks_small">
+									<input
+										type="checkbox"
+										id="switch"
+										class="plugin-toggle-purge"
+									/>
+									<span class="slider" id="round" style="width: 26px"></span>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<div class="base_settings">
+						<h3>Setting with Icon</h3>
+
+						<div class="base_block-settings">
+							<div class="blocks1">
+								<div class="blocks_left-custom">
+									<div class="blocks_left">
+										<svg
+											width="16"
+											height="13"
+											viewBox="0 0 16 13"
+											fill="none"
+											xmlns="http://www.w3.org/2000/svg"
+										>
+											<path
+												d="M5.8775 2L7.3775 3.5H14V11H2V2H5.8775ZM6.5 0.5H2C1.175 0.5 0.5075 1.175 0.5075 2L0.5 11C0.5 11.825 1.175 12.5 2 12.5H14C14.825 12.5 15.5 11.825 15.5 11V3.5C15.5 2.675 14.825 2 14 2H8L6.5 0.5Z"
+												fill="white"
+												fill-opacity="0.25"
+											/>
+										</svg>
+										<h4>Setting with Ico</h4>
+									</div>
+
+									<div class="folder_open">
+										<div class="folders_check">
+											<div class="custom-checkbox"><span></span></div>
+											<label>Setting name Active</label>
+										</div>
+										<div class="folders_check">
+											<div class="custom-checkbox"><span></span></div>
+											<label>Setting name Active</label>
+										</div>
+										<div class="folders_check">
+											<div class="custom-checkbox"><span></span></div>
+											<label>Setting name Active</label>
+										</div>
+									</div>
+								</div>
+								<label class="nightModeswitch blocks_small">
+									<input
+										type="checkbox"
+										id="switch"
+										class="plugin-toggle-purge"
+									/>
+									<span class="slider" id="round" style="width: 26px"></span>
+								</label>
+							</div>
+							<div class="blocks1">
+								<div class="blocks_left">
+									<svg
+										width="16"
+										height="13"
+										viewBox="0 0 16 13"
+										fill="none"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path
+											d="M5.8775 2L7.3775 3.5H14V11H2V2H5.8775ZM6.5 0.5H2C1.175 0.5 0.5075 1.175 0.5075 2L0.5 11C0.5 11.825 1.175 12.5 2 12.5H14C14.825 12.5 15.5 11.825 15.5 11V3.5C15.5 2.675 14.825 2 14 2H8L6.5 0.5Z"
+											fill="white"
+											fill-opacity="0.25"
+										/>
+									</svg>
+									<h4>Setting with Ico</h4>
+								</div>
+								<label class="nightModeswitch blocks_small">
+									<input
+										type="checkbox"
+										id="switch"
+										class="plugin-toggle-purge"
+									/>
+									<span class="slider" id="round" style="width: 26px"></span>
+								</label>
+							</div>
+							<div class="blocks1">
+								<div class="blocks_left">
+									<svg
+										width="16"
+										height="13"
+										viewBox="0 0 16 13"
+										fill="none"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path
+											d="M5.8775 2L7.3775 3.5H14V11H2V2H5.8775ZM6.5 0.5H2C1.175 0.5 0.5075 1.175 0.5075 2L0.5 11C0.5 11.825 1.175 12.5 2 12.5H14C14.825 12.5 15.5 11.825 15.5 11V3.5C15.5 2.675 14.825 2 14 2H8L6.5 0.5Z"
+											fill="white"
+											fill-opacity="0.25"
+										/>
+									</svg>
+									<h4>Setting with Ico</h4>
+								</div>
+								<label class="nightModeswitch blocks_small">
+									<input
+										type="checkbox"
+										id="switch"
+										class="plugin-toggle-purge"
+									/>
+									<span class="slider" id="round" style="width: 26px"></span>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<div class="base_settings">
+						<h3>Setting with Radio buttons</h3>
+
+						<div class="base_block-settings radio_block">
+							<div class="blocks1">
+								<div class="blocks_left-custom">
+									<div class="blocks_left">
+										<h4>Setting name Default</h4>
+									</div>
+								</div>
+								<div class="custom-radio"><span></span></div>
+							</div>
+							<div class="blocks1">
+								<div class="blocks_left">
+									<h4>Setting name Active</h4>
+								</div>
+								<div class="custom-radio"><span></span></div>
+							</div>
+							<div class="blocks1">
+								<div class="blocks_left">
+									<h4>Setting name Disable</h4>
+								</div>
+								<div class="custom-radio"><span></span></div>
+							</div>
+						</div>
+					</div>
+
+					<div class="base_settings">
+						<h3>Setting with Checkbox</h3>
+
+						<div class="base_block-settings radio_block">
+							<div class="blocks1">
+								<div class="blocks_left-custom">
+									<div class="blocks_left">
+										<h4>Setting name Default</h4>
+									</div>
+								</div>
+								<div class="custom-checkbox"><span></span></div>
+							</div>
+							<div class="blocks1">
+								<div class="blocks_left">
+									<h4>Setting name Active</h4>
+								</div>
+								<div class="custom-checkbox"><span></span></div>
+							</div>
+							<div class="blocks1">
+								<div class="blocks_left">
+									<h4>Setting name Disable</h4>
+								</div>
+								<div class="custom-checkbox"><span></span></div>
+							</div>
+						</div>
+					</div>
+
+					<div class="base_settings">
+						<h3>Setting with Text (inputs)</h3>
+
+						<div class="base_block-settings inputs-text_block">
+							<div class="blocks1">
+								<div class="blocks_left-custom">
+									<div class="blocks_left">
+										<h4>Setting name Default</h4>
+									</div>
+								</div>
+								<button class="text_blocks">Can be changed</button>
+							</div>
+							<div class="blocks1">
+								<div class="blocks_left">
+									<h4>Setting name Active</h4>
+								</div>
+								<button class="text_blocks">Can be changed</button>
+							</div>
+							<div class="blocks1">
+								<div class="blocks_left">
+									<h4>Setting name Disable</h4>
+								</div>
+								<button class="text_blocks">Can be changed</button>
+							</div>
+						</div>
+					</div>
+
+					<div class="base_settings">
+						<h3>Settings with Additional text</h3>
+
+						<div class="base_block-setting_add">
+							<div class="blocks1_add block_wrap">
+								<div class="blocks_left-title full-width">
+									<h4>Setting with additional text</h4>
+									<p>Additional text</p>
+								</div>
+								<div class="dropdown-container">
+									<div class="dropdown">
+										<div class="dropdown-toggle">
+											<span>Dropdown name 3</span>
+											<svg
+												width="12"
+												height="7"
+												viewBox="0 0 12 7"
+												fill="none"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path
+													fill-rule="evenodd"
+													clip-rule="evenodd"
+													d="M6.59172 0.369219L11.3059 5.08339L10.1276 6.26172L6.00255 2.13672L1.87755 6.26172L0.699219 5.08339L5.41339 0.369219C5.56966 0.212993 5.78158 0.12523 6.00255 0.12523C6.22352 0.12523 6.43545 0.212993 6.59172 0.369219Z"
+													fill="#419FD9"
+												/>
+											</svg>
+										</div>
+										<div class="dropdown-menu">
+											<div class="dropdown-item">Option 1</div>
+											<div class="dropdown-item">Option 2</div>
+											<div class="dropdown-item">Option 3</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="blocks1_add block_wrap">
+								<div class="blocks_left-title full-width">
+									<h4>Setting with additional text</h4>
+									<p>Additional text</p>
+								</div>
+
+								<div class="dropdown-container">
+									<div class="dropdown">
+										<div class="dropdown-toggle">
+											<span>Dropdown name 3</span>
+											<svg
+												width="12"
+												height="7"
+												viewBox="0 0 12 7"
+												fill="none"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path
+													fill-rule="evenodd"
+													clip-rule="evenodd"
+													d="M6.59172 0.369219L11.3059 5.08339L10.1276 6.26172L6.00255 2.13672L1.87755 6.26172L0.699219 5.08339L5.41339 0.369219C5.56966 0.212993 5.78158 0.12523 6.00255 0.12523C6.22352 0.12523 6.43545 0.212993 6.59172 0.369219Z"
+													fill="#419FD9"
+												/>
+											</svg>
+										</div>
+										<div class="dropdown-menu">
+											<div class="dropdown-item">Option 1</div>
+											<div class="dropdown-item">Option 2</div>
+											<div class="dropdown-item">Option 3</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="blocks1_add block_wrap">
+								<div class="blocks_left-title full-width">
+									<h4>Setting with additional text</h4>
+									<p>Additional text</p>
+								</div>
+								<div class="dropdown-container">
+									<div class="dropdown">
+										<div class="dropdown-toggle">
+											<span>Dropdown name 3</span>
+											<svg
+												width="12"
+												height="7"
+												viewBox="0 0 12 7"
+												fill="none"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path
+													fill-rule="evenodd"
+													clip-rule="evenodd"
+													d="M6.59172 0.369219L11.3059 5.08339L10.1276 6.26172L6.00255 2.13672L1.87755 6.26172L0.699219 5.08339L5.41339 0.369219C5.56966 0.212993 5.78158 0.12523 6.00255 0.12523C6.22352 0.12523 6.43545 0.212993 6.59172 0.369219Z"
+													fill="#419FD9"
+												/>
+											</svg>
+										</div>
+										<div class="dropdown-menu">
+											<div class="dropdown-item">Option 1</div>
+											<div class="dropdown-item">Option 2</div>
+											<div class="dropdown-item">Option 3</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="base_settings">
+						<h3>Table's Name</h3>
+
+						<div class="table_setting-block">
+							<div class="col-left" id="col-left">
+								<button class="option">Option 1</button>
+								<button class="option">Option 2</button>
+								<button class="option">Option 3</button>
+								<button class="option">Option 4</button>
+							</div>
+
+							<div class="controler">
+								<button id="add-button" disabled>
+									<svg
+										width="12"
+										height="7"
+										viewBox="0 0 12 7"
+										fill="none"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path
+											fill-rule="evenodd"
+											clip-rule="evenodd"
+											d="M6.59172 0.369219L11.3059 5.08339L10.1276 6.26172L6.00255 2.13672L1.87755 6.26172L0.699219 5.08339L5.41339 0.369219C5.56966 0.212993 5.78158 0.12523 6.00255 0.12523C6.22352 0.12523 6.43545 0.212993 6.59172 0.369219Z"
+											fill="#419FD9"
+										/></svg
+									>Add
+								</button>
+								<button id="remove-button" disabled>
+									Remove
+									<span>
+										<svg
+											width="12"
+											height="7"
+											viewBox="0 0 12 7"
+											fill="none"
+											xmlns="http://www.w3.org/2000/svg"
+										>
+											<path
+												fill-rule="evenodd"
+												clip-rule="evenodd"
+												d="M6.59172 0.369219L11.3059 5.08339L10.1276 6.26172L6.00255 2.13672L1.87755 6.26172L0.699219 5.08339L5.41339 0.369219C5.56966 0.212993 5.78158 0.12523 6.00255 0.12523C6.22352 0.12523 6.43545 0.212993 6.59172 0.369219Z"
+												fill="#419FD9"
+											/>
+										</svg>
+									</span>
+								</button>
+							</div>
+
+							<div class="col-right" id="col-right">
+								<button class="option">Option 5</button>
+								<button class="option">Option 6</button>
+								<button class="option">Option 7</button>
+								<button class="option">Option 8</button>
+							</div>
+						</div>
+					</div>
+
+					<div class="base_settings last_block">
+						<h3>Settings with Dropdown</h3>
+
+						<div class="setting-fix_icons">
+							<div class="header_fix-icons">
+								<h4>Selected icons</h4>
+
+								<div class="action-btn_size">
+									<button>24 px</button>
+									<button>128 px</button>
+								</div>
+							</div>
+							<div class="icons_block">
+								<div class="icon1">
+									<img src="images/Icon (1).svg" alt="" class="close_icon" />
+									<svg
+										width="22"
+										height="18"
+										viewBox="0 0 22 18"
+										fill="none"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path
+											d="M13.9921 10.341C13.9921 10.1049 13.751 9.94546 13.5337 10.0378L4.58704 13.8381C4.50946 13.8711 4.44746 13.9322 4.41885 14.0115C4.33855 14.234 4.18688 14.7295 4.21333 15.2382C4.26854 16.3007 5.56688 17.5152 6.00748 17.898C6.0965 17.9754 6.21996 17.9938 6.32639 17.943C6.5039 17.8583 6.7826 17.7081 6.99521 17.5143C7.14259 17.38 7.28997 14.3885 7.32473 13.6377C7.32967 13.5311 7.38564 13.4335 7.47524 13.3755L8.51476 12.7029C8.65705 12.6108 8.84596 12.6417 8.95153 12.7743L12.1995 16.8531C12.3071 16.9882 12.5007 17.0173 12.6433 16.9198L13.8486 16.0951C13.9384 16.0337 13.9921 15.9319 13.9921 15.8231L13.9921 10.341Z"
+											fill="#419FD9"
+										/>
+										<path
+											d="M9.8084 4.69097C10.0576 4.73296 10.1688 5.02835 10.009 5.22419L3.67588 12.9872C3.62069 13.0548 3.54124 13.0979 3.45399 13.101C3.21542 13.1096 2.70118 13.1022 2.22788 12.9235C1.23257 12.5478 0.470488 10.9416 0.239794 10.4054C0.193184 10.2971 0.2132 10.1739 0.293951 10.0879C0.42863 9.94457 0.6564 9.72474 0.905704 9.58115C1.07853 9.48162 3.97313 10.251 4.69892 10.4463C4.80198 10.474 4.91194 10.4504 4.99443 10.3826L5.94705 9.60047C6.07983 9.49145 6.10656 9.2987 6.00846 9.15766L3.38198 5.38145C3.28121 5.23657 3.31248 5.03801 3.45291 4.93112L4.74937 3.94426C4.82184 3.88911 4.91389 3.8664 5.00369 3.88153L9.8084 4.69097Z"
+											fill="#419FD9"
+										/>
+										<path
+											fill-rule="evenodd"
+											clip-rule="evenodd"
+											d="M14.975 8.65808C14.9388 8.71604 14.8855 8.76131 14.8224 8.7876L5.94718 12.4856C5.63539 12.6155 5.3533 12.248 5.55937 11.9804L11.2331 4.61195C11.2731 4.55998 11.3277 4.52113 11.39 4.50039L14.0376 3.61783C14.0633 3.60926 14.0878 3.59759 14.1108 3.58308C14.1654 3.54851 14.2833 3.4743 14.4513 3.37069C13.7679 4.10711 13.4895 4.91675 13.8286 5.35361C13.9083 5.4562 14.9194 5.7124 16.5216 4.36361C18.1238 3.01482 17.8704 2.42473 17.7408 2.31672C17.4943 2.11136 17.1743 1.9801 16.7262 2.04843C17.6246 1.55913 18.6166 1.0626 19.4715 0.738736C19.9594 0.553934 20.6067 0.348026 21.1001 0.197403C21.3764 0.113036 21.6103 0.399647 21.4705 0.652541C21.2757 1.00517 21.0324 1.42929 20.8203 1.75033C19.616 3.57361 17.0098 5.72115 16.6475 6.01555C16.6187 6.03895 16.5953 6.06567 16.5756 6.09714L14.975 8.65808ZM16.7262 2.04843C16.2132 2.12666 15.5974 2.40352 15.0208 2.85114C14.8089 3.01564 14.618 3.19099 14.4513 3.37069C14.9171 3.08341 15.7685 2.57002 16.7262 2.04843Z"
+											fill="#419FD9"
+										/>
+									</svg>
+								</div>
+
+								<div class="icon1">
+									<img src="images/Icon (1).svg" alt="" class="close_icon" />
+									<svg
+										width="20"
+										height="22"
+										viewBox="0 0 20 22"
+										fill="none"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path
+											d="M9.99023 0.583008C10.6143 0.583008 11.2516 0.67281 11.7588 0.862305L16.4639 2.62598L16.7363 2.74219C18.0796 3.3832 19.0808 4.9272 19.0811 6.39844V13.4053C19.0809 14.129 18.8547 14.9251 18.4961 15.6387C18.1374 16.3522 17.6333 17.0084 17.0527 17.4414L12.998 20.4688C12.159 21.1141 11.0776 21.4297 9.99902 21.4297C8.91852 21.4295 7.83913 21.1126 6.9834 20.4785L6.98242 20.4775L2.92773 17.4512C2.34682 17.0179 1.84293 16.359 1.48438 15.6445C1.12593 14.9301 0.900548 14.1342 0.900391 13.415V6.39844C0.900695 4.82932 2.03837 3.17687 3.5166 2.62598L8.22266 0.862305L8.41797 0.795898C8.8881 0.65171 9.44421 0.583023 9.99023 0.583008ZM10.002 2.5625C9.64049 2.56351 9.29269 2.6073 9.02832 2.68652L8.91992 2.72266L4.21484 4.48633L4.21387 4.48535C3.88112 4.61112 3.54716 4.89736 3.29395 5.26367C3.04061 5.63035 2.88965 6.0473 2.88965 6.40918V13.415C2.88983 13.8047 3.03067 14.2978 3.26465 14.7646C3.49883 15.2318 3.80842 15.6371 4.11523 15.8662L8.16992 18.8936L8.35938 19.0215C8.81986 19.3 9.40452 19.4443 10.001 19.4443C10.6824 19.4443 11.3512 19.2545 11.8398 18.8926L15.8926 15.8662C16.2048 15.6321 16.5153 15.226 16.748 14.7607C16.9804 14.2958 17.119 13.8051 17.1191 13.415V6.39844C17.119 6.04206 16.9693 5.62776 16.7158 5.26074C16.4621 4.89374 16.1258 4.60463 15.791 4.47461L11.0938 2.71484C10.8137 2.6161 10.4144 2.56142 10.002 2.5625ZM7.22754 7.51855C7.59553 7.15062 8.20219 7.15082 8.57031 7.51855L10.0186 8.9668L11.4277 7.55859C11.7957 7.19066 12.4024 7.19086 12.7705 7.55859C13.1385 7.92669 13.1385 8.53328 12.7705 8.90137L11.3613 10.3096L12.8203 11.7686C13.1883 12.1366 13.1883 12.7432 12.8203 13.1113L12.8154 13.1162C12.6326 13.2867 12.3943 13.3896 12.1484 13.3896C11.9086 13.3894 11.6667 13.3005 11.4775 13.1113L10.0186 11.6523L8.52051 13.1514C8.33698 13.3446 8.08233 13.4297 7.84863 13.4297C7.60883 13.4294 7.36693 13.3405 7.17773 13.1514C6.8101 12.7833 6.8101 12.1766 7.17773 11.8086L8.67578 10.3096L7.22754 8.86133C6.8599 8.49331 6.8599 7.88658 7.22754 7.51855Z"
+											fill="#FF2642"
+										/>
+									</svg>
+								</div>
+							</div>
+
+							<div class="available_block">
+								<div class="header_fix-icons">
+									<h4>Available icons</h4>
+								</div>
+								<div class="icons_block">
+									<div class="icon1">
+										<img
+											src="images/Property 1=Add.svg"
+											alt=""
+											class="close_icon"
+										/>
+										<svg
+											width="20"
+											height="22"
+											viewBox="0 0 20 22"
+											fill="none"
+											xmlns="http://www.w3.org/2000/svg"
+										>
+											<path
+												d="M9.99023 0.583008C10.6143 0.583008 11.2516 0.67281 11.7588 0.862305L16.4639 2.62598L16.7363 2.74219C18.0796 3.38319 19.0807 4.92722 19.0811 6.39844V13.4053C19.0809 14.129 18.8547 14.9251 18.4961 15.6387C18.1374 16.3522 17.6333 17.0084 17.0527 17.4414L12.998 20.4688C12.159 21.1141 11.0776 21.4297 9.99902 21.4297C8.91852 21.4295 7.83913 21.1126 6.9834 20.4785L6.98242 20.4775L2.92773 17.4512C2.34682 17.0179 1.84292 16.359 1.48438 15.6445C1.12592 14.93 0.900536 14.1342 0.900391 13.415V6.39844C0.900724 4.82934 2.03839 3.17686 3.5166 2.62598L8.22266 0.862305L8.41797 0.795898C8.8881 0.65171 9.44421 0.583023 9.99023 0.583008ZM10.002 2.5625C9.6405 2.56351 9.29268 2.6073 9.02832 2.68652L8.91992 2.72266L4.21484 4.48633L4.21387 4.48535C3.88112 4.61112 3.54716 4.89736 3.29395 5.26367C3.0406 5.63036 2.88965 6.04729 2.88965 6.40918V13.415C2.88982 13.8047 3.03067 14.2978 3.26465 14.7646C3.49883 15.2318 3.80842 15.6371 4.11523 15.8662L8.16992 18.8936L8.35938 19.0215C8.81986 19.3 9.40451 19.4443 10.001 19.4443C10.6824 19.4443 11.3512 19.2545 11.8398 18.8926L15.8926 15.8662C16.2048 15.6321 16.5153 15.226 16.748 14.7607C16.9804 14.2958 17.119 13.8051 17.1191 13.415V6.39844C17.1189 6.04206 16.9693 5.62775 16.7158 5.26074C16.4621 4.89385 16.1257 4.60567 15.791 4.47559L11.0938 2.71484C10.8137 2.6161 10.4144 2.56142 10.002 2.5625ZM12.2891 7.50879C12.657 7.14089 13.2637 7.14109 13.6318 7.50879C13.9994 7.87692 13.9997 8.48362 13.6318 8.85156L9.33203 13.1514C9.14265 13.3407 8.90019 13.4296 8.66016 13.4297C8.42036 13.4296 8.17853 13.3404 7.98926 13.1514L6.37891 11.542C6.01121 11.1739 6.01103 10.5662 6.37891 10.1982C6.74684 9.83061 7.35361 9.83082 7.72168 10.1982L8.66016 11.1367L12.2891 7.50879Z"
+												fill="#3BBE49"
+											/>
+										</svg>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -603,9 +1974,139 @@
 				</li>
 			</ul>
 		</div>
+
 		<script src="script.js"></script>
+		<script src="renderer.js"></script>
 		<script>
 			document.addEventListener('DOMContentLoaded', function () {
+				const colLeft = document.getElementById('col-left')
+				const colRight = document.getElementById('col-right')
+				const addButton = document.getElementById('add-button')
+				const removeButton = document.getElementById('remove-button')
+				const options = document.querySelectorAll('.option')
+
+				options.forEach(option => {
+					option.addEventListener('click', () => {
+						option.classList.toggle('selected')
+						updateButtonState()
+					})
+				})
+
+				function updateButtonState() {
+					const leftSelected = colLeft.querySelectorAll('.selected').length > 0
+					const rightSelected =
+						colRight.querySelectorAll('.selected').length > 0
+
+					addButton.disabled = !rightSelected
+					addButton.classList.toggle('active', rightSelected)
+
+					removeButton.disabled = !leftSelected
+					removeButton.classList.toggle('active', leftSelected)
+				}
+
+				addButton.addEventListener('click', () => {
+					const selectedItems = colRight.querySelectorAll('.selected')
+					if (selectedItems.length === 0) return
+
+					selectedItems.forEach(item => {
+						item.classList.add('moving')
+						colLeft.appendChild(item)
+						setTimeout(() => {
+							item.classList.remove('moving')
+							item.classList.remove('selected')
+							updateButtonState()
+						}, 500)
+					})
+					updateButtonState()
+				})
+
+				removeButton.addEventListener('click', () => {
+					const selectedItems = colLeft.querySelectorAll('.selected')
+					if (selectedItems.length === 0) return
+					selectedItems.forEach(item => {
+						item.classList.add('moving')
+						colRight.appendChild(item)
+						setTimeout(() => {
+							item.classList.remove('moving')
+							item.classList.remove('selected')
+							updateButtonState()
+						}, 500)
+					})
+					updateButtonState()
+				})
+
+				const checkboxes = document.querySelectorAll('.custom-checkbox')
+				checkboxes.forEach(checkbox => {
+					checkbox.addEventListener('click', () => {
+						checkbox.classList.toggle('active')
+					})
+				})
+
+				const radios = document.querySelectorAll('.custom-radio')
+				radios.forEach(radio => {
+					radio.addEventListener('click', () => {
+						radios.forEach(r => r.classList.remove('active'))
+						radio.classList.add('active')
+					})
+				})
+
+				const buttons = document.querySelectorAll('.text_blocks')
+				buttons.forEach(button => {
+					button.addEventListener('click', () => {
+						button.classList.toggle('clicked')
+					})
+				})
+
+				const dropdownToggles = document.querySelectorAll('.dropdown-toggle')
+
+				dropdownToggles.forEach(toggle => {
+					toggle.addEventListener('click', function (e) {
+						e.stopPropagation()
+						const dropdown = this.closest('.dropdown')
+
+						document.querySelectorAll('.dropdown').forEach(d => {
+							if (d !== dropdown) {
+								d.classList.remove('open')
+							}
+						})
+
+						dropdown.classList.toggle('open')
+					})
+				})
+
+				document.querySelectorAll('.dropdown-item').forEach(item => {
+					item.addEventListener('click', function () {
+						const dropdown = this.closest('.dropdown')
+						const toggleText = dropdown.querySelector('.dropdown-toggle span')
+
+						dropdown
+							.querySelectorAll('.dropdown-item')
+							.forEach(i => i.classList.remove('selected'))
+						this.classList.add('selected')
+
+						toggleText.textContent = this.textContent
+						dropdown.classList.remove('open')
+					})
+				})
+
+				document.addEventListener('click', () => {
+					document
+						.querySelectorAll('.dropdown')
+						.forEach(d => d.classList.remove('open'))
+				})
+
+				const settingsButton = document.getElementById('settings-button')
+				const backButton = document.getElementById('back-button')
+				const settingsPanel = document.getElementById('settingsPanel')
+
+				settingsButton.addEventListener('click', function () {
+					settingsPanel.classList.add('visible')
+				})
+
+				backButton.addEventListener('click', function () {
+					settingsPanel.classList.remove('visible')
+				})
+
 				const headerSection = document.querySelector('.header__section')
 				const phoneMenu = document.querySelector('.phoneMenu')
 				const headerHeight = headerSection.offsetHeight
@@ -670,7 +2171,7 @@
 `,
 					},
 				]
-/*
+				/*
 				const pluginsMessages = document.getElementById('pluginsMessages')
 				pluginsList.forEach(plugin => {
 					const message = document.createElement('div')

@@ -41,6 +41,19 @@ body.light {
 	--editor-color-num: rgba(0, 14, 106, 0.25);
 	--link-color: rgb(153 156 179);
 	--error-message: #f44336da;
+	--block_fixeds: rgba(255, 255, 255, 1);
+	--block_fixeds-border: rgba(0, 14, 106, 0.3);
+	--fill_setting: brightness(0) saturate(100%) invert(73%) sepia(3%)
+		saturate(1268%) hue-rotate(198deg) brightness(108%) contrast(89%);
+	--setting_hover: #232f3d;
+	--borders-block: #e7ebf8;
+
+	--bg-animation: #3f9ed8;
+	--bg-animation2: #d0e6f5;
+	--color-texts: #7b83b4;
+	--bg-messages: rgba(65, 159, 217, 0.1);
+	--loading-color: rgba(0, 14, 106, 0.25);
+	--loading-color-title: rgba(0, 14, 106, 1);
 }
 
 /* Темная тема */
@@ -81,4 +94,16 @@ body.dark {
 	--editor-color-num: rgba(255, 255, 255, 0.25);
 	--link-color: rgb(91, 99, 110);
 	--error-message: #f43636ad;
+	--block_fixeds: rgb(36, 47, 61);
+	--block_fixeds-border: rgb(60, 75, 91);
+	--fill_setting: brightness(0) saturate(100%) invert(31%) sepia(4%)
+		saturate(1793%) hue-rotate(175deg) brightness(97%) contrast(84%);
+	--setting_hover: #232f3d;
+	--borders-block: #1d2630;
+	--bg-animation: #346593;
+	--bg-animation2: #1b2d3f;
+	--color-texts: #888d92;
+	--bg-messages: rgba(24, 32, 43, 0.8);
+	--loading-color: rgba(255, 255, 255, 0.25);
+	--loading-color-title: rgba(255, 255, 255, 1);
 }

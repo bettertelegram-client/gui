@@ -482,7 +482,7 @@
 				transform: translateY(-20px);
 				transition: transform 0.3s ease;
 				overflow-wrap: break-word; /* Handle long strings */
-  				word-break: break-word;
+				word-break: break-word;
 			}
 
 			.modal-content h4 {
@@ -543,9 +543,47 @@
 				opacity: 1;
 				transform: translate(-50%, 10px);
 			}
+
+			.toastify_message-update {
+				position: fixed;
+				top: 20px;
+				left: -300px;
+				display: flex;
+				align-items: center;
+				gap: 15px;
+				background: var(--bg-messages);
+				backdrop-filter: blur(10px);
+				border-radius: 10px;
+				padding: 20px;
+				min-width: 210px;
+				z-index: 999999;
+				cursor: pointer;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+				transition: left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+					opacity 0.3s ease;
+				opacity: 0;
+			}
+
+			.toastify_message-update.show {
+				left: 20px;
+				opacity: 1;
+			}
+
+			.toastify_message-update p {
+				color: rgba(65, 159, 217, 1);
+				font-weight: 600;
+				font-size: 14px;
+				line-height: 100%;
+				margin: 0;
+			}
+
+			.toastify_message-update span {
+				text-decoration: underline;
+				font-weight: 700;
+			}
 		</style>
 	</head>
-	<body>
+	<body class="light">
 		<div class="loading-container login-loading">
 			<div class="bg-circle"></div>
 			<div class="airplane airplane-left"></div>
@@ -553,6 +591,14 @@
 			<div class="airplane airplane-default"></div>
 			<div class="airplane airplane-right"></div>
 		</div>
+
+		<a href="About.html">
+			<div class="toastify_message-update" id="updateToast">
+				<img src="images/Check.svg" alt="Check" />
+				<p>A new <span>update</span> is available</p>
+			</div>
+		</a>
+
 		<div class="con">
 			<div class="header__section titlebar panel">
 				<button id="minimize-button">
@@ -689,10 +735,12 @@
 					<div id="editor" class="editorCode"></div>
 				</div>
 
-				<div class="progress-wrapper" style="display: none;">
-					<div class="download-info" id="download_info">Downloading Patch DLL: 0.00 / 0.00 Mb</div>
+				<div class="progress-wrapper" style="display: none">
+					<div class="download-info" id="download_info">
+						Downloading Patch DLL: 0.00 / 0.00 Mb
+					</div>
 					<div class="progress-container">
-					  <div class="progress-bar" id="progress_bar">0%</div>
+						<div class="progress-bar" id="progress_bar">0%</div>
 					</div>
 				</div>
 			</div>
@@ -771,6 +819,26 @@
 	<script src="script.js"></script>
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
+			const updateToast = document.getElementById('updateToast')
+
+			function showUpdateToast() {
+				updateToast.style.transition =
+					'left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease'
+				updateToast.classList.add('show')
+
+				setTimeout(() => {
+					hideUpdateToast()
+				}, 4000)
+			}
+
+			function hideUpdateToast() {
+				updateToast.style.transition = 'left 0.5s ease-in, opacity 0.3s ease'
+				updateToast.classList.remove('show')
+			}
+
+			updateToast.addEventListener('click', hideUpdateToast)
+			setTimeout(showUpdateToast, 5000)
+
 			const con = document.querySelector('.con')
 			function adjustContainer() {
 				const windowHeight = window.innerHeight
@@ -783,9 +851,12 @@
 				}
 			}
 
-			adjustContainer();
-			window.addEventListener('resize', adjustContainer);
-			document.querySelector('.linkSetting').addEventListener('click', () => window.location.href = 'Setting.html');
-		});
+			adjustContainer()
+			window.addEventListener('resize', adjustContainer)
+
+			document.querySelector('.linkSetting').addEventListener('click', () => {
+				window.location.href = 'Setting.html'
+			})
+		})
 	</script>
 </html>

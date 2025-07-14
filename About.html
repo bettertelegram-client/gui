@@ -495,9 +495,206 @@
 					font-size: 14px;
 				}
 			}
+
+			.action_btn-about {
+				width: 100%;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.action_btn-about button {
+				width: 100%;
+			}
+
+			.update-btn {
+				color: #ffffff !important;
+				font-weight: 700;
+				font-size: 14px;
+				line-height: 100%;
+				text-transform: uppercase;
+				background: var(--button-background) !important;
+				box-shadow: 0px 4px 12.6px 0px var(--button-disabled-background);
+				border-radius: 10px;
+				padding: 10px;
+				height: 40px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 10px;
+			}
+
+			.update-btn span {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+				background: #ff2642;
+			}
+
+			.animation_block-loading {
+				position: fixed;
+				top: 0;
+				left: 0;
+				z-index: 999999;
+				width: 100%;
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				background-color: var(--phonebg-color);
+				gap: 30px;
+				opacity: 0;
+				visibility: hidden;
+				transition: opacity 0.3s ease, visibility 0.3s ease;
+			}
+
+			.animation_block-loading.show {
+				opacity: 1;
+				visibility: visible;
+			}
+
+			.block_loadings {
+				position: relative;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 20px;
+				height: 350px;
+				width: 350px;
+			}
+
+			.animation_block-loading h3 {
+				font-weight: 600;
+				font-size: 14px;
+				line-height: 100%;
+				color: var(--loading-color);
+			}
+
+			.animation_block-loading h3 span {
+				cursor: pointer;
+			}
+
+			.box {
+				height: 100%;
+				width: 100%;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background: transparent;
+				border-radius: 100%;
+				overflow: hidden;
+				border: 25px solid var(--borders-block);
+			}
+
+			.percent {
+				position: absolute;
+				left: 0;
+				top: 0;
+				z-index: 3;
+				width: 100%;
+				height: 100%;
+				display: flex;
+				display: -webkit-flex;
+				align-items: center;
+				justify-content: center;
+				color: var(--loading-color-title);
+				font-size: 24px;
+				font-weight: 700;
+				line-height: 100%;
+				opacity: .5;
+			}
+
+			.water {
+				position: absolute;
+				left: 0;
+				top: 0;
+				z-index: 2;
+				width: 100%;
+				height: 100%;
+				transform: translate(0, 100%);
+				background: var(--bg-animation);
+				transition: all 0.3s;
+			}
+
+			.water_wave {
+				width: 200%;
+				position: absolute;
+				bottom: 100%;
+			}
+
+			.water_wave_back {
+				right: 0;
+				fill: var(--bg-animation2);
+				animation: wave-back 1.4s infinite linear;
+			}
+
+			.water_wave_front {
+				left: 0;
+				fill: var(--bg-animation);
+				margin-bottom: -1px;
+				animation: wave-front 0.7s infinite linear;
+			}
+
+			@keyframes wave-front {
+				100% {
+					transform: translate(-50%, 0);
+				}
+			}
+
+			@keyframes wave-back {
+				100% {
+					transform: translate(50%, 0);
+				}
+			}
+
+			.toastify_message-update {
+				position: fixed;
+				top: 9%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				display: flex;
+				align-items: center;
+				gap: 15px;
+				background: var(--bg-messages);
+				backdrop-filter: blur(10px);
+				color: rgba(65, 159, 217, 1);
+				font-weight: 600;
+				font-size: 14px;
+				line-height: 100%;
+				border-radius: 10px;
+				padding: 20px;
+				min-width: 210px;
+				opacity: 0;
+				visibility: hidden;
+				transition: opacity 0.3s ease, visibility 0.3s ease;
+				z-index: 999999;
+			}
+
+			.toastify_message-update.show {
+				opacity: 1;
+				visibility: visible;
+			}
+
+			.update-btn.disabled {
+				background: transparent !important;
+				box-shadow: none;
+				color: var(--button-background) !important;
+				cursor: not-allowed;
+				opacity: 0.25;
+			}
+
+			.update-btn.disabled svg path {
+				fill: var(--button-background);
+			}
+
+			.update-btn.disabled span {
+				display: none;
+			}
 		</style>
 	</head>
-	<body>
+	<body class="light">
 		<div class="con">
 			<div class="header__section titlebar">
 				<button id="minimize-button">
@@ -594,8 +791,8 @@
 								<h2 id="betterTelegramTitle">BetterTelegram</h2>
 								<p id="betterTelegramDescription">
 									BetterTelegram is a framework for Telegram that enhances chat
-									security with OTR encryption, stealth mode, and message protection
-									capabilities.
+									security with OTR encryption, stealth mode, and message
+									protection capabilities.
 								</p>
 								<span id="copyrightText"
 									>BetterTelegram © 2025. All rights reserved</span
@@ -645,13 +842,38 @@
 								Your app version is up to date! Product will update
 								automatically
 							</p>
-							<button id="changelogBtn" class="btnText">
-								<a href="Notes.html">Changelog</a>
-							</button>
+							<div class="action_btn-about">
+								<button class="update-btn" id="updateButton">
+									<svg
+										width="25"
+										height="24"
+										viewBox="0 0 25 24"
+										fill="none"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path
+											fill-rule="evenodd"
+											clip-rule="evenodd"
+											d="M4.84019 7.68397C4.59936 8.7676 4.5 10.1699 4.5 12C4.5 13.8301 4.59936 15.2324 4.84019 16.316C5.07849 17.3883 5.44181 18.0862 5.92779 18.5722C6.41378 19.0582 7.1117 19.4215 8.18397 19.6598C9.2676 19.9006 10.6699 20 12.5 20C14.3301 20 15.7324 19.9006 16.816 19.6598C17.8883 19.4215 18.5862 19.0582 19.0722 18.5722C19.5582 18.0862 19.9215 17.3883 20.1598 16.316C20.4006 15.2324 20.5 13.8301 20.5 12C20.5 10.1699 20.4006 8.7676 20.1598 7.68397C19.9215 6.6117 19.5582 5.91378 19.0722 5.42779C18.5862 4.94181 17.8883 4.57849 16.816 4.34019C15.7324 4.09936 14.3301 4 12.5 4C10.6699 4 9.2676 4.09936 8.18397 4.34019C7.1117 4.57849 6.41378 4.94181 5.92779 5.42779C5.44181 5.91378 5.07849 6.6117 4.84019 7.68397ZM7.75007 2.38782C9.04878 2.0992 10.6243 2 12.5 2C14.3757 2 15.9512 2.0992 17.2499 2.38782C18.56 2.67897 19.6488 3.176 20.4864 4.01358C21.324 4.85116 21.821 5.94002 22.1122 7.25007C22.4008 8.54878 22.5 10.1243 22.5 12C22.5 13.8757 22.4008 15.4512 22.1122 16.7499C21.821 18.06 21.324 19.1488 20.4864 19.9864C19.6488 20.824 18.56 21.321 17.2499 21.6122C15.9512 21.9008 14.3757 22 12.5 22C10.6243 22 9.04878 21.9008 7.75007 21.6122C6.44002 21.321 5.35116 20.824 4.51358 19.9864C3.676 19.1488 3.17897 18.06 2.88782 16.7499C2.5992 15.4512 2.5 13.8757 2.5 12C2.5 10.1243 2.5992 8.54878 2.88782 7.25007C3.17897 5.94002 3.676 4.85116 4.51358 4.01358C5.35116 3.176 6.44002 2.67897 7.75007 2.38782Z"
+											fill="#fff"
+										/>
+										<path
+											fill-rule="evenodd"
+											clip-rule="evenodd"
+											d="M11.5 10.4143V16C11.5 16.5523 11.9477 17 12.5 17C13.0523 17 13.5 16.5523 13.5 16V10.4143L14.7929 11.7071C15.1834 12.0977 15.8166 12.0977 16.2071 11.7071C16.5976 11.3166 16.5976 10.6834 16.2071 10.2929L13.2946 7.38048C13.2797 7.36552 13.2639 7.35056 13.2483 7.33663C13.0651 7.13012 12.7978 6.99998 12.5 6.99998C12.2022 6.99998 11.9349 7.13012 11.7517 7.33663C11.7361 7.35056 11.7208 7.365 11.7059 7.37996L8.7929 10.2929C8.40237 10.6834 8.40237 11.3166 8.79289 11.7071C9.18341 12.0977 9.81658 12.0977 10.2071 11.7071L11.5 10.4143Z"
+											fill="#fff"
+										/>
+									</svg>
+									Update
+									<span></span>
+								</button>
+								<button id="changelogBtn" class="btnText">
+									<a href="Notes.html">Changelog</a>
+								</button>
+							</div>
 						</div>
 					</div>
 
-					<!-- Right Section -->
 					<div class="right">
 						<div class="top" id="statusSection">
 							<div class="status">
@@ -669,13 +891,61 @@
 					</div>
 				</div>
 
-				<!-- Accordion Section -->
 				<div class="accordion">
 					<h2>FAQ</h2>
 					<div id="accordionContainer"></div>
 				</div>
 			</div>
 		</div>
+
+		<div class="animation_block-loading" id="updateContainer">
+			<div class="block_loadings">
+				<svg
+					version="1.1"
+					xmlns="http://www.w3.org/2000/svg"
+					xmlns:xlink="http://www.w3.org/1999/xlink"
+					x="0px"
+					y="0px"
+					style="display: none"
+				>
+					<symbol id="wave">
+						<path
+							d="M420,20c21.5-0.4,38.8-2.5,51.1-4.5c13.4-2.2,26.5-5.2,27.3-5.4C514,6.5,518,4.7,528.5,2.7c7.1-1.3,17.9-2.8,31.5-2.7c0,0,0,0,0,0v20H420z"
+						></path>
+						<path
+							d="M420,20c-21.5-0.4-38.8-2.5-51.1-4.5c-13.4-2.2-26.5-5.2-27.3-5.4C326,6.5,322,4.7,311.5,2.7C304.3,1.4,293.6-0.1,280,0c0,0,0,0,0,0v20H420z"
+						></path>
+						<path
+							d="M140,20c21.5-0.4,38.8-2.5,51.1-4.5c13.4-2.2,26.5-5.2,27.3-5.4C234,6.5,238,4.7,248.5,2.7c7.1-1.3,17.9-2.8,31.5-2.7c0,0,0,0,0,0v20H140z"
+						></path>
+						<path
+							d="M140,20c-21.5-0.4-38.8-2.5-51.1-4.5c-13.4-2.2-26.5-5.2-27.3-5.4C46,6.5,42,4.7,31.5,2.7C24.3,1.4,13.6-0.1,0,0c0,0,0,0,0,0l0,20H140z"
+						></path>
+					</symbol>
+				</svg>
+				<div class="box">
+					<div class="percent">
+						<div class="percentNum" id="count">0</div>
+						<div class="percentB">%</div>
+					</div>
+					<div id="water" class="water">
+						<svg viewBox="0 0 560 20" class="water_wave water_wave_back">
+							<use xlink:href="#wave"></use>
+						</svg>
+						<svg viewBox="0 0 560 20" class="water_wave water_wave_front">
+							<use xlink:href="#wave"></use>
+						</svg>
+					</div>
+				</div>
+			</div>
+			<h3>Downloading: DataFile<span id="fileName">123</span>.db</h3>
+		</div>
+
+		<div class="toastify_message-update" id="updateToast">
+			<img src="images/Check.svg" alt="Check" />
+			Update installed
+		</div>
+
 		<div class="phoneMenu">
 			<ul>
 				<li>
@@ -737,6 +1007,68 @@
 		<script src="script.js"></script>
 		<script>
 			document.addEventListener('DOMContentLoaded', function () {
+				const updateButton = document.getElementById('updateButton')
+				const updateContainer = document.getElementById('updateContainer')
+				const updateToast = document.getElementById('updateToast')
+				const fileNameElement = document.getElementById('fileName')
+
+				const fileNames = [1122, 242, 22, 6, 333, 333, 111]
+
+				if (localStorage.getItem('updateDisabled') === 'true') {
+					disableButton()
+				}
+
+				updateButton.addEventListener('click', function () {
+					if (this.disabled) return
+
+					disableButton()
+					localStorage.setItem('updateDisabled', 'true')
+
+					updateContainer.classList.add('show')
+					document.getElementById('count').textContent = '0'
+
+					let fileIndex = 0
+					const fileChangeInterval = setInterval(() => {
+						fileIndex = (fileIndex + 1) % fileNames.length
+						fileNameElement.textContent = fileNames[fileIndex]
+					}, 800)
+
+					let percent = 0
+					const cnt = document.getElementById('count')
+					const water = document.getElementById('water')
+
+					const interval = setInterval(function () {
+						percent++
+						cnt.innerHTML = percent
+						water.style.transform = `translate(0, ${100 - percent}%)`
+
+						if (percent === 100) {
+							clearInterval(interval)
+							clearInterval(fileChangeInterval)
+
+							setTimeout(() => {
+								updateToast.classList.add('show')
+							}, 2000)
+
+							setTimeout(() => {
+								updateContainer.classList.remove('show')
+
+								setTimeout(() => {
+									updateToast.classList.remove('show')
+								}, 3000)
+							}, 1000)
+						}
+					}, 60)
+				})
+
+				function disableButton() {
+					updateButton.classList.add('disabled')
+					updateButton.disabled = true
+				}
+
+				window.addEventListener('beforeunload', function () {
+					localStorage.removeItem('updateDisabled')
+				})
 				const headerSection = document.querySelector('.header__section')
 				const phoneMenu = document.querySelector('.phoneMenu')
 				const con = document.querySelector('.con')
@@ -815,66 +1147,66 @@
 
 						const content = document.createElement('div')
 						content.className = 'content'
-						
-						var faq_content = '';
+
+						var faq_content = ''
 						switch (index) {
-							case 0: 
-							faq_content = `BetterTelegram is the only plugin framework in existence which
+							case 0:
+								faq_content = `BetterTelegram is the only plugin framework in existence which
 							injects a DLL/SO/DYLIB (Windows, Linux, MacOS) into the native Telegram Client.
 							After which, it uses dynamic signature scanning, in order to hook vital MTP
-							networking functions to alter the behavior of Telegrams' functionality.`;
-							break;
+							networking functions to alter the behavior of Telegrams' functionality.`
+								break
 							case 1:
-							faq_content = `The OTR plugin performs AKE (authenticated key exchange) between you &
+								faq_content = `The OTR plugin performs AKE (authenticated key exchange) between you &
 							your peer(s) in order to securely (en/de)crypt incoming/outgoing messages. The plugin
 							takes full advantage of LibOTR (https://otr.cypherpunks.ca) to guarantee that Telegram 
 							and/or government agencies cannot monitor your communications.
 							
 							Additionally, BetterTelegram has developed a proprietary protocol which enables the use
-							of OTR communication within group chats of multiple peers.`;
-							break;
+							of OTR communication within group chats of multiple peers.`
+								break
 							case 2:
-							faq_content = `The purpose of the Message-Protection plugin is to prevent your peers
+								faq_content = `The purpose of the Message-Protection plugin is to prevent your peers
 							from deleting messages on your side. When the plugin is enabled, in any chat you are apart of
 							your buddies will not be able to force-delete messages from your side. This can be useful in
 							several scenarios, not limited to; preventing scammers from deleting messages on your side or
-							in case you would like to keep an archive of all your existing chats.`;
-							break;
+							in case you would like to keep an archive of all your existing chats.`
+								break
 							case 3:
-							faq_content = `With the Ghost-Mode plugin enabled, your Telegram client will not send read
+								faq_content = `With the Ghost-Mode plugin enabled, your Telegram client will not send read
 							receipts to your peer(s), in case you want to feel anonymous, you can read messages without
 							the other parties knowing. Additionally, the plugin will make sure that your peer(s) cannot
-							see if you are typing a message.`;
-							break;
+							see if you are typing a message.`
+								break
 							case 4:
-							faq_content = `We allow you to use the same licence on up to 2 computers. The reason behind
+								faq_content = `We allow you to use the same licence on up to 2 computers. The reason behind
 							this is simply compensational. We are putting a lot of work into the development of this project
 							As such, we are not flooding the app with ads or any other sort of monetization. So therefore we 
-							cannot allow the same licence to be reused by multiple users. Thank you for your understanding!`;
-							break;
+							cannot allow the same licence to be reused by multiple users. Thank you for your understanding!`
+								break
 							case 5:
-							faq_content = `So essentially, Telegram releases a new version update every 2-4 weeks. Usually, it
+								faq_content = `So essentially, Telegram releases a new version update every 2-4 weeks. Usually, it
 							will take us up to 3 days to determine the new function-hook signature pattern & release an update.
 							In between signature updates, we hope to receive enough feedback from users who wish to see a new
 							plugin added to the BetterTelegram framework. We will try to address every one of your requests
 							within a reasonable timeframe. Additionally, it is our goal to make a weekly routine of updates to
 							the core framework, where we will fix all reported bugs and aim to maximize the stability of use of
-							BetterTelegram.`;
-							break;
+							BetterTelegram.`
+								break
 							case 6:
-							faq_content = `We made a workaround which forcefully disables Telegrams update behavior, in order
+								faq_content = `We made a workaround which forcefully disables Telegrams update behavior, in order
 							to make sure that our framework will always continue to work regardless if Telegram issues a new update.
 							We will try our best to notify all users whenever the latest BetterTelegram patch for a newer Telegram
-							version is available.`;
-							break;
+							version is available.`
+								break
 							case 7:
-							faq_content = `Currently, you are able to get in touch with us either on our official Telegram Channel
+								faq_content = `Currently, you are able to get in touch with us either on our official Telegram Channel
 							or through whichever forum you saw our ad. However, in the future, we plan to make a ticketing & chat
-							interface which will be available to all users directly within our GUI client.`;
-							break;
+							interface which will be available to all users directly within our GUI client.`
+								break
 						}
 
-						content.innerHTML = `<p>${faq_content}</p>`;						
+						content.innerHTML = `<p>${faq_content}</p>`
 						accordionCol.appendChild(title)
 						accordionCol.appendChild(content)
 						accordionContainer.appendChild(accordionCol)

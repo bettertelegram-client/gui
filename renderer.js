@@ -266,7 +266,7 @@ if (update_container) {
 								ipcRenderer.invoke('show-tx-confirmation',
 								`Your payment of ${cost} ${coin.toUpperCase()} to ${address} 
 								has been confirmed. Thank you for your continued support of BetterTelegram,
-								${days} ${days>1?'days have':'day has'} been added to your licence!`);
+								${days} ${days>1?'days have':'day has'} been added to your license!`);
 							}
 						});
 					}
@@ -370,8 +370,8 @@ if (update_container) {
 
 		document.getElementById('logoutButton').addEventListener('click', (e) => ipcRenderer.invoke('logout_app'));
 		document.getElementById('copyButton').addEventListener('click', function () {
-			navigator.clipboard.writeText(document.getElementById('licence_key_text').innerHTML).then(
-				() => show_modal('Licence key copied to clipboard!'),
+			navigator.clipboard.writeText(document.getElementById('license_key_text').innerHTML).then(
+				() => show_modal('License key copied to clipboard!'),
 				(err) => show_error('Failed to copy')
 			);
 		});
@@ -394,7 +394,7 @@ if (update_container) {
 				const coin = document.getElementById('selectedCoin').textContent;
 				const days = document.getElementById('dayCounter').value;
 
-				const response = await ipcRenderer.invoke('generate_payment', sessionStorage.getItem('licence_key'), coin, days);
+				const response = await ipcRenderer.invoke('generate_payment', sessionStorage.getItem('license_key'), coin, days);
 				if (response.err == 1) show_error('Failed to create transaction, try again later!');
 				else {
 					document.getElementById('transactionAddress').innerText = response.details.addr;
@@ -409,31 +409,31 @@ if (update_container) {
 	const officialSiteBtn = document.querySelector('#officialSiteBtn a');
 	if (officialSiteBtn) officialSiteBtn.addEventListener('click', (e) => { ipcRenderer.invoke('open-url', 'https://bettertelegram.org') });
 
-  const licence_key_input = document.getElementById('licenseKey');
+  const license_key_input = document.getElementById('licenseKey');
   const login_form = document.getElementById('loginForm');
-  if (login_form && licence_key_input) {
+  if (login_form && license_key_input) {
 		login_form.addEventListener('submit', async e => {
 			e.preventDefault()
-			const licence_key = licence_key_input.value.replace(/\s/g, '')
-			if (licence_key.length === 16) {
+			const license_key = license_key_input.value.replace(/\s/g, '')
+			if (license_key.length === 16) {
 				submitBtn.disabled = true;
-				const app_config = await ipcRenderer.invoke('verify_login', licence_key);
+				const app_config = await ipcRenderer.invoke('verify_login', license_key);
 				submitBtn.disabled = false;
 				if (app_config.err) {
 					show_error(app_config.msg);
-					licence_key_input.value = '';
+					license_key_input.value = '';
 				} else
 				if (!app_config.err) {
-					sessionStorage.setItem('licence_key', licence_key);
+					sessionStorage.setItem('license_key', license_key);
 					sessionStorage.setItem('showLoadingAnimation', 'true');
-					sessionStorage.setItem('licence_days', app_config.days);
+					sessionStorage.setItem('license_days', app_config.days);
 					sessionStorage.setItem('srv_uptime', app_config.uptime);
 					window.location.href = app_config.page;
 				}
 			}
 		});
 
-    	licence_key_input.addEventListener('input', e => {
+    	license_key_input.addEventListener('input', e => {
 			const input = e.target.value.replace(/[^0-9]/g, '');
 			const formattedInput = input.replace(/(.{4})/g, '$1 ').trim();
 			e.target.value = formattedInput;
@@ -453,11 +453,12 @@ if (update_container) {
 		});
 
 		const autoLogin = localStorage.getItem('autologin') ?? 'no';
-		ipcRenderer.on('autologin-fill', (e, licence) => {
-			if (licence.key) {
+		ipcRenderer.on('autologin-fill', (e, license) => {
+			localStorage.setItem('update-available', 'false');
+			if (license.key) {
 				if (autoLogin === 'ok') {
 					autoLoginToggle.checked = true;
-					document.getElementById('licenseKey').value = licence.key.match(/.{1,4}/g).join(' ');
+					document.getElementById('licenseKey').value = license.key.match(/.{1,4}/g).join(' ');
 					const submitBtn = document.getElementById('submitBtn');
 					submitBtn.disabled = false;
 				}

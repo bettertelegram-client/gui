@@ -692,16 +692,11 @@
 			.update-btn.disabled span {
 				display: none;
 			}
-
-			.titlebar {
-				position: relative;
-				z-index: 9999;
-			}
 		</style>
 	</head>
 	<body class="light">
 		<div class="con">
-			<div class="header__section titlebar">
+			<div class="header__section">
 				<button id="minimize-button">
 					<svg
 						width="34.208984"
@@ -848,7 +843,7 @@
 								when a new version is available
 							</p>
 							<div class="action_btn-about">
-								<button class="update-btn disabled" id="updateButton">
+								<button class="update-btn disabled" id="updateButton" disabled>
 									<svg
 										width="25"
 										height="24"
@@ -1056,7 +1051,7 @@
 					{ label: 'How does the OTR plugin work?' },
 					{ label: 'How does Message-Protection plugin work?' },
 					{ label: 'Tell me about the Ghost-Mode plugin?' },
-					{ label: 'Can I use my licence on more than one computer?' },
+					{ label: 'Can I use my license on more than one computer?' },
 					{ label: 'How often will new updates be added?' },
 					{ label: 'What if Telegram releases an update?' },
 					{ label: 'Where can I message the BetterTelegram team?' },
@@ -1120,10 +1115,10 @@
 							see if you are typing a message.`
 								break
 							case 4:
-								faq_content = `We allow you to use the same licence on up to 2 computers. The reason behind
+								faq_content = `We allow you to use the same license on up to 2 computers. The reason behind
 							this is simply compensational. We are putting a lot of work into the development of this project.
 							As such, we are not flooding the app with ads or any other sort of monetization. So therefore we 
-							cannot allow the same licence to be reused by multiple users. Thank you for your understanding!`
+							cannot allow the same license to be reused by multiple users. Thank you for your understanding!`
 								break
 							case 5:
 								faq_content = `So essentially, Telegram releases a new version update every 2-4 weeks. Usually, it

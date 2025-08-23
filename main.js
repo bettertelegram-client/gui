@@ -926,9 +926,6 @@ function stringify(json_obj, licence) {
   }
 }
 
-// TODO: implement & test fully auto-update procedure, via NSI and then also make sure that user knows how to update their telegram BEFORE finishing update!
-// Then build the GUI ... and test everything together before launching again!
-
 function create_crc32_from_hwid(hwid_json, user_licence) {
   const json_obj = stringify(hwid_json, user_licence);
   return json_obj ? (crc32.str(json_obj) >>> 0).toString(16).toUpperCase().padStart(8, '0') : 0;
@@ -987,3 +984,4 @@ ipcMain.handle('logout_app', (e, arg) => {
   app.quit();
 });
 app.whenReady().then(() => main_app_window());
+

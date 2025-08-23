@@ -42,7 +42,8 @@
     "productName": "BetterTelegram",
     "executableName": "bt",
     "win": {
-      "target": "portable",
+      "target": "nsis",
+      "artifactName": "BetterTelegram.exe",
       "icon": "C:\\Users\\vovaj\\Desktop\\TGOTR\\Injector\\icon.ico"
     },
     "nsis": {

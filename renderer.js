@@ -1,4 +1,4 @@
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, session } = require('electron');
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -60,17 +60,199 @@ document.addEventListener('DOMContentLoaded', function () {
 	if (percent >= 100) setTimeout(() => progress_wrapper.style.display = 'none', 1111);
 	
   });
+  
+  const updateToast = document.getElementById('updateToast');
 
+  	function show_update_toast() {
+		updateToast.style.transition =
+			'left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease'
+		updateToast.classList.add('show')
+
+		setTimeout(() => {
+			hide_update_toast()
+		}, 5555);
+	}
+
+	function hide_update_toast() {
+		updateToast.style.transition = 'left 0.5s ease-in, opacity 0.3s ease'
+		updateToast.classList.remove('show')
+	}
+
+	const update_button = document.getElementById('updateButton');
+	ipcRenderer.on('update-available', (e, update) => {
+		show_update_toast();
+		localStorage.setItem('update-available', 'true');
+	});
+
+  if (updateToast) updateToast.addEventListener('click', hide_update_toast);
+
+  const steps = [
+	'Downloading update...',
+	'Unpacking update.zip...',
+	'Restarting BetterTelegram...',
+	'Waiting for Telegram update...',
+	'Cleaning up & Finalizing...'
+];
+
+function update_progress(count_element, water_element, percent) {
+	count_element.innerHTML = percent;
+	console.log(percent);
+	water_element.style.transform = `translate(0, ${100 - percent}%)`;
+}
+
+function wait_for_telegram_update() {
+	return new Promise((resolve) => {
+		const button = document.getElementById('confirm-update-complete');
+		if (!button) return resolve();
+
+		const handler = () => {
+			button.removeEventListener('click', handler);
+			resolve();
+		};
+
+		button.addEventListener('click', handler);
+	});
+}
+
+const update_container = document.getElementById('updateContainer');
+const confirm_update = document.getElementById('confirmUpdate');
+const block_loading = document.getElementById('block_loading');
+const file_name_element = document.getElementById('fileName');
+const count_element = document.getElementById('count');
+const water_element = document.getElementById('water');
+const video = document.getElementById("demo_video");
+
+  if (update_button) {
+
+if (localStorage.getItem('update-available') === 'true') {
+	const app_version_msg = document.getElementById('app-version-message');
+	if (app_version_msg) app_version_msg.textContent = 'Your app version is outdated! It is recommended to update it, in order to enjoy the latest features'
+	update_button.classList.remove('disabled');
+	update_button.disabled = false;
+}
+
+update_button.addEventListener('click', async function () {
+	if (this.disabled) return;
+
+	update_button.classList.add('disabled');
+	update_button.disabled = true;
+
+	update_container.classList.add('show');
+	count_element.textContent = '0';
+
+	let percent = 0;
+	let current_step = 0;
+	file_name_element.textContent = steps[current_step];
+
+	ipcRenderer.on('update-download-progress', (event, progress) => {
+		percent = Math.floor(progress * 25);
+		update_progress(count_element, water_element, percent);
+	});
+
+	ipcRenderer.on('update-unzip-progress', (event, progress) => {
+		percent = Math.floor(25 + (progress * 25));
+		update_progress(count_element, water_element, percent);
+	});
+
+	const file_download = await ipcRenderer.invoke('start-update-download');
+	if (!file_download.success) return;
+
+	current_step = 1;
+	file_name_element.textContent = steps[current_step];
+
+	const unpack_contents = await ipcRenderer.invoke('start-update-setup');
+	if (!unpack_contents.success) return;
+
+	current_step = 2;
+	file_name_element.textContent = steps[current_step];
+	
+	localStorage.setItem('update-available', 'false');
+
+	// enough time to show the step 2 completed text so the user knows whats happening
+	setTimeout(() => { ipcRenderer.invoke('logout_app', 'bt-update-gui') }, 2222);
+});
+
+} else
+if (update_container) {
+
+	ipcRenderer.on('resume-bt-update', async (event, arg) => {
+
+		block_loading.classList.add('show');
+		update_container.classList.add('show');
+		
+		switch (arg) {
+			case 'bt-update-stage': {
+			
+				video.classList.add('show');
+				block_loading.classList.remove('show');
+				confirm_update.classList.add('show');
+				
+				file_name_element.textContent = '';
+
+				update_progress(count_element, water_element, 50);
+
+				await wait_for_telegram_update();
+
+				video.classList.remove('show');
+				block_loading.classList.add('show');
+				confirm_update.classList.remove('show');
+
+				current_step = 4;
+				file_name_element.textContent = steps[current_step];
+
+				ipcRenderer.on('main-delete-progress', (event, progress) => {
+					percent = Math.floor(50 + (progress * 15));
+					update_progress(count_element, water_element, percent);
+				});
+
+				ipcRenderer.on('main-copy-progress', (event, progress) => {
+					percent = Math.floor(65 + (progress * 25));
+					update_progress(count_element, water_element, percent);
+				});
+
+				const configure_update = await ipcRenderer.invoke('configure-bt-update');
+				if (!configure_update.success) return;
+
+				setTimeout(() => { ipcRenderer.invoke('logout_app', 'bt-main-gui') }, 2222);
+
+			} break;
+			case 'bt-main-stage': {
+
+				current_step = 4;
+				file_name_element.textContent = steps[current_step];
+
+				update_progress(count_element, water_element, 90);
+
+				ipcRenderer.on('temp-delete-progress', (event, progress) => {
+					percent = Math.floor(90 + (progress * 9));
+					update_progress(count_element, water_element, percent);
+				});
+
+				const cleanup_telegram = await ipcRenderer.invoke('cleanup-bt-update');
+				if (!cleanup_telegram.success) return;
+
+				update_progress(count_element, water_element, 100);
+
+				setTimeout(() => {
+					update_container.classList.remove('show');
+					block_loading.classList.remove('show');
+					show_update_toast();
+				}, 1111);
+
+			} break;
+		}
+	});
+}
+  
   ipcRenderer.on('supported-versions', (e, svs) => {
 	setTimeout(() => {
 		const json = JSON.parse(svs);
-		show_modal(`Unfortunately BetterTelegram doesnt currently support your version of Telegram. The latest supported versions of Telegram are as follows\n\n${json.slice(0, 10).join('\n')}\n\nTo enjoy BetterTelegram, navigate to 'https://github.com/telegramdesktop/tdesktop/releases/tag/v${json[0]}'\n\nDownload the Telegram EXE, and then replace your existing Telegram EXE with the downloaded one & then restart BetterTelegram! Optionally, you can wait up to 24-96 hours & we will make sure to cook up support for the latest version of Telegram by then!\n\nWe'd like to thank you for your understanding!`);
+		show_modal(`Unfortunately BetterTelegram doesnt currently support your version of Telegram. The 3 latest supported versions of Telegram are as follows\n\n${json.slice(0, 3).join('\n')}\n\nTo enjoy BetterTelegram, navigate to 'https://github.com/telegramdesktop/tdesktop/releases/tag/v${json[0]}'\n\nDownload the Telegram EXE, and then replace your existing Telegram EXE with the downloaded one & then restart BetterTelegram! Optionally, you can wait up to 24-96 hours & we will make sure to cook up support for the latest version of Telegram by then!\n\nWe'd like to thank you for your understanding!`);
 	}, 1111);
   });
 
   const create_account_btn = document.getElementById('login_btn');
   if (create_account_btn) create_account_btn.addEventListener('click', (e) => ipcRenderer.invoke('open-url', 'https://bettertelegram.org/create_account'));
-
   	if (!tx_interval) {
 		tx_interval = setInterval(async () => {
 			if (window.location.href !== 'index.html') {
@@ -179,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	if (createAccountBtn) createAccountBtn.addEventListener('click', (e) => { ipcRenderer.invoke('open-url', 'https://bettertelegram.org/account') });
 
 	const contactUsBtn = document.querySelector('#createAccountBtn a');
-	if (contactUsBtn) contactUsBtn.addEventListener('click', (e) => { ipcRenderer.invoke('open-url', 'https://t.me/BetterTelegram_Support') });
+	if (contactUsBtn) contactUsBtn.addEventListener('click', (e) => { ipcRenderer.invoke('open-url', 'https://t.me/bettertelegramorg') });
 
   	const selectable_coins = document.querySelectorAll('.selectable-coin')
 	const selected_coin_element = document.getElementById('selectedCoin')
@@ -260,10 +442,34 @@ document.addEventListener('DOMContentLoaded', function () {
 		});
 	}
 
+	const autoLoginToggle = document.getElementById('autoLoginToggle')
+	if (autoLoginToggle) {
+		autoLoginToggle.addEventListener('change', () => {
+			if (autoLoginToggle.checked) {
+				localStorage.setItem('autologin', 'ok');
+			} else {
+				localStorage.setItem('autologin', 'no');
+			}
+		});
+
+		const autoLogin = localStorage.getItem('autologin') ?? 'no';
+		ipcRenderer.on('autologin-fill', (e, licence) => {
+			if (licence.key) {
+				if (autoLogin === 'ok') {
+					autoLoginToggle.checked = true;
+					document.getElementById('licenseKey').value = licence.key.match(/.{1,4}/g).join(' ');
+					const submitBtn = document.getElementById('submitBtn');
+					submitBtn.disabled = false;
+				}
+			}
+		});
+	}
+
 	const nightModeToggle = document.getElementById('nightModeToggle')
 	const body = document.body
 
-	const savedTheme = sessionStorage.getItem('theme')
+	const savedTheme = localStorage.getItem('theme')
+	console.log(savedTheme);
 	if (savedTheme === 'dark') {
 		body.classList.add('dark')
 		if (nightModeToggle) nightModeToggle.checked = true
@@ -276,11 +482,11 @@ document.addEventListener('DOMContentLoaded', function () {
 			if (nightModeToggle.checked) {
 				body.classList.remove('light')
 				body.classList.add('dark')
-				sessionStorage.setItem('theme', 'dark')
+				localStorage.setItem('theme', 'dark')
 			} else {
 				body.classList.remove('dark')
 				body.classList.add('light')
-				sessionStorage.setItem('theme', 'light')
+				localStorage.setItem('theme', 'light')
 			}
 		})
 	}

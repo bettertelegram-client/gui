@@ -819,26 +819,6 @@
 	<script src="script.js"></script>
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
-			const updateToast = document.getElementById('updateToast')
-
-			function showUpdateToast() {
-				updateToast.style.transition =
-					'left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease'
-				updateToast.classList.add('show')
-
-				setTimeout(() => {
-					hideUpdateToast()
-				}, 4000)
-			}
-
-			function hideUpdateToast() {
-				updateToast.style.transition = 'left 0.5s ease-in, opacity 0.3s ease'
-				updateToast.classList.remove('show')
-			}
-
-			updateToast.addEventListener('click', hideUpdateToast)
-			setTimeout(showUpdateToast, 5000)
-
 			const con = document.querySelector('.con')
 			function adjustContainer() {
 				const windowHeight = window.innerHeight

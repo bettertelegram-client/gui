@@ -189,7 +189,7 @@
 
 			.login_form {
 				width: 340px;
-				padding: 50px 40px 40px 40px;
+				padding: 50px 40px 100px 40px;
 				border-radius: 50px 50px 0px 0px;
 			}
 
@@ -395,8 +395,10 @@
 			}
 
 			.titlebar {
+				position: relative;
 				-webkit-user-select: none;
 				-webkit-app-region: drag;
+				z-index: 9999;
 			}
 
 			.titlebar button {
@@ -501,6 +503,231 @@
 				opacity: 1;
 				transform: translate(-50%, 10px);
 			}
+
+			.animation_block-loading {
+				position: fixed;
+				top: 0;
+				left: 0;
+				z-index: 999999;
+				width: 100%;
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				background-color: var(--phonebg-color);
+				gap: 30px;
+				opacity: 0;
+				visibility: hidden;
+				transition: opacity 0.3s ease, visibility 0.3s ease;
+			}
+
+			#demo_video {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				object-fit: contain;
+				z-index: 0;
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.5s ease-in-out;
+			}
+
+			.update-button-container {
+				margin-top: 20px;
+				z-index: 1;
+			}
+
+			#confirm-update-complete {
+				padding: 10px 20px;
+				font-size: 16px;
+				font-weight: bold;
+				color: #fff;
+				background-color: #007bff;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+				transition: background-color 0.3s ease;
+			}
+
+			#confirm-update-complete:hover {
+				background-color: #0056b3;
+			}
+
+			.animation_block-loading.show {
+				opacity: 1;
+				visibility: visible;
+			}
+
+			.block_loadings {
+				position: relative;
+				display: flex;
+				flex-direction: column;
+				visibility: hidden;
+				align-items: center;
+				opacity: 0;
+				gap: 20px;
+				height: 350px;
+				width: 350px;
+			}
+
+			.block_loadings.show {
+				opacity: 1;
+				visibility: visible;
+			}
+
+			.animation_block-loading h3 {
+				font-weight: 600;
+				font-size: 14px;
+				line-height: 100%;
+				color: var(--loading-color);
+			}
+
+			.animation_block-loading h3 span {
+				cursor: pointer;
+			}
+
+			.box {
+				height: 100%;
+				width: 100%;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background: transparent;
+				border-radius: 100%;
+				overflow: hidden;
+				border: 25px solid var(--borders-block);
+			}
+
+			.percent {
+				position: absolute;
+				left: 0;
+				top: 0;
+				z-index: 3;
+				width: 100%;
+				height: 100%;
+				display: flex;
+				display: -webkit-flex;
+				align-items: center;
+				justify-content: center;
+				color: var(--loading-color-title);
+				font-size: 24px;
+				font-weight: 700;
+				line-height: 100%;
+				opacity: .5;
+			}
+
+			.water {
+				position: absolute;
+				left: 0;
+				top: 0;
+				z-index: 2;
+				width: 100%;
+				height: 100%;
+				transform: translate(0, 100%);
+				background: var(--bg-animation);
+				transition: all 0.3s;
+			}
+
+			.water_wave {
+				width: 200%;
+				position: absolute;
+				bottom: 100%;
+			}
+
+			.water_wave_back {
+				right: 0;
+				fill: var(--bg-animation2);
+				animation: wave-back 1.4s infinite linear;
+			}
+
+			.water_wave_front {
+				left: 0;
+				fill: var(--bg-animation);
+				margin-bottom: -1px;
+				animation: wave-front 0.7s infinite linear;
+			}
+
+			@keyframes wave-front {
+				100% {
+					transform: translate(-50%, 0);
+				}
+			}
+
+			@keyframes wave-back {
+				100% {
+					transform: translate(50%, 0);
+				}
+			}
+
+			.toastify_message-update {
+				position: fixed;
+				top: 9%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				display: flex;
+				align-items: center;
+				gap: 15px;
+				background: var(--bg-messages);
+				backdrop-filter: blur(10px);
+				color: rgba(65, 159, 217, 1);
+				font-weight: 600;
+				font-size: 14px;
+				line-height: 100%;
+				border-radius: 10px;
+				padding: 20px;
+				min-width: 210px;
+				opacity: 0;
+				visibility: hidden;
+				transition: opacity 0.3s ease, visibility 0.3s ease;
+				z-index: 999999;
+			}
+
+			.toastify_message-update.show {
+				opacity: 1;
+				visibility: visible;
+			}
+
+			.btnText {
+				padding: 10px 20px;
+				border-radius: 10px;
+				border: none;
+				cursor: pointer;
+				background-color: transparent;
+				font-size: 14px;
+				font-weight: 700;
+				text-transform: uppercase;
+				white-space: nowrap;
+			}
+
+			.btnText a {
+				display: flex;
+				align-items: center;
+				text-decoration: none;
+				color: var(--button-background);
+				gap: 10px;
+			}
+
+			#confirmUpdate {
+				position: absolute;
+				bottom: 10px;
+				width: 100%;
+				display: flex;
+				justify-content: center;
+				pointer-events: auto;
+				z-index: 1;
+				visibility: hidden;
+				opacity: 0;
+			}
+
+			#confirmUpdate.show {
+				visibility: visible;
+				opacity: 1;
+			}
+
 		</style>
 	</head>
 	<body>
@@ -625,6 +852,27 @@
 									xmlns:xlink="http://www.w3.org/1999/xlink"
 								>
 									<defs />
+									<path d="M13.5 8H13V6C13 3.79 11.21 2 9 2C6.79 2 5 3.79 5 6V8H4.5C3.4 8 2.5 8.9 2.5 10V17.5C2.5 18.6 3.4 19.5 4.5 19.5H13.5C14.6 19.5 15.5 18.6 15.5 17.5V10C15.5 8.9 14.6 8 13.5 8ZM7 6C7 4.9 7.9 4 9 4C10.1 4 11 4.9 11 6V8H7V6ZM9 16.5C8.59 16.5 8.25 16.16 8.25 15.75V13.75C8.25 13.34 8.59 13 9 13C9.41 13 9.75 13.34 9.75 13.75V15.75C9.75 16.16 9.41 16.5 9 16.5Z" stroke="#000E6A" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+								</svg>
+
+								Save-Login
+							</span>
+							<label class="nightModeswitch">
+								<input type="checkbox" id="autoLoginToggle" />
+								<span class="slider" id="round"></span>
+							</label>
+						</div>
+						<div class="nightSwitch">
+							<span id="nightModeText">
+								<svg
+									width="19.310913"
+									height="20.000000"
+									viewBox="0 0 19.3109 20"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+									xmlns:xlink="http://www.w3.org/1999/xlink"
+								>
+									<defs />
 									<path
 										id="Vector"
 										d="M8.15 2.21C7.36 2.4 6.59 2.71 5.88 3.13C4.64 3.88 3.62 4.95 2.94 6.22C2.26 7.5 1.93 8.94 2 10.39C2.08 11.83 2.54 13.23 3.34 14.44C4.15 15.64 5.26 16.6 6.57 17.22C7.88 17.84 9.33 18.1 10.77 17.96C12.21 17.82 13.59 17.29 14.75 16.43C15.32 16 15.83 15.51 16.27 14.96C15.14 15.07 13.99 14.94 12.9 14.59C11.01 13.99 9.39 12.74 8.32 11.06C7.25 9.38 6.81 7.39 7.06 5.41C7.21 4.28 7.58 3.19 8.15 2.21ZM10.12 0L10.39 0C10.8 0 11.17 0.25 11.32 0.64C11.47 1.02 11.37 1.46 11.07 1.74C9.95 2.77 9.24 4.16 9.04 5.67C8.85 7.18 9.19 8.7 10.01 9.99C10.82 11.27 12.06 12.23 13.51 12.69C14.96 13.15 16.52 13.09 17.93 12.52C18.3 12.37 18.73 12.46 19.02 12.75C19.3 13.03 19.38 13.46 19.23 13.83C18.53 15.5 17.4 16.96 15.94 18.03C14.49 19.11 12.77 19.77 10.97 19.95C9.17 20.12 7.35 19.81 5.71 19.03C4.08 18.26 2.68 17.05 1.68 15.55C0.67 14.04 0.1 12.29 0.01 10.48C-0.08 8.67 0.32 6.88 1.18 5.28C2.03 3.68 3.3 2.35 4.85 1.42C6.41 0.49 8.18 0 9.99 0C10.04 0 10.08 0 10.12 0Z"
@@ -647,6 +895,59 @@
 					</div>
 				</div>
 			</div>
+			<div class="animation_block-loading" id="updateContainer">
+				<video id="demo_video" preload="auto" muted loop playsinline>
+					<source src="images/demo.mp4" type="video/mp4" />
+				</video>
+				<div id="block_loading" class="block_loadings">
+					<svg
+						version="1.1"
+						xmlns="http://www.w3.org/2000/svg"
+						xmlns:xlink="http://www.w3.org/1999/xlink"
+						x="0px"
+						y="0px"
+						style="display: none"
+					>
+						<symbol id="wave">
+							<path
+								d="M420,20c21.5-0.4,38.8-2.5,51.1-4.5c13.4-2.2,26.5-5.2,27.3-5.4C514,6.5,518,4.7,528.5,2.7c7.1-1.3,17.9-2.8,31.5-2.7c0,0,0,0,0,0v20H420z"
+							></path>
+							<path
+								d="M420,20c-21.5-0.4-38.8-2.5-51.1-4.5c-13.4-2.2-26.5-5.2-27.3-5.4C326,6.5,322,4.7,311.5,2.7C304.3,1.4,293.6-0.1,280,0c0,0,0,0,0,0v20H420z"
+							></path>
+							<path
+								d="M140,20c21.5-0.4,38.8-2.5,51.1-4.5c13.4-2.2,26.5-5.2,27.3-5.4C234,6.5,238,4.7,248.5,2.7c7.1-1.3,17.9-2.8,31.5-2.7c0,0,0,0,0,0v20H140z"
+							></path>
+							<path
+								d="M140,20c-21.5-0.4-38.8-2.5-51.1-4.5c-13.4-2.2-26.5-5.2-27.3-5.4C46,6.5,42,4.7,31.5,2.7C24.3,1.4,13.6-0.1,0,0c0,0,0,0,0,0l0,20H140z"
+							></path>
+						</symbol>
+					</svg>
+					<div class="box">
+						<div class="percent">
+							<div class="percentNum" id="count">0</div>
+							<div class="percentB">%</div>
+						</div>
+						<div id="water" class="water">
+							<svg viewBox="0 0 560 20" class="water_wave water_wave_back">
+								<use xlink:href="#wave"></use>
+							</svg>
+							<svg viewBox="0 0 560 20" class="water_wave water_wave_front">
+								<use xlink:href="#wave"></use>
+							</svg>
+						</div>
+					</div>
+				</div>
+				<h3><span id="fileName"></span></h3>
+
+				<div id="confirmUpdate" class="btnText">
+					<button id="confirm-update-complete">Click here after you updated Telegram</button>
+				</div>
+			</div>
+			<div class="toastify_message-update" id="updateToast">
+				<img src="images/Check.svg" alt="Check" />
+				Update installed
+			</div>
 		</div>
 		<div id="modal" class="modal">
 			<div class="modal-content">
@@ -662,6 +963,23 @@
 	</body>
 	<script src="script.js"></script>
 	<script>
+	
+		const video = document.getElementById('demo_video');
+		const observer = new MutationObserver((mutations) => {
+			mutations.forEach((mutation) => {
+				if (mutation.attributeName === 'class') {
+					if (video.classList.contains('show')) {
+						video.style.opacity = '1';
+						video.play().catch((e) => console.error('Video play error:', e));
+					} else {
+						video.pause();
+						video.style.opacity = '0';
+					}
+				}
+			});
+		});
+		observer.observe(video, { attributes: true });
+
 		document
 			.getElementById('licenseKey')
 			.addEventListener('input', function (e) {
@@ -678,6 +996,8 @@
 					submitBtn.disabled = true
 				}
 			})
+
+		
 
 		const loginCon = document.getElementById('loginCon')
 		const loadingContainer = document.getElementById('loadingContainer')

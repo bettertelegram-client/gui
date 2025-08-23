@@ -32,7 +32,7 @@
 				bottom: 0;
 				left: 0;
 				background-color: var(--phonebg-color);
-				z-index: 9999;
+				z-index: 999;
 			}
 
 			.phoneMenu ul {
@@ -535,7 +535,7 @@
 				position: fixed;
 				top: 0;
 				left: 0;
-				z-index: 999999;
+				z-index: 99999;
 				width: 100%;
 				height: 100%;
 				display: flex;
@@ -692,6 +692,11 @@
 			.update-btn.disabled span {
 				display: none;
 			}
+
+			.titlebar {
+				position: relative;
+				z-index: 9999;
+			}
 		</style>
 	</head>
 	<body class="light">
@@ -823,7 +828,7 @@
 									</a>
 								</button>
 								<button id="createAccountBtn" class="btnText">
-									<a href="#">contact us</a>
+									<a href="https://t.me/bettertelegramorg">contact us</a>
 								</button>
 							</div>
 						</div>
@@ -838,12 +843,12 @@
 									<b id="dll_version"></b>
 								</div>
 							</div>
-							<p>
-								Your app version is up to date! Product will update
-								automatically
+							<p id="app-version-message">
+								Your app version is up to date! You will be notified
+								when a new version is available
 							</p>
 							<div class="action_btn-about">
-								<button class="update-btn" id="updateButton">
+								<button class="update-btn disabled" id="updateButton">
 									<svg
 										width="25"
 										height="24"
@@ -938,14 +943,8 @@
 					</div>
 				</div>
 			</div>
-			<h3>Downloading: DataFile<span id="fileName">123</span>.db</h3>
+			<h3><span id="fileName"></span></h3>
 		</div>
-
-		<div class="toastify_message-update" id="updateToast">
-			<img src="images/Check.svg" alt="Check" />
-			Update installed
-		</div>
-
 		<div class="phoneMenu">
 			<ul>
 				<li>
@@ -1007,65 +1006,7 @@
 		<script src="script.js"></script>
 		<script>
 			document.addEventListener('DOMContentLoaded', function () {
-				const updateButton = document.getElementById('updateButton')
-				const updateContainer = document.getElementById('updateContainer')
-				const updateToast = document.getElementById('updateToast')
-				const fileNameElement = document.getElementById('fileName')
-
-				const fileNames = [1122, 242, 22, 6, 333, 333, 111]
-
-				if (localStorage.getItem('updateDisabled') === 'true') {
-					disableButton()
-				}
-
-				updateButton.addEventListener('click', function () {
-					if (this.disabled) return
-
-					disableButton()
-					localStorage.setItem('updateDisabled', 'true')
-
-					updateContainer.classList.add('show')
-					document.getElementById('count').textContent = '0'
-
-					let fileIndex = 0
-					const fileChangeInterval = setInterval(() => {
-						fileIndex = (fileIndex + 1) % fileNames.length
-						fileNameElement.textContent = fileNames[fileIndex]
-					}, 800)
-
-					let percent = 0
-					const cnt = document.getElementById('count')
-					const water = document.getElementById('water')
-
-					const interval = setInterval(function () {
-						percent++
-						cnt.innerHTML = percent
-						water.style.transform = `translate(0, ${100 - percent}%)`
-
-						if (percent === 100) {
-							clearInterval(interval)
-							clearInterval(fileChangeInterval)
-
-							setTimeout(() => {
-								updateToast.classList.add('show')
-							}, 2000)
-
-							setTimeout(() => {
-								updateContainer.classList.remove('show')
-
-								setTimeout(() => {
-									updateToast.classList.remove('show')
-								}, 3000)
-							}, 1000)
-						}
-					}, 60)
-				})
-
-				function disableButton() {
-					updateButton.classList.add('disabled')
-					updateButton.disabled = true
-				}
-
+				
 				window.addEventListener('beforeunload', function () {
 					localStorage.removeItem('updateDisabled')
 				})
@@ -1180,7 +1121,7 @@
 								break
 							case 4:
 								faq_content = `We allow you to use the same licence on up to 2 computers. The reason behind
-							this is simply compensational. We are putting a lot of work into the development of this project
+							this is simply compensational. We are putting a lot of work into the development of this project.
 							As such, we are not flooding the app with ads or any other sort of monetization. So therefore we 
 							cannot allow the same licence to be reused by multiple users. Thank you for your understanding!`
 								break
@@ -1188,10 +1129,9 @@
 								faq_content = `So essentially, Telegram releases a new version update every 2-4 weeks. Usually, it
 							will take us up to 3 days to determine the new function-hook signature pattern & release an update.
 							In between signature updates, we hope to receive enough feedback from users who wish to see a new
-							plugin added to the BetterTelegram framework. We will try to address every one of your requests
-							within a reasonable timeframe. Additionally, it is our goal to make a weekly routine of updates to
-							the core framework, where we will fix all reported bugs and aim to maximize the stability of use of
-							BetterTelegram.`
+							plugin added to the BetterTelegram framework. We will try to all your requests within a timely manner.
+							Additionally, it is our goal to make a weekly routine of updates to the core framework. We will fix
+							all reported bugs, with the aim of maximizing the stability for BetterTelegram.`
 								break
 							case 6:
 								faq_content = `We made a workaround which forcefully disables Telegrams update behavior, in order

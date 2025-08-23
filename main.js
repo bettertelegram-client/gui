@@ -1,9 +1,20 @@
 // npx electron-packager . inj --icon=C:\Users\vovaj\Desktop\TGOTR\Injector\icon.ico --arch=x64 --out=dist --extra-resource="resources/injector.node" --electron-version=34.0.0 --overwrite
-// npx electron-builder --win nsis --x64 --publish never
+
+// Steps
+// 1) build and then EV sign the generated BT.exe
+// npx electron-builder --dir --win --x64 --publish never
+// 2) after signing BT.exe, specify it as a prepackaged binary (since BT.exe is packed unsigned during --nsis build procedure)
+// npx electron-builder --prepackaged dist/win-unpacked --nsis --win --x64 --publish never
 
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { https } = require('follow-redirects');
+const unzipper = require('unzipper');
 const ocr = require('tesseract.js');
 const cp = require('child_process');
+const fetch = require('node-fetch');
+const ofs = require('original-fs');
+const fsext = require('fs-extra');
+const semver = require('semver');
 const { PNG } = require('pngjs');
 const winreg = require('winreg');
 const crc32 = require('crc-32');
@@ -77,14 +88,15 @@ const CreateCompatibleBitmap = gdi32.func('HBITMAP CreateCompatibleBitmap(HDC hd
 const SelectObject = gdi32.func('HGDIOBJ SelectObject(HDC hdc, HGDIOBJ h)');
 const DeleteObject = gdi32.func('BOOL DeleteObject(HGDIOBJ ho)');
 const GetDIBits = gdi32.func('int GetDIBits(HDC hdc, HBITMAP hbmp, UINT uStartScan, UINT cScanLines, void* lpvBits, void* lpbi, UINT uUsage)');
+const MessageBoxA = user32.func('int MessageBoxA(HWND hWnd, const char* lpText, const char* lpCaption, UINT uType)');
 
 const better_telegram_home = path.join(process.env.APPDATA, 'BetterTelegram');
 const better_telegram_plugins = path.join(better_telegram_home, 'cfg', 'plugins.conf');
 const better_telegram_app_path = path.join(process.env.LOCALAPPDATA, 'Programs', 'bt', 'bt.exe');
 const bt_stub_path = path.join(better_telegram_home, 'stub');
 
-// disable ACL to block telegram updates (since Telegrams IAT hook signatures change, thats what people are paying for on tgupdate so we will do signature updates instead)
-function disable_telegram_updates() {
+// enable/disable ACL to block telegram updates (since Telegrams IAT hook signatures change, thats what people are paying for on tgupdate so we will do signature updates instead)
+function toggle_telegram_updates(should_disable) {
   const telegram_process_path = fs.readFileSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat')).toString().trim();
   telegram_process_name = path.basename(telegram_process_path);
   telegram_process_root = path.dirname (telegram_process_path);
@@ -101,11 +113,10 @@ function disable_telegram_updates() {
     fs.rmdirSync(telegram_tupdates_path);
     fs.mkdirSync(telegram_tupdates_path);
   } catch (err) {
-    if (err.code === 'ENOENT')
-      fs.mkdirSync(telegram_tupdates_path);
+    if (err.code === 'ENOENT') fs.mkdirSync(telegram_tupdates_path);
   }
   try {
-    if (os.platform() === 'win32') cp.execSync(`icacls "${telegram_tupdates_path}" /deny *S-1-1-0:(W)`);
+    if (os.platform() === 'win32') cp.execSync(`icacls "${telegram_tupdates_path}" /${should_disable?'deny':'grant'} *S-1-1-0:(W)`);
     else
     if (os.platform() === 'linux') cp.execSync(`chmod a-w "${telegram_tupdates_path}"`);
     else
@@ -336,7 +347,7 @@ async function wait_until_telegram_unlocked(telegram_window) {
   let attempts = 0;
 
   try {
-    while (attempts < 300) {
+    while (attempts < 600) {
       
       const rect = Buffer.alloc(koffi.sizeof(RECT));
       if (!GetWindowRect(telegram_window, rect)) {
@@ -446,12 +457,6 @@ async function start_injection_thread() {
   var current_bt_stub = await download_bt_update(0, true);
   let injected_pids = [];
   start_app_main = true;
-  await dialog.showMessageBox(main_window, {
-    type: 'info',
-    buttons: ['OK'],
-    title: 'BetterTelegram - Information',
-    message: 'Due to the software protection we have in our application, after BetterTelegram is injected into your Telegram client it may take 1-3 minutes to load the features. During this time, telegram may freeze (dont close or interact with it). You will be notified within Telegram once the plugins have loaded!'
-  });
   async function injection_loop() {
     if (os.platform() === 'win32') {
       const tg_pid = injector.getPIDByName(telegram_process_name);
@@ -483,7 +488,120 @@ async function start_injection_thread() {
   injection_loop();
 }
 
-function main_app_window() {
+const reg_key = new winreg({ hive: winreg.HKCU, key: '\\Software\\BetterTelegram' });
+const create_key_async = (...args) =>
+  new Promise((resolve, reject) => {
+    reg_key.create(...args, (err, result) => {
+      if (err) return reject(err);
+      resolve(result);
+    });
+  });
+
+const set_value_async = (...args) =>
+  new Promise((resolve, reject) => {
+    reg_key.set(...args, (err, result) => {
+      if (err) return reject(err);
+      resolve(result);
+    });
+  });
+
+const get_value_async = (name) =>
+  new Promise((resolve) => {
+    reg_key.get(name, (err, result) => {
+      if (err || !result) return resolve(null);
+      resolve(result);
+    });
+  });
+
+// we want to track all progress of the update, so the user is never left in the dark
+async function delete_with_progress(dir_path, send_progress) {
+  const all_paths = [];
+
+  async function collect_paths(current_path) {
+    try {
+      const stats = await ofs.promises.stat(current_path);
+      if (stats.isDirectory()) {
+        const items = await ofs.promises.readdir(current_path);
+        for (const item of items) {
+          await collect_paths(path.join(current_path, item));
+        }
+        all_paths.push(current_path);
+      } else {
+        all_paths.push(current_path);
+      }
+    } catch (err) {}
+  }
+
+  if (!ofs.existsSync(dir_path)) return;
+
+  await collect_paths(dir_path);
+
+  const total_items = all_paths.length;
+  let deleted_items = 0;
+
+  for (const item_path of all_paths.reverse()) {
+    try {
+      const stats = await ofs.promises.stat(item_path);
+      if (stats.isDirectory()) {
+        await ofs.promises.rmdir(item_path);
+      } else {
+        await ofs.promises.unlink(item_path);
+      }
+    } catch (error) {}
+
+    deleted_items++;
+    const progress = deleted_items / total_items;
+    send_progress(progress);
+  }
+}
+
+async function copy_with_progress(src_dir, dest_dir, send_progress) {
+  const all_paths = [];
+
+  async function collect_paths(current_path) {
+    try {
+      const stats = await ofs.promises.stat(current_path);
+      if (stats.isDirectory()) {
+        const items = await ofs.promises.readdir(current_path);
+        for (const item of items) {
+          await collect_paths(path.join(current_path, item));
+        }
+        all_paths.push(current_path);
+      } else {
+        all_paths.push(current_path);
+      }
+    } catch (err) {}
+  }
+
+  if (!ofs.existsSync(src_dir)) return;
+
+  await collect_paths(src_dir);
+
+  const total_items = all_paths.length;
+  let copied_items = 0;
+
+  for (const item_path of all_paths) {
+    const relative_path = path.relative(src_dir, item_path);
+    const dest_path = path.join(dest_dir, relative_path);
+
+    try {
+      const stats = await ofs.promises.stat(item_path);
+      if (stats.isDirectory()) {
+        await ofs.promises.mkdir(dest_path, { recursive: true });
+      } else {
+        const parent_dir = path.dirname(dest_path);
+        await ofs.promises.mkdir(parent_dir, { recursive: true });
+        await ofs.promises.copyFile(item_path, dest_path);
+      }
+    } catch (error) {}
+
+    copied_items++;
+    const progress = copied_items / total_items;
+    send_progress(progress);
+  }
+}
+
+async function main_app_window() {
   main_window = new BrowserWindow({
     width: 465,
     height: 650,
@@ -498,14 +616,189 @@ function main_app_window() {
     },
     icon: path.join(__dirname, 'icon.png')
   });
+
   main_window.loadFile(path.join(__dirname, 'index.html'));
+  main_window.webContents.on('did-finish-load', async () => {
+    try {
+      const result = await get_value_async('licence');
+      const licence_key = result?.value ?? '';
+      main_window.webContents.send('autologin-fill', { key: licence_key });
+      const bt_update_path = path.join(os.tmpdir(), 'bettertelegram-update');
+      // the update consists of 4 steps, so once we got here, we can assume the bt.zip was downloaded & unpacked in bettertelegram-update folder
+      if (fs.existsSync(bt_update_path)) {
+        if (__filename.includes('bettertelegram-update')) {
+          // the user will be asked to manually update telegram, so we need to make sure that telegram can update when that happens
+          toggle_telegram_updates(false);
+          // invoke the update container, so that we can show the Telegram update steps & check for completion of update before restoring the updated BetterTelegram
+          main_window.webContents.send('resume-bt-update', 'bt-update-stage');
+        } else {
+          main_window.webContents.send('resume-bt-update', 'bt-main-stage');
+        }
+      }
+    } catch (err) {}
+  });
 }
+
+let btgui_update_url = '', btgui_update_size = 0, btgui_update_name = '';
+async function check_update() {
+  try {
+    const response = await fetch('https://api.github.com/repos/bettertelegram-client/main/releases/latest', {
+      headers: { 'User-Agent': 'x-bettertelegram-update' }
+    });
+
+    if (!response.ok) return;
+    const release = await response.json();
+    if (semver.gt(semver.clean(release.tag_name), semver.clean(app.getVersion())) && btgui_update_size == 0) {
+      const which_asset = release.assets[0]?.name.indexOf('.zip') === -1 ? 1 : 0;
+      btgui_update_url  = release.assets[which_asset]?.browser_download_url;
+      btgui_update_size = release.assets[which_asset]?.size;
+      btgui_update_name = release.assets[which_asset]?.name;
+
+      main_window.webContents.send('update-available');
+    }
+  
+  } catch (error) {
+    console.error('Error checking for updates:', error);
+  }
+}
+
+ipcMain.handle('configure-bt-update', async () => {
+
+  const main_bt_path = path.join(process.env.LOCALAPPDATA, 'Programs', 'bt');
+  const temp_bt_path = path.join(os.tmpdir(), 'bettertelegram-update');
+
+  await delete_with_progress(main_bt_path, (progress) => main_window.webContents.send('main-delete-progress', progress));
+  await copy_with_progress(temp_bt_path, main_bt_path, (progress) => main_window.webContents.send('main-copy-progress', progress));
+
+  return { success: true };
+
+});
+
+// NOTE: some files locked by Electron might still be in use at the time of deletion, so we'll give them up to 5 seconds to free during deletion
+async function wait_to_delete(target_path, retries = 10, wait_ms = 500) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      if (fs.existsSync(target_path)) await fsext.remove(target_path);
+      return true;
+    } catch (err) {
+      if ((err.code === 'EBUSY' || err.code === 'EPERM' || err.code === 'EACCES') && attempt < retries)
+        await new Promise(res => setTimeout(res, wait_ms));
+      else throw err;
+    }
+  }
+}
+
+ipcMain.handle('cleanup-bt-update', async () => {
+
+  const temp_bt_path = path.join(os.tmpdir(), 'bettertelegram-update');
+  const zip_bt_path = path.join(os.tmpdir(), 'bt.zip');
+
+  await delete_with_progress(temp_bt_path, (progress) => main_window.webContents.send('temp-delete-progress', progress));
+
+  try {
+    await wait_to_delete(temp_bt_path);
+  } catch (err) {
+    MessageBoxA(0, JSON.stringify(err), 'CONTACT SUPPORT', 0);
+  }
+
+  try {
+    if (fs.existsSync(zip_bt_path)) fs.unlinkSync(zip_bt_path);
+  } catch (err) {
+    MessageBoxA(0, JSON.stringify(err), 'CONTACT SUPPORT', 0);
+  }
+
+  return { success: true };
+
+});
+
+ipcMain.handle('start-update-setup', async () => {
+
+  const zip_path = path.join(os.tmpdir(), btgui_update_name);
+  const extract_path = path.join(os.tmpdir(), 'bettertelegram-update');
+  try {
+    if (!ofs.existsSync(zip_path)) {
+      throw new Error('BetterTelegram update zip not found.');
+    }
+
+    ofs.mkdirSync(extract_path, { recursive: true });
+
+    let extracted_bytes = 0;
+    const directory = await unzipper.Open.file(zip_path);
+
+    const total_uncompressed_size = directory.files
+    .filter(entry => entry.type !== 'Directory')
+    .reduce((acc, entry) => acc + entry.uncompressedSize, 0);
+
+    for (const entry of directory.files) {
+      const file_path = path.join(extract_path, entry.path);
+
+      if (entry.type === 'Directory') {
+        ofs.mkdirSync(file_path, { recursive: true });
+      } else {
+        await new Promise((resolve, reject) => {
+          const write_stream = ofs.createWriteStream(file_path);
+          entry.stream()
+            .on('data', chunk => {
+              extracted_bytes += chunk.length;
+              const progress = extracted_bytes / total_uncompressed_size;
+              main_window.webContents.send('update-unzip-progress', progress);
+            })
+            .pipe(write_stream)
+            .on('finish', resolve)
+            .on('error', reject);
+        });
+      }
+    }
+    return { success: true, path: extract_path };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('start-update-download', async () => {
+	try {
+		const download_path = path.join(os.tmpdir(), btgui_update_name);
+    if (!fs.existsSync(download_path)) {
+      const file = fs.createWriteStream(download_path);
+
+      return await new Promise((resolve, reject) => {
+        https.get(btgui_update_url, {
+          headers: { 'User-Agent': 'x-bettertelegram-update' }
+        }, (res) => {
+          let downloaded = 0;
+
+          res.on('data', chunk => {
+            downloaded += chunk.length;
+            file.write(chunk);
+
+            main_window.webContents.send('update-download-progress', downloaded / btgui_update_size);
+          });
+
+          res.on('end', () => {
+            file.end();
+            resolve({ success: true, path: download_path });
+          });
+
+          res.on('error', err => {
+            fs.unlink(download_path, () => {});
+            reject(err);
+          });
+        });
+      });
+    } else {
+      main_window.webContents.send('update-download-progress', 1);
+      return { success: true, path: download_path };
+    }
+	} catch (err) {
+		return { success: false, error: err.message };
+	}
+});
 
 ipcMain.handle('dialog:openFile', async () => {
   app_part = true;
   const result = await dialog.showOpenDialog({
     properties: ['openFile'],
-    filters: [ { name: 'Telegram Executable', extensions: [os.platform() === 'win32' ? 'exe' : os.platform() === 'darwin' ? '.app' : ''] } ]
+    filters: [ { name: 'Telegram Executable', extensions: [os.platform() === 'win32' ? 'exe' : os.platform() === 'darwin' ? 'app' : ''] } ]
   });
   app_part = false;
   return result.filePaths;
@@ -569,7 +862,7 @@ ipcMain.handle('generate_payment', async (e, licence, coin, days) => {
   try {
     const response = await axios.get(`https://bettertelegram.org/generate_payment/${licence}/${coin}/${days}`);
     return response.data;
-  } catch (error) { return { error: 'Failed to fetch data' } }
+  } catch (error) { return { error: 'Failed to fetch data' }; }
 });
 
 ipcMain.handle('verify_txs', async (e, licence) => {
@@ -589,7 +882,7 @@ ipcMain.handle('setup_app', (e, telegram_home) => {
     fs.writeFileSync(better_telegram_plugins, JSON.stringify({"plugins":{"otr": 0, "ghost": 0, "purge": 0}}));
     set_app_startup();
   }
-  disable_telegram_updates();
+  toggle_telegram_updates(true);
   start_injection_thread();
 });
 
@@ -603,23 +896,6 @@ function wait_for_hwid() {
     }, 333);
   });
 }
-
-const reg_key = new winreg({ hive: winreg.HKCU, key: '\\Software\\BetterTelegram' });
-const create_key_async = (...args) =>
-  new Promise((resolve, reject) => {
-    reg_key.create(...args, (err, result) => {
-      if (err) return reject(err);
-      resolve(result);
-    });
-  });
-
-const set_value_async = (...args) =>
-  new Promise((resolve, reject) => {
-    reg_key.set(...args, (err, result) => {
-      if (err) return reject(err);
-      resolve(result);
-    });
-  });
 
 function randomize(seed) {
   return function () {
@@ -650,6 +926,9 @@ function stringify(json_obj, licence) {
   }
 }
 
+// TODO: implement & test fully auto-update procedure, via NSI and then also make sure that user knows how to update their telegram BEFORE finishing update!
+// Then build the GUI ... and test everything together before launching again!
+
 function create_crc32_from_hwid(hwid_json, user_licence) {
   const json_obj = stringify(hwid_json, user_licence);
   return json_obj ? (crc32.str(json_obj) >>> 0).toString(16).toUpperCase().padStart(8, '0') : 0;
@@ -665,10 +944,12 @@ ipcMain.handle('verify_login', async (e, licence) => {
       if (!au_exists) { 
         app_config.page = 'LoginTwoSetup.html';
       } else {
-        disable_telegram_updates();
+        setTimeout(() => { check_update(); }, 3000);
+        toggle_telegram_updates(true);
         start_injection_thread();
         app_config.page = 'Home.html';
         fs.writeFileSync(path.join(better_telegram_home, 'rdfs.bin'), response.data.token);
+        setInterval(() => { check_update(); }, 2*60*1000); // IP rate limit = 60/rph, so we'll do 30
       }
       await create_key_async();
       await set_value_async('licence', winreg.REG_SZ, licence);
@@ -684,5 +965,25 @@ ipcMain.handle('verify_login', async (e, licence) => {
 });
 
 gather_hwid_fingerprint();
-ipcMain.handle('logout_app', () => app.quit());
+ipcMain.handle('logout_app', (e, arg) => {
+  // when the update is unpacked into %temp%, run it so that it can resume the update process
+  let bt_instance_path = '';
+  switch (arg) {
+    case 'bt-update-gui':
+      bt_instance_path = path.join(os.tmpdir(), 'bettertelegram-update', 'bt.exe');
+    break;
+    case 'bt-main-gui':
+      bt_instance_path = better_telegram_app_path;
+    break;
+  }
+  if (bt_instance_path.length) {
+    const proc = cp.spawn(
+      bt_instance_path, {
+      detached: true,
+      stdio: 'ignore'
+    });
+    proc.unref();
+  }
+  app.quit();
+});
 app.whenReady().then(() => main_app_window());

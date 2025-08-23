@@ -4,7 +4,7 @@
 // 1) build and then EV sign the generated BT.exe
 // npx electron-builder --dir --win --x64 --publish never
 // 2) after signing BT.exe, specify it as a prepackaged binary (since BT.exe is packed unsigned during --nsis build procedure)
-// npx electron-builder --win --x64 --prepackaged dist/win-unpacked --config.nsis.artifactName="BetterTelegram.exe"
+// npx electron-builder --prepackaged dist/win-unpacked --win --x64
 
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const { https } = require('follow-redirects');
@@ -984,5 +984,6 @@ ipcMain.handle('logout_app', (e, arg) => {
   app.quit();
 });
 app.whenReady().then(() => main_app_window());
+
 
 

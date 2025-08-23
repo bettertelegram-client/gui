@@ -1180,6 +1180,8 @@
 						</div>
 					</div>
 					<div class="block_settings">
+						<!--
+						NOTE: I'm saving this for later, once I expand the functionality of OTR -- SMP, Block-lists, Auth Icons, etc
 						<button id="settings-button">
 							<svg
 								width="24.000000"
@@ -1221,7 +1223,7 @@
 									/>
 								</g>
 							</svg>
-						</button>
+						</button>-->
 						<label class="nightModeswitch">
 							<input type="checkbox" id="switch" class="plugin-toggle-otr" />
 							<span class="slider" id="round" style="width: 26px"></span>
@@ -1285,37 +1287,6 @@
 							<h3 id="enableOTRTitle">Protect Your Messages</h3>
 							<p id="enableOTRDescription">
 								Prevent others from "Deleting All Messages" on your side
-							</p>
-						</div>
-					</div>
-					<label class="nightModeswitch">
-						<input type="checkbox" id="switch" class="plugin-toggle-purge" />
-						<span class="slider" id="round" style="width: 26px"></span>
-					</label>
-				</div>
-
-				<div class="plugins_header" id="pluginsHeader">
-					<div class="plugins_header-left">
-						<svg
-							width="21"
-							height="20"
-							viewBox="0 0 21 20"
-							fill="none"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path
-								fill-rule="evenodd"
-								clip-rule="evenodd"
-								d="M9.89713 16.9405L5.19146 19.8233C4.70221 20.123 4.06256 19.9694 3.76281 19.48C3.61641 19.2411 3.57277 18.9531 3.64178 18.6815L4.37021 15.8144C4.63317 14.7793 5.3414 13.9142 6.30404 13.452L11.4376 10.9873C11.6771 10.8724 11.7779 10.5852 11.663 10.3459C11.5699 10.1521 11.3594 10.0436 11.1476 10.0802L5.43322 11.0695C4.27165 11.2706 3.08044 10.9499 2.17688 10.1927L0.371661 8.6799C-0.0681392 8.3113 -0.12588 7.65596 0.242678 7.21619C0.421938 7.00231 0.679708 6.86955 0.957945 6.84777L6.47341 6.41607C6.86304 6.38556 7.20264 6.13901 7.3522 5.77791L9.47999 0.641617C9.69959 0.111487 10.3074 -0.140236 10.8375 0.0793774C11.092 0.184823 11.2943 0.387067 11.3998 0.641617L13.5275 5.77791C13.6772 6.13901 14.0167 6.38556 14.4064 6.41607L19.9522 6.85012C20.5242 6.8949 20.9517 7.39495 20.9069 7.96701C20.8853 8.2422 20.7552 8.49748 20.5452 8.67662L16.3156 12.2824C16.0179 12.5362 15.8879 12.9358 15.9795 13.3162L17.2798 18.7179C17.4141 19.2757 17.0707 19.8368 16.5129 19.9712C16.2448 20.0357 15.962 19.991 15.7269 19.8469L10.9827 16.9405C10.6496 16.7365 10.2302 16.7365 9.89713 16.9405Z"
-								fill="white"
-								fill-opacity="0.25"
-							/>
-						</svg>
-
-						<div class="plugins_header-descr">
-							<h3 id="enableOTRTitle">Premium Bypass</h3>
-							<p id="enableOTRDescription">
-								Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 							</p>
 						</div>
 					</div>
@@ -1790,13 +1761,13 @@
 										fill="none"
 										xmlns="http://www.w3.org/2000/svg"
 									>
-										<path
-											fill-rule="evenodd"
-											clip-rule="evenodd"
-											d="M6.59172 0.369219L11.3059 5.08339L10.1276 6.26172L6.00255 2.13672L1.87755 6.26172L0.699219 5.08339L5.41339 0.369219C5.56966 0.212993 5.78158 0.12523 6.00255 0.12523C6.22352 0.12523 6.43545 0.212993 6.59172 0.369219Z"
-											fill="#419FD9"
-										/></svg
-									>Add
+									<path
+										fill-rule="evenodd"
+										clip-rule="evenodd"
+										d="M6.59172 0.369219L11.3059 5.08339L10.1276 6.26172L6.00255 2.13672L1.87755 6.26172L0.699219 5.08339L5.41339 0.369219C5.56966 0.212993 5.78158 0.12523 6.00255 0.12523C6.22352 0.12523 6.43545 0.212993 6.59172 0.369219Z"
+										fill="#419FD9"
+									/></svg>
+									Add
 								</button>
 								<button id="remove-button" disabled>
 									Remove
@@ -2149,11 +2120,11 @@
 					enableOTRTitle.style.color = '#fff'
 					enableOTRDescription.style.color = 'rgb(81,89,96)'
 				}
-
+/*
 				const pluginsList = [
 					{
 						title: 'Delete All Group Messages',
-						description: 'I love sausages',
+						description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
 						icon: `<svg width="18.000000" height="20.001709" viewBox="0 0 18 20.0017" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<defs/>
 	<path id="Vector" d="M9 0C11.38 0 13.67 0.94 15.36 2.63C17.05 4.32 18 6.61 18 9L18 16.5C18 17.24 17.76 17.97 17.31 18.57C16.87 19.18 16.24 19.62 15.53 19.84C14.81 20.06 14.05 20.05 13.34 19.8C12.64 19.55 12.03 19.09 11.6 18.47C11.34 18.93 10.96 19.32 10.51 19.59C10.05 19.85 9.52 20 8.99 20C8.46 20 7.94 19.85 7.48 19.59C7.02 19.32 6.64 18.93 6.38 18.47C5.97 19.07 5.38 19.53 4.69 19.78C4 20.03 3.26 20.06 2.55 19.86C1.85 19.67 1.22 19.26 0.77 18.69C0.31 18.12 0.04 17.42 0 16.69L0 16.49L0 9C0 6.61 0.94 4.32 2.63 2.63C4.32 0.94 6.61 0 9 0ZM9 2C7.18 2 5.44 2.7 4.13 3.96C2.83 5.22 2.06 6.94 2 8.76L2 9L2 16.44L2 16.58C2.01 16.88 2.12 17.17 2.3 17.4C2.49 17.64 2.74 17.82 3.02 17.92C3.31 18.01 3.61 18.02 3.9 17.94C4.19 17.86 4.45 17.69 4.64 17.46L4.73 17.34C4.92 17.06 5.18 16.83 5.49 16.68C5.79 16.53 6.13 16.46 6.47 16.47C6.81 16.49 7.14 16.59 7.43 16.76C7.72 16.94 7.96 17.19 8.12 17.49C8.21 17.64 8.34 17.77 8.49 17.86C8.64 17.95 8.82 17.99 8.99 17.99C9.17 17.99 9.34 17.95 9.5 17.86C9.65 17.77 9.78 17.64 9.86 17.49C10.02 17.2 10.25 16.96 10.52 16.79C10.8 16.61 11.11 16.5 11.44 16.48C11.76 16.45 12.09 16.5 12.39 16.63C12.69 16.76 12.95 16.96 13.16 17.21L13.26 17.34C13.43 17.59 13.68 17.79 13.97 17.9C14.25 18.01 14.57 18.02 14.87 17.95C15.17 17.87 15.43 17.7 15.63 17.47C15.83 17.24 15.96 16.95 15.99 16.64L16 16.5L16 9C16 7.14 15.26 5.36 13.94 4.05C12.63 2.73 10.85 2 9 2ZM9 10C10.1 10 11 11.12 11 12.5C11 13.87 10.1 15 9 15C7.89 15 7 13.87 7 12.5C7 11.12 7.89 10 9 10ZM6.5 6C6.89 6 7.27 6.15 7.56 6.43C7.84 6.72 8 7.1 8 7.5C8 7.89 7.84 8.27 7.56 8.56C7.27 8.84 6.89 9 6.5 9C6.1 9 5.72 8.84 5.43 8.56C5.15 8.27 5 7.89 5 7.5C5 7.1 5.15 6.72 5.43 6.43C5.72 6.15 6.1 6 6.5 6ZM11.5 6C11.89 6 12.27 6.15 12.56 6.43C12.84 6.72 13 7.1 13 7.5C13 7.89 12.84 8.27 12.56 8.56C12.27 8.84 11.89 9 11.5 9C11.1 9 10.72 8.84 10.43 8.56C10.15 8.27 10 7.89 10 7.5C10 7.1 10.15 6.72 10.43 6.43C10.72 6.15 11.1 6 11.5 6Z" fill="#000E6A" fill-opacity="0.250000" fill-rule="nonzero"/>
@@ -2171,7 +2142,7 @@
 `,
 					},
 				]
-				/*
+				
 				const pluginsMessages = document.getElementById('pluginsMessages')
 				pluginsList.forEach(plugin => {
 					const message = document.createElement('div')

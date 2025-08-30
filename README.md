@@ -25,7 +25,7 @@ BetterTelegram goes beyond the default Telegram client, offering powerful privac
 BetterTelegram is built with privacy in mind, with no telemetry, no user tracking, and a fully self-contained encryption layer independent of Telegram's servers.
 
 🛠️ Getting Started
-- Generate a Secure Account at https://bettertelegram.org/account
+- Generate a Secure Account at https://bettertelegram.com/account
 - No email, no phone, just click Get Account Number & Save it
 - Choose Subscription Duration (Optional as there is a 30-day free trial for every licence)
 - Add days to your license—starting at $0.89/day.
@@ -78,4 +78,4 @@ Want to build BetterTelegram yourself? Follow these simple steps:
 
 📥 Download (Optional)
 
-Download BetterTelegram from https://bettertelegram.org/assets/lib/BetterTelegram.exe or here https://github.com/bettertelegram-client/main/releases/tag/v1.2.41
+Download BetterTelegram from here https://github.com/bettertelegram-client/main/releases/tag/v1.3.1

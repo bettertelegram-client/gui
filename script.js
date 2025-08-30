@@ -111,7 +111,7 @@
                         updateButtonVisibility();
                     });
     
-                    fetch('https://bettertelegram.org/release_notes', { method: 'GET' })
+                    fetch('https://bettertelegram.com/release_notes', { method: 'GET' })
                     .then(response => response.json())
                     .then(json => {
                         if (json.err === 0) {
@@ -180,3 +180,4 @@
         } else
         ++refresh_ticker;
     }, 33);
+

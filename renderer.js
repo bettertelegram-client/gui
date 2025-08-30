@@ -252,7 +252,7 @@ if (update_container) {
   });
 
   const create_account_btn = document.getElementById('login_btn');
-  if (create_account_btn) create_account_btn.addEventListener('click', (e) => ipcRenderer.invoke('open-url', 'https://bettertelegram.org/create_account'));
+  if (create_account_btn) create_account_btn.addEventListener('click', (e) => ipcRenderer.invoke('open-url', 'https://bettertelegram.com/create_account'));
   	if (!tx_interval) {
 		tx_interval = setInterval(async () => {
 			if (window.location.href !== 'index.html') {
@@ -358,7 +358,7 @@ if (update_container) {
 	}
 
 	const createAccountBtn = document.getElementById('createAccountBtn');
-	if (createAccountBtn) createAccountBtn.addEventListener('click', (e) => { ipcRenderer.invoke('open-url', 'https://bettertelegram.org/account') });
+	if (createAccountBtn) createAccountBtn.addEventListener('click', (e) => { ipcRenderer.invoke('open-url', 'https://bettertelegram.com/account') });
 
 	const contactUsBtn = document.querySelector('#createAccountBtn a');
 	if (contactUsBtn) contactUsBtn.addEventListener('click', (e) => { ipcRenderer.invoke('open-url', 'https://t.me/bettertelegramorg') });
@@ -407,7 +407,7 @@ if (update_container) {
 	}
 
 	const officialSiteBtn = document.querySelector('#officialSiteBtn a');
-	if (officialSiteBtn) officialSiteBtn.addEventListener('click', (e) => { ipcRenderer.invoke('open-url', 'https://bettertelegram.org') });
+	if (officialSiteBtn) officialSiteBtn.addEventListener('click', (e) => { ipcRenderer.invoke('open-url', 'https://bettertelegram.com') });
 
   const license_key_input = document.getElementById('licenseKey');
   const login_form = document.getElementById('loginForm');
@@ -509,3 +509,4 @@ if (update_container) {
 		})
 	}
 });
+

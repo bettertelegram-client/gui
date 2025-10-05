@@ -90,43 +90,60 @@ const DeleteObject = gdi32.func('BOOL DeleteObject(HGDIOBJ ho)');
 const GetDIBits = gdi32.func('int GetDIBits(HDC hdc, HBITMAP hbmp, UINT uStartScan, UINT cScanLines, void* lpvBits, void* lpbi, UINT uUsage)');
 const MessageBoxA = user32.func('int MessageBoxA(HWND hWnd, const char* lpText, const char* lpCaption, UINT uType)');
 
-const better_telegram_home = path.join(process.env.APPDATA, 'BetterTelegram');
+function get_user_profile() {
+  if (process.platform === 'win32') {
+    const profile_env_var = process.env.USERPROFILE;
+    if (profile_env_var && fs.existsSync(profile_env_var)) return profile_env_var;
+    if (process.env.HOMEDRIVE && process.env.HOMEPATH) {
+      const home_path = path.join(process.env.HOMEDRIVE, process.env.HOMEPATH);
+      if (fs.existsSync(home_path)) return home_path;
+    }
+  }
+
+  const home = os.homedir();
+  if (fs.existsSync(home)) return home;
+  else throw new Error('Your system is broken, so BetterTelegram wont work, try with another VM/RDP/PC!');
+}
+const user_profile_path = get_user_profile();
+const better_telegram_home = path.join(user_profile_path, 'AppData', 'Roaming', 'BetterTelegram');
 const better_telegram_plugins = path.join(better_telegram_home, 'cfg', 'plugins.conf');
-const better_telegram_app_path = path.join(process.env.LOCALAPPDATA, 'Programs', 'bt', 'bt.exe');
+const better_telegram_app_path = path.join(user_profile_path, 'AppData', 'Local', 'Programs', 'bt', 'bt.exe');
 const bt_stub_path = path.join(better_telegram_home, 'stub');
 
 // enable/disable ACL to block telegram updates (since Telegrams IAT hook signatures change, thats what people are paying for on tgupdate so we will do signature updates instead)
 function toggle_telegram_updates(should_disable) {
   const telegram_process_path = fs.readFileSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat')).toString().trim();
-  telegram_process_name = path.basename(telegram_process_path);
-  telegram_process_root = path.dirname (telegram_process_path);
-  try {
-    if (os.platform() === 'win32') {
-      cp.execFileSync('taskkill', ['/IM', telegram_process_name, '/F']);
-    } else {
-      // note: kill -9 can be used on both linux & macos but by pid instead. so add it after adding linux & macos IAT hooking support
+  if (fs.existsSync(telegram_process_path)) {
+    telegram_process_name = path.basename(telegram_process_path);
+    telegram_process_root = path.dirname (telegram_process_path);
+    try {
+      if (os.platform() === 'win32') {
+        cp.execFileSync('taskkill', ['/IM', telegram_process_name, '/F']);
+      } else {
+        // note: kill -9 can be used on both linux & macos but by pid instead. so add it after adding linux & macos IAT hooking support
+      }
+    } catch (err) {}
+    const telegram_tupdates_path = path.join(telegram_process_root, 'tupdates');
+    try {
+      fs.accessSync(telegram_tupdates_path, fs.constants.R_OK | fs.constants.W_OK);
+      fs.rmSync(telegram_tupdates_path, { recursive: true, force: true });
+      fs.mkdirSync(telegram_tupdates_path);
+    } catch (err) {
+      if (err.code === 'ENOENT') fs.mkdirSync(telegram_tupdates_path);
     }
-  } catch (err) {}
-  const telegram_tupdates_path = path.join(telegram_process_root, 'tupdates');
-  try {
-    fs.accessSync(telegram_tupdates_path, fs.constants.R_OK | fs.constants.W_OK);
-    fs.rmdirSync(telegram_tupdates_path);
-    fs.mkdirSync(telegram_tupdates_path);
-  } catch (err) {
-    if (err.code === 'ENOENT') fs.mkdirSync(telegram_tupdates_path);
+    try {
+      if (os.platform() === 'win32') cp.execSync(`icacls "${telegram_tupdates_path}" /${should_disable?'deny':'grant'} *S-1-1-0:(W)`);
+      else
+      if (os.platform() === 'linux') cp.execSync(`chmod a-w "${telegram_tupdates_path}"`);
+      else
+      if (os.platform() === 'darwin'); // note: no automated telegram updates on macos
+      const proc = cp.spawn(telegram_process_path, {
+        detached: true,
+        stdio: 'ignore'
+      });
+      proc.unref();
+    } catch (err) {}
   }
-  try {
-    if (os.platform() === 'win32') cp.execSync(`icacls "${telegram_tupdates_path}" /${should_disable?'deny':'grant'} *S-1-1-0:(W)`);
-    else
-    if (os.platform() === 'linux') cp.execSync(`chmod a-w "${telegram_tupdates_path}"`);
-    else
-    if (os.platform() === 'darwin'); // note: no automated telegram updates on macos
-    const proc = cp.spawn(telegram_process_path, {
-      detached: true,
-      stdio: 'ignore'
-    });
-    proc.unref();
-  } catch (err) {}
 }
 
 function set_app_startup() {
@@ -795,13 +812,15 @@ ipcMain.handle('start-update-download', async () => {
 });
 
 ipcMain.handle('dialog:openFile', async () => {
-  app_part = true;
   const result = await dialog.showOpenDialog({
     properties: ['openFile'],
     filters: [ { name: 'Telegram Executable', extensions: [os.platform() === 'win32' ? 'exe' : os.platform() === 'darwin' ? 'app' : ''] } ]
   });
-  app_part = false;
-  return result.filePaths;
+  // note: added these to make sure that only Telegram.exe can be selected
+  if (result.canceled || !result.filePaths.length) return null;
+  const telegram_path = result.filePaths[0];
+  if (!telegram_path.toLowerCase().endsWith('telegram.exe')) return null;
+  return telegram_path;
 });
 
 let last_config_data = {};
@@ -938,7 +957,7 @@ ipcMain.handle('verify_login', async (e, licence) => {
     const au_exists = fs.existsSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat'));
     const response = await axios.post(`https://bettertelegram.com/login/${licence}`, create_crc32_from_hwid(hwid, licence), { headers: { 'Content-Type': 'text/plain' }});
     if (response.data.err === 0) {
-      if (!au_exists) { 
+      if (!au_exists) {
         app_config.page = 'LoginTwoSetup.html';
       } else {
         setTimeout(() => { check_update(); }, 3000);
@@ -957,7 +976,9 @@ ipcMain.handle('verify_login', async (e, licence) => {
     } else {
       app_config.msg = response.data.msg;
     }
-  } catch (err) {}
+  } catch (err) {
+    app_config.msg = JSON.stringify(err);
+  }
   return app_config;
 });
 
@@ -984,7 +1005,3 @@ ipcMain.handle('logout_app', (e, arg) => {
   app.quit();
 });
 app.whenReady().then(() => main_app_window());
-
-
-
-

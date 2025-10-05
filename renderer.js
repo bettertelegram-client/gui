@@ -315,17 +315,20 @@ if (update_container) {
 	const submitBtn = document.getElementById('submitBtn');
 	const folderButton = document.getElementById('folderButton');
 	const telegram_path = document.getElementById('licenseKey');
-	if (folderButton && submitBtn) {
-		folderButton.addEventListener('click', async function () {
-			const file_path = await ipcRenderer.invoke('dialog:openFile');
-			if (file_path && file_path.length > 0) {
-				telegram_path.title = telegram_path.placeholder = file_path[0];
-				submitBtn.disabled = false;
-			}
-		});
+	async function invoke_dialog() {
+		const file_path = await ipcRenderer.invoke('dialog:openFile');
+		if (file_path != null) {
+			telegram_path.title = file_path;
+			telegram_path.value = file_path;
+			submitBtn.disabled = false;
+		} else invoke_dialog();
+	}
 
+	if (folderButton && submitBtn) {
+		submitBtn.disabled = true;
+		folderButton.addEventListener('click', async () => await invoke_dialog());
 		submitBtn.addEventListener('click', async function () {
-			if (!submitBtn.disabled) await ipcRenderer.invoke('setup_app', telegram_path.placeholder);
+			if (!submitBtn.disabled && telegram_path.value.length) await ipcRenderer.invoke('setup_app', telegram_path.value);
 		});
 	}
 
@@ -459,8 +462,7 @@ if (update_container) {
 				if (autoLogin === 'ok') {
 					autoLoginToggle.checked = true;
 					document.getElementById('licenseKey').value = license.key.match(/.{1,4}/g).join(' ');
-					const submitBtn = document.getElementById('submitBtn');
-					submitBtn.disabled = false;
+					document.getElementById('submitBtn').disabled = false;
 				}
 			}
 		});
@@ -509,4 +511,3 @@ if (update_container) {
 		})
 	}
 });
-

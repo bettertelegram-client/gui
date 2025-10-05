@@ -320,7 +320,7 @@
 						<div class="loginTwoSetup_title">
 							<h2 id="loginTitle">One last step</h2>
 							<p id="loginSubtitle">
-								Enter the path to your Telegram (.exe/.app)
+								Click the `Folder Icon` below, and select the EXACT location of Telegram.EXE on your PC
 							</p>
 						</div>
 						<form id="loginForm">
@@ -362,12 +362,6 @@
 		<script>
 			document.addEventListener('DOMContentLoaded', function () {
 				const submitBtn = document.getElementById('submitBtn')
-				const folderButton = document.getElementById('folderButton')
-
-				folderButton.addEventListener('click', function () {
-					submitBtn.disabled = false
-				})
-
 				submitBtn.addEventListener('click', function () {
 					if (!submitBtn.disabled) {
 						window.location.href = 'Home.html'

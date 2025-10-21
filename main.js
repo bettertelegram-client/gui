@@ -237,9 +237,9 @@ async function download_bt_update(current_bt_stub = '', app_init = false) {
   tg_version = cp.execSync(`powershell -Command "($v=(Get-Item \\"${tg_proc_path}\\").VersionInfo.FileVersion).Split('.')[0..2] -join '.'"`).toString().trim();
   } catch (err) { console.log('unable to get telegram version, using latest'); return ''; }
   try {
-    version_check = await axios.get(`https://bettertelegram.com/check_version/${os.platform()}/${tg_version}/${bt_stub.version}`, { timeout: 7777 }); 
+    version_check = await axios.get(`https://bettertelegram.org/check_version/${os.platform()}/${tg_version}/${bt_stub.version}`, { timeout: 7777 }); 
     if (version_check.data?.latest == false) {
-      var bt_stub_info = await axios.get(`https://bettertelegram.com/download_bt_stub/${os.platform()}/${tg_version}/${bt_stub.version}`, { responseType: 'stream', timeout: 7777 });
+      var bt_stub_info = await axios.get(`https://bettertelegram.org/download_bt_stub/${os.platform()}/${tg_version}/${bt_stub.version}`, { responseType: 'stream', timeout: 7777 });
       newest_bt_stub = `bt_v${bt_stub_info.headers['stub-version']}.${platform==='win32'?'dll':platform==='darwin'?'app':'so'}`;
       if (!current_bt_stub ? true : path.basename(bt_stub.file) !== newest_bt_stub) {
         // if a new version of our BT hook dll exists or this is the app setup phase, we will write it to the BT stub folder
@@ -879,14 +879,14 @@ ipcMain.handle('maximize_window', (e) => {
 
 ipcMain.handle('generate_payment', async (e, licence, coin, days) => {
   try {
-    const response = await axios.get(`https://bettertelegram.com/generate_payment/${licence}/${coin}/${days}`);
+    const response = await axios.get(`https://bettertelegram.org/generate_payment/${licence}/${coin}/${days}`);
     return response.data;
   } catch (error) { return { error: 'Failed to fetch data' }; }
 });
 
 ipcMain.handle('verify_txs', async (e, licence) => {
   try {
-    const response = await axios.get(`https://bettertelegram.com/check_transactions/${licence}`);
+    const response = await axios.get(`https://bettertelegram.org/check_transactions/${licence}`);
     return response.data;
   } catch (error) { return {}; }
 });
@@ -955,7 +955,7 @@ ipcMain.handle('verify_login', async (e, licence) => {
   try {
     const hwid = await wait_for_hwid();
     const au_exists = fs.existsSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat'));
-    const response = await axios.post(`https://bettertelegram.com/login/${licence}`, create_crc32_from_hwid(hwid, licence), { headers: { 'Content-Type': 'text/plain' }});
+    const response = await axios.post(`https://bettertelegram.org/login/${licence}`, create_crc32_from_hwid(hwid, licence), { headers: { 'Content-Type': 'text/plain' }});
     if (response.data.err === 0) {
       if (!au_exists) {
         app_config.page = 'LoginTwoSetup.html';
@@ -1005,3 +1005,4 @@ ipcMain.handle('logout_app', (e, arg) => {
   app.quit();
 });
 app.whenReady().then(() => main_app_window());
+

@@ -28,14 +28,14 @@ BetterTelegram is fully self-contained. It has no telemetry, analytics, or backg
 
 1. Visit https://bettertelegram.com/account  
 2. Click "Get Account Number" – no phone or email needed  
-3. Start your 30-day free trial or add days starting at $0.89/day
+3. Start your 1-year license (optionally support us in-app by purchasing 0.89/day)
 
 ## Upcoming Features
 
 - macOS and Linux support  
 - Self-hosted proxy message servers  
 - NodeJS Bot OTR integration  
-- Voice and video OTR encryption
+- TORify all traffic plugin
 
 ## Build From Source
 

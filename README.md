@@ -13,13 +13,6 @@ BetterTelegram adds features built for users who value control and privacy:
 - Anonymous Account Creation – no phone number or email required  
 - No ads, tracking, or data collection
 
-## Subscription Options
-
-- 30-day free trial for new users  
-- Extend anytime with daily billing  
-- Discounts available for longer commitments  
-- Payments supported: BTC, ETH, USDT (ERC20), BNB (ERC20), XMR
-
 ## Security by Design
 
 BetterTelegram is fully self-contained. It has no telemetry, analytics, or background tracking. Its encryption layer is independent of Telegram’s servers.

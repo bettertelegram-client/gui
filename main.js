@@ -635,26 +635,6 @@ async function main_app_window() {
     icon: path.join(__dirname, 'icon.png')
   });
 
-  tray = new Tray(path.join(__dirname, 'icon.png'));
-  tray.setToolTip('BetterTelegram GUI');
-
-  tray.on('click', () => {
-    main_window.show();
-    main_window.focus();
-  });
-
-  const tray_menu = Menu.buildFromTemplate([
-    {
-      label: 'Show',
-      click: () => main_window.show()
-    },
-    {
-      label: 'Quit',
-      click: () => app.quit()
-    }
-  ]);
-  tray.setContextMenu(tray_menu);
-
   main_window.loadFile(path.join(__dirname, 'index.html'));
   main_window.webContents.on('did-finish-load', async () => {
     try {
@@ -673,6 +653,23 @@ async function main_app_window() {
           main_window.webContents.send('resume-bt-update', 'bt-main-stage');
         }
       }
+      tray = new Tray(path.join(__dirname, 'icon.png'));
+      tray.setToolTip('BetterTelegram GUI');
+      tray.on('click', () => {
+        main_window.show();
+        main_window.focus();
+      });
+      const tray_menu = Menu.buildFromTemplate([
+        {
+          label: 'Show',
+          click: () => main_window.show()
+        },
+        {
+          label: 'Quit',
+          click: () => app.quit()
+        }
+      ]);
+      tray.setContextMenu(tray_menu);
     } catch (err) {}
   });
 }

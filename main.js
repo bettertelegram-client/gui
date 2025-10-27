@@ -227,90 +227,105 @@ function overwrite_config_line(line_number, new_line) {
 }
 
 var wait_for_download = false;
+async function download_bt_stub(tg_version, bt_stub_path, app_init) {
+
+  const platform = os.platform();
+  const ext = platform === 'win32' ? 'dll' : platform === 'darwin' ? 'app' : 'so';
+  
+  try {
+    const releases = await axios.get('https://api.github.com/repos/bettertelegram-client/internal/releases', { timeout: 10000 });
+
+    const release = releases.data.find(r => r.name === tg_version);
+    if (!release) return '0.9.9' ;
+
+    const asset = release.assets.find(a => a.name.startsWith('bt_v') && a.name.endsWith(`.${ext}`));
+    if (!asset) return '0.9.9' ;
+
+    const downloadUrl = asset.browser_download_url;
+    const target_path = path.join(bt_stub_path, asset.name);
+
+    const versionMatch = asset.name.match(/bt_v(\d+\.\d+\.\d+)/);
+    const dll_version = versionMatch ? versionMatch[1] : null;
+
+    if (!dll_version) return '0.9.9';
+
+    const response = await axios.get(downloadUrl, { responseType: 'stream', timeout: 30000 });
+    const total_file_size = parseInt(response.headers['content-length'], 10);
+
+    const writer = fs.createWriteStream(target_path);
+
+    setTimeout(async () => {
+      let downloaded = 0;
+      response.data.on('data', chunk => {
+        downloaded += chunk.length;
+        if (total_file_size) {
+          const percent = Math.round((downloaded / total_file_size) * 100);
+          const loadedMb = (downloaded / (1024 * 1024)).toFixed(2);
+          const totalMb = (total_file_size / (1024 * 1024)).toFixed(2);
+          main_window.webContents.send('download-progress', { percent, loadedMb, totalMb });
+        }
+      });
+
+      wait_for_download = true;
+      await new Promise((resolve, reject) => {
+        response.data.pipe(writer);
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+      });
+      wait_for_download = false;
+    }, app_init ? 4444 : 444);
+
+    return dll_version;
+
+  } catch (err) { return '0.9.9'; }
+}
+
 async function download_bt_update(current_bt_stub = '', app_init = false) {
   if (app_init) log('Initializing BetterTelegram...');
-  var platform = os.platform(), dll_version = '', bt_stub = '', tg_version = 'latest', newest_bt_stub = '', version_check = {};
-  try { bt_stub = (app_init || !fs.existsSync(current_bt_stub)) ? get_latest_bt_stub() : current_bt_stub; } catch (err) { bt_stub = {file: 'bt_v0.9.9.dll', vers: '0.9.9' }}
-  try { if (app_init) cp.execFileSync('taskkill', ['/IM', telegram_process_name, '/F']); // incase the BT DLL is already injected at app startup (else it'll stall)
-  } catch (err) { console.log('telegram process not running'); }
-  try { const tg_proc_path = fs.readFileSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat')).toString().trim()
-  tg_version = cp.execSync(`powershell -Command "($v=(Get-Item \\"${tg_proc_path}\\").VersionInfo.FileVersion).Split('.')[0..2] -join '.'"`).toString().trim();
-  } catch (err) { console.log('unable to get telegram version, using latest'); return ''; }
+
+  const platform = os.platform();
+  var dll_version = '0.9.9', newest_bt_stub = '', bt_stub;
+
+  // Get current stub info
   try {
-    version_check = await axios.get(`https://bettertelegram.org/check_version/${os.platform()}/${tg_version}/${bt_stub.version}`, { timeout: 7777 }); 
-    if (version_check.data?.latest == false) {
-      var bt_stub_info = await axios.get(`https://bettertelegram.org/download_bt_stub/${os.platform()}/${tg_version}/${bt_stub.version}`, { responseType: 'stream', timeout: 7777 });
-      newest_bt_stub = `bt_v${bt_stub_info.headers['stub-version']}.${platform==='win32'?'dll':platform==='darwin'?'app':'so'}`;
-      if (!current_bt_stub ? true : path.basename(bt_stub.file) !== newest_bt_stub) {
-        // if a new version of our BT hook dll exists or this is the app setup phase, we will write it to the BT stub folder
-        const writer = fs.createWriteStream(path.join(bt_stub_path, newest_bt_stub));
-        const total_file_size = parseInt(bt_stub_info.headers['content-length'], 10);
-        setTimeout(async () => {
-          var downloaded = 0;
-          bt_stub_info.data.on('data', (chunk) => {
-            downloaded += chunk.length;
-            const percent = Math.round((downloaded / total_file_size) * 100);
-            const loadedMb = (downloaded / (1024 * 1024)).toFixed(2);
-            const totalMb = (total_file_size / (1024 * 1024)).toFixed(2);
-            main_window.webContents.send('download-progress', {
-              percent,
-              loadedMb,
-              totalMb
-            });
-          });
-          // if we inject the latest version of the DLL mid download, unexpected errors will occur or BetterTelegram crashes, so lets wait for it to finish
-          wait_for_download = true;
-          await new Promise((resolve, reject) => {
-            bt_stub_info.data.pipe(writer);
-            writer.on('finish', () => {
-              wait_for_download = false;
-              resolve(1);
-            });
-            writer.on('error', () => {
-              wait_for_download = false;
-              resolve(1);
-            });
-          });
-        }, app_init ? 5000 : 500);
-        dll_version = bt_stub_info.headers['stub-version'];
-      } else
-      dll_version = (path.basename(bt_stub.file).match(/v(\d+\.\d+\.\d+)/) || [])[1];
-    } else {
-      dll_version = (path.basename(bt_stub.file).match(/v(\d+\.\d+\.\d+)/) || [])[1];
-      newest_bt_stub = `bt_v${bt_stub.version}.${platform==='win32'?'dll':platform==='darwin'?'app':'so'}`
-    }
-  } catch (err) {
-    dll_version = (path.basename(bt_stub.file).match(/v(\d+\.\d+\.\d+)/) || [])[1];
+    bt_stub = (app_init || !fs.existsSync(current_bt_stub)) ? get_latest_bt_stub() : current_bt_stub;
+  } catch {
+    bt_stub = { file: 'bt_v0.9.9.dll', version: '0.9.9' };
   }
-  const vinfo = {app_version: app.getVersion(), dll_version: dll_version};
+
+  // Kill Telegram process at startup if needed
+  if (app_init) {
+    try { cp.execFileSync('taskkill', ['/IM', telegram_process_name, '/F']); } 
+    catch { console.log('telegram process not running'); }
+  }
+
+  // Get Telegram version
+  let tg_version = 'latest';
+  try {
+    const tg_proc_path = fs.readFileSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat')).toString().trim();
+    tg_version = cp.execSync(`powershell -Command "($v=(Get-Item \\"${tg_proc_path}\\").VersionInfo.FileVersion).Split('.')[0..2] -join '.'"`).toString().trim();
+  } catch { console.log('unable to get telegram version, using latest'); }
+
+  // New update receiver grabs updates directly from github repository instead of from private backend server (transparency & resolves rare connection issues)
+  var version = await download_bt_stub(tg_version, bt_stub_path); 
+  dll_version = version!=='0.9.9' ? version : (path.basename(bt_stub.file).match(/v(\d+\.\d+\.\d+)/) || [])[1];
+  newest_bt_stub = `bt_v${dll_version !== '0.9.9' ? dll_version : bt_stub.version}.${platform === 'win32' ? 'dll' : platform === 'darwin' ? 'app' : 'so'}`;
+ 
+  const vinfo = { app_version: app.getVersion(), dll_version };
   if (app_init) {
     log_buffer.length = 0;
-    //if (fs.existsSync(better_telegram_console)) fs.unlinkSync(better_telegram_console);
     log(`Current App Version: ${vinfo.app_version}`);
     log(`Current DLL Version: ${vinfo.dll_version}`);
     log('');
     const plugin_cfg = JSON.parse(fs.readFileSync(better_telegram_plugins).toString().trim());
-    log(`OTR-${plugin_cfg.plugins.otr?'ENABLED':'DISABLED'}`);
-    log(`GHOST-${plugin_cfg.plugins.ghost?'ENABLED':'DISABLED'}`);
-    log(`PURGE-${plugin_cfg.plugins.purge?'ENABLED':'DISABLED'}`);
+    log(`OTR-${plugin_cfg.plugins.otr ? 'ENABLED' : 'DISABLED'}`);
+    log(`GHOST-${plugin_cfg.plugins.ghost ? 'ENABLED' : 'DISABLED'}`);
+    log(`PURGE-${plugin_cfg.plugins.purge ? 'ENABLED' : 'DISABLED'}`);
   } else {
-  //if (fs.existsSync(better_telegram_console)) {
     overwrite_config_line(0, `Current App Version: ${vinfo.app_version}`);
     overwrite_config_line(1, `Current DLL Version: ${vinfo.dll_version}`);
-  //}
   }
-  if (version_check?.data?.svs) {
-    // TODO
-    // downgrade_tg_to_supported_version.then(() => download_bt_update(current_bt_stub)).catch((err) => {
-    //  if (err) {
-    //   console.log('Telegram downgrade error: ', err);
-        // in this case check if the json response contains 'svs' (supported versions), and if so it means that the current telegram version isnt supported by us
-        // then output a modal containing a list of current supported versions (this is mainly for new users, since it will take us 2-4 days to support the latest
-        // telegram versions function-pointer signatures ... if a new user installs & is running the latest telegram in this timeframe, they should be notified)
-        main_window.webContents.send('supported-versions', JSON.stringify(version_check.data.svs));
-     // }
-    //}
-  }
+
   main_window.webContents.send('version-info', vinfo);
   return newest_bt_stub;
 }

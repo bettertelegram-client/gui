@@ -58,4 +58,4 @@ Developers can compile BetterTelegram manually:
 ## Optional Download
 
 You can also download the latest prebuilt release here:  
-https://github.com/bettertelegram-client/main/releases/tag/v1.3.5
+https://github.com/bettertelegram-client/main/releases/tag/v1.3.7

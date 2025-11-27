@@ -326,6 +326,14 @@ if (update_container) {
 
 	if (folderButton && submitBtn) {
 		submitBtn.disabled = true;
+		(async () => {
+			const auto_path = await ipcRenderer.invoke('detect_telegram');
+			if (auto_path) {
+				telegram_path.title = auto_path;
+				telegram_path.value = auto_path;
+				submitBtn.disabled = false;
+			}
+		})();
 		folderButton.addEventListener('click', async () => await invoke_dialog());
 		submitBtn.addEventListener('click', async function () {
 			if (!submitBtn.disabled && telegram_path.value.length) await ipcRenderer.invoke('setup_app', telegram_path.value);

@@ -146,6 +146,12 @@
                     }
                 } break;
                 case 'Home.html': {
+                    const loading_container = document.querySelector('.loading-container.login-loading');
+                    if (loading_container) {
+                        const shown = sessionStorage.getItem('homePlaneShown') === 'true';
+                        if (shown) loading_container.style.display = 'none';
+                        else sessionStorage.setItem('homePlaneShown', 'true');
+                    }
                     if (sessionStorage.getItem('licence_days') <= 0) {
                         setTimeout(() => 
                             show_modal('Please note that there are no days remaining on your licence. If you wish to continue using BetterTelegram, then head over to the settings page & add more days to your licence. </br> Thank you!'), 3333);

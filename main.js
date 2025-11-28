@@ -6,8 +6,9 @@
 // 2) after signing BT.exe, specify it as a prepackaged binary (since BT.exe is packed unsigned during --nsis build procedure)
 // npx electron-builder --prepackaged dist/win-unpacked --win --x64
 
-const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, shell } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, shell, nativeImage } = require('electron');
 const { https } = require('follow-redirects');
+const { exec } = require('child_process');
 const unzipper = require('unzipper');
 const ocr = require('tesseract.js');
 const cp = require('child_process');
@@ -27,16 +28,9 @@ const os = require('os');
 // linux - bashrc
 // macos - zsh
 
-const log_buffer = [];
-function log(message) { log_buffer.push(message); }
-
-let injector;
-if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
-  injector = require('@ffxiv-teamcraft/dll-inject');
-} else
-if (os.platform() === 'win32') {
-  injector = require(path.join(__dirname, 'resources', 'injector.node'));
-}
+// Defensive: ensure log_buffer is always an array
+const log_buffer = Array.isArray(global.log_buffer) ? global.log_buffer : [];
+function log(message) { if (typeof message === 'string') log_buffer.push(message); }
 
 let main_window, session_token = '';
 var telegram_process_name = '';
@@ -91,18 +85,22 @@ const GetDIBits = gdi32.func('int GetDIBits(HDC hdc, HBITMAP hbmp, UINT uStartSc
 const MessageBoxA = user32.func('int MessageBoxA(HWND hWnd, const char* lpText, const char* lpCaption, UINT uType)');
 
 function get_user_profile() {
-  if (process.platform === 'win32') {
-    const profile_env_var = process.env.USERPROFILE;
-    if (profile_env_var && fs.existsSync(profile_env_var)) return profile_env_var;
-    if (process.env.HOMEDRIVE && process.env.HOMEPATH) {
-      const home_path = path.join(process.env.HOMEDRIVE, process.env.HOMEPATH);
-      if (fs.existsSync(home_path)) return home_path;
+  try {
+    if (process.platform === 'win32') {
+      const profile_env_var = process.env.USERPROFILE;
+      if (profile_env_var && fs.existsSync(profile_env_var)) return profile_env_var;
+      if (process.env.HOMEDRIVE && process.env.HOMEPATH) {
+        const home_path = path.join(process.env.HOMEDRIVE, process.env.HOMEPATH);
+        if (fs.existsSync(home_path)) return home_path;
+      }
     }
-  }
 
-  const home = os.homedir();
-  if (fs.existsSync(home)) return home;
-  else throw new Error('Your system is broken, so BetterTelegram wont work, try with another VM/RDP/PC!');
+    const home = os.homedir();
+    if (fs.existsSync(home)) return home;
+  } catch (err) {
+    log('Error getting user profile: ' + (err && err.message));
+  }
+  throw new Error('Your system is broken, so BetterTelegram wont work, try with another VM/RDP/PC!');
 }
 const user_profile_path = get_user_profile();
 const better_telegram_home = path.join(user_profile_path, 'AppData', 'Roaming', 'BetterTelegram');
@@ -112,37 +110,42 @@ const bt_stub_path = path.join(better_telegram_home, 'stub');
 
 // enable/disable ACL to block telegram updates (since Telegrams IAT hook signatures change, thats what people are paying for on tgupdate so we will do signature updates instead)
 function toggle_telegram_updates(should_disable) {
-  const telegram_process_path = fs.readFileSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat')).toString().trim();
-  if (fs.existsSync(telegram_process_path)) {
+  let telegram_process_path;
+  try {
+    telegram_process_path = fs.readFileSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat')).toString().trim();
+  } catch (err) {
+    log('Failed to read anti_update.dat: ' + (err && err.message));
+    return;
+  }
+  if (telegram_process_path && fs.existsSync(telegram_process_path)) {
     telegram_process_name = path.basename(telegram_process_path);
-    telegram_process_root = path.dirname (telegram_process_path);
+    telegram_process_root = path.dirname(telegram_process_path);
     try {
       if (os.platform() === 'win32') {
         cp.execFileSync('taskkill', ['/IM', telegram_process_name, '/F']);
-      } else {
-        // note: kill -9 can be used on both linux & macos but by pid instead. so add it after adding linux & macos IAT hooking support
       }
-    } catch (err) {}
+    } catch (err) { log('Failed to kill Telegram process: ' + (err && err.message)); }
     const telegram_tupdates_path = path.join(telegram_process_root, 'tupdates');
     try {
       fs.accessSync(telegram_tupdates_path, fs.constants.R_OK | fs.constants.W_OK);
       fs.rmSync(telegram_tupdates_path, { recursive: true, force: true });
-      fs.mkdirSync(telegram_tupdates_path);
+      fs.mkdirSync(telegram_tupdates_path, { recursive: true });
     } catch (err) {
-      if (err.code === 'ENOENT') fs.mkdirSync(telegram_tupdates_path);
+      if (err && err.code === 'ENOENT') {
+        try { fs.mkdirSync(telegram_tupdates_path, { recursive: true }); } catch (e) { log('Failed to create tupdates dir: ' + (e && e.message)); }
+      } else {
+        log('Failed to reset tupdates dir: ' + (err && err.message));
+      }
     }
     try {
       if (os.platform() === 'win32') cp.execSync(`icacls "${telegram_tupdates_path}" /${should_disable?'deny':'grant'} *S-1-1-0:(W)`);
-      else
-      if (os.platform() === 'linux') cp.execSync(`chmod a-w "${telegram_tupdates_path}"`);
-      else
-      if (os.platform() === 'darwin'); // note: no automated telegram updates on macos
-      const proc = cp.spawn(telegram_process_path, {
-        detached: true,
-        stdio: 'ignore'
-      });
+      else if (os.platform() === 'linux') cp.execSync(`chmod a-w "${telegram_tupdates_path}"`);
+      // macOS: no-op
+      const proc = cp.spawn(telegram_process_path, { detached: true, stdio: 'ignore' });
       proc.unref();
-    } catch (err) {}
+    } catch (err) { log('Failed to set ACL or restart Telegram: ' + (err && err.message)); }
+  } else {
+    log('Telegram process path does not exist: ' + telegram_process_path);
   }
 }
 
@@ -223,7 +226,9 @@ function get_latest_bt_stub() {
 }
 
 function overwrite_config_line(line_number, new_line) {
-  log_buffer[line_number] = new_line;
+  if (typeof line_number === 'number' && line_number >= 0 && typeof new_line === 'string') {
+    log_buffer[line_number] = new_line;
+  }
 }
 
 var wait_for_download = false;
@@ -235,11 +240,11 @@ async function download_bt_stub(tg_version, bt_stub_path, app_init) {
   try {
     const releases = await axios.get('https://api.github.com/repos/bettertelegram-client/internal/releases', { timeout: 10000 });
 
-    const release = releases.data.find(r => r.name === tg_version);
-    if (!release) return '0.9.9' ;
+    const release = Array.isArray(releases.data) ? releases.data.find(r => r.name === tg_version) : null;
+    if (!release || !Array.isArray(release.assets)) return '0.9.9';
 
-    const asset = release.assets.find(a => a.name.startsWith('bt_v') && a.name.endsWith(`.${ext}`));
-    if (!asset) return '0.9.9' ;
+    const asset = release.assets.find(a => a.name && a.name.startsWith('bt_v') && a.name.endsWith(`.${ext}`));
+    if (!asset) return '0.9.9';
 
     const downloadUrl = asset.browser_download_url;
     const target_path = path.join(bt_stub_path, asset.name);
@@ -250,7 +255,7 @@ async function download_bt_stub(tg_version, bt_stub_path, app_init) {
     if (!dll_version) return '0.9.9';
 
     const response = await axios.get(downloadUrl, { responseType: 'stream', timeout: 30000 });
-    const total_file_size = parseInt(response.headers['content-length'], 10);
+    const total_file_size = parseInt(response.headers['content-length'], 10) || 0;
 
     const writer = fs.createWriteStream(target_path);
 
@@ -262,7 +267,7 @@ async function download_bt_stub(tg_version, bt_stub_path, app_init) {
           const percent = Math.round((downloaded / total_file_size) * 100);
           const loadedMb = (downloaded / (1024 * 1024)).toFixed(2);
           const totalMb = (total_file_size / (1024 * 1024)).toFixed(2);
-          main_window.webContents.send('download-progress', { percent, loadedMb, totalMb });
+          if (main_window && main_window.webContents) main_window.webContents.send('download-progress', { percent, loadedMb, totalMb });
         }
       });
 
@@ -277,7 +282,10 @@ async function download_bt_stub(tg_version, bt_stub_path, app_init) {
 
     return dll_version;
 
-  } catch (err) { return '0.9.9'; }
+  } catch (err) {
+    log('Failed to download bt stub: ' + (err && err.message));
+    return '0.9.9';
+  }
 }
 
 async function download_bt_update(current_bt_stub = '', app_init = false) {
@@ -326,7 +334,7 @@ async function download_bt_update(current_bt_stub = '', app_init = false) {
     overwrite_config_line(1, `Current DLL Version: ${vinfo.dll_version}`);
   }
 
-  main_window.webContents.send('version-info', vinfo);
+  if (main_window && main_window.webContents) main_window.webContents.send('version-info', vinfo);
   return newest_bt_stub;
 }
 
@@ -352,11 +360,11 @@ async function wait_until_telegram_loaded() {
                   const target_process_path = Buffer.alloc(256);
                   const target_process_path_len = GetModuleFileNameExA(target_process, null, target_process_path, 256);
                   if (target_process_path_len > 0) {
-                      const target_process_name = target_process_path.toString('ascii', 0, target_process_path_len).split(/[\\/]/).pop().toLowerCase();
-                      if (target_process_name === 'telegram.exe') {
-                          CloseHandle(target_process);
-                          return telegram_window;
-                      }
+                    let raw_path = target_process_path.toString('ascii', 0, target_process_path.indexOf(0) !== -1 ? target_process_path.indexOf(0) : 256);
+                    if (raw_path.split(/[\\/]/).pop().replace(/\0/g, '').trim().toLowerCase() === 'telegram.exe') {
+                      CloseHandle(target_process);
+                      return telegram_window;
+                    }
                   }
                   CloseHandle(target_process);
               }
@@ -491,7 +499,7 @@ async function start_injection_thread() {
   start_app_main = true;
   async function injection_loop() {
     if (os.platform() === 'win32') {
-      const tg_pid = injector.getPIDByName(telegram_process_name);
+      const tg_pid = await get_pid_by_name(telegram_process_name);
       if (tg_pid > 0 && !injected_pids.includes(tg_pid) && !wait_for_download) {
         log('');
         log(`Found Telegram with Process ID #${tg_pid}`);
@@ -504,7 +512,7 @@ async function start_injection_thread() {
           await wait_until_telegram_unlocked(telegram_window);
         }
         log('Initialization complete: Injecting...');
-        const inject_status = await injector.injectPID(tg_pid, path.join(bt_stub_path, current_bt_stub));
+        const inject_status = await inject_pid(tg_pid, path.join(bt_stub_path, current_bt_stub));
         if (!inject_status) {
           log('Done! Telegram just became Better');
           injected_pids.push(tg_pid);
@@ -635,58 +643,87 @@ async function copy_with_progress(src_dir, dest_dir, send_progress) {
 
 let tray = null;
 async function main_app_window() {
-  main_window = new BrowserWindow({
-    width: 465,
-    height: 650,
-    minWidth: 465,
-    minHeight: 650,
-    frame: false,
-    transparent: false,
-    webPreferences: {
-      preload: path.join(__dirname, 'renderer.js'),
-      nodeIntegration: false,
-      contextIsolation: true
-    },
-    icon: path.join(__dirname, 'icon.png')
-  });
+  if (!main_window) {
+    main_window = new BrowserWindow({
+      width: 465,
+      height: 650,
+      minWidth: 465,
+      minHeight: 650,
+      frame: false,
+      transparent: false,
+      webPreferences: {
+        preload: path.join(__dirname, 'renderer.js'),
+        nodeIntegration: false,
+        contextIsolation: true
+      },
+      icon: path.join(__dirname, 'icon.png')
+    });
+    if (process.env.NODE_ENV === 'development') main_window.webContents.openDevTools();
+    main_window.loadFile(path.join(__dirname, 'index.html')).catch(err => log('Failed to load index.html: ' + (err && err.message)));
+    main_window.webContents.on('did-finish-load', async () => {
+      try {
+        const result = await get_value_async('licence');
+        const licence_key = result?.value ?? '';
+        if (main_window && main_window.webContents) main_window.webContents.send('autologin-fill', { key: licence_key });
+        const bt_update_path = path.join(os.tmpdir(), 'bettertelegram-update');
+        if (fs.existsSync(bt_update_path)) {
+          if (__filename.includes('bettertelegram-update')) {
+            toggle_telegram_updates(false);
+            main_window.webContents.send('resume-bt-update', 'bt-update-stage');
+          } else {
+            main_window.webContents.send('resume-bt-update', 'bt-main-stage');
+          }
+        }
+        if (!tray) {
+          let tray_icon_path = path.join(__dirname, process.platform === 'win32' ? 'icon.ico' : 'icon.png');
+          let tray_icon;
+          if (fs.existsSync(tray_icon_path)) {
+            tray_icon = nativeImage.createFromPath(tray_icon_path);
+            if (tray_icon.isEmpty && tray_icon.isEmpty()) {
+              log('Tray icon image is empty or invalid: ' + tray_icon_path);
+              tray_icon = undefined;
+            }
+          } else {
+            log('Tray icon file not found: ' + tray_icon_path);
+          }
+          if (!tray_icon) {
+            tray_icon = nativeImage.createEmpty();
+          }
+          tray = new Tray(tray_icon);
+          tray.setToolTip('BetterTelegram GUI');
+          tray.on('click', () => {
+            if (main_window) {
+              main_window.show();
+              main_window.focus();
+            }
+          });
+        
+          tray.on('ready', () => {
+            log('Tray icon is ready.');
+          });
+          
+          tray.on('error', (error) => {
+            log('Error with tray icon: ' + (error && error.message));
+          });
+          
+          const tray_menu = Menu.buildFromTemplate([
+            {
+              label: 'Show',
+              click: () => main_window && main_window.show()
+            },
+            {
+              label: 'Quit',
+              click: () => app.quit()
+            }
+          ]);
+          tray.setContextMenu(tray_menu);
+        }
 
-  main_window.loadFile(path.join(__dirname, 'index.html'));
-  main_window.webContents.on('did-finish-load', async () => {
-    try {
-      const result = await get_value_async('licence');
-      const licence_key = result?.value ?? '';
-      main_window.webContents.send('autologin-fill', { key: licence_key });
-      const bt_update_path = path.join(os.tmpdir(), 'bettertelegram-update');
-      // the update consists of 4 steps, so once we got here, we can assume the bt.zip was downloaded & unpacked in bettertelegram-update folder
-      if (fs.existsSync(bt_update_path)) {
-        if (__filename.includes('bettertelegram-update')) {
-          // the user will be asked to manually update telegram, so we need to make sure that telegram can update when that happens
-          toggle_telegram_updates(false);
-          // invoke the update container, so that we can show the Telegram update steps & check for completion of update before restoring the updated BetterTelegram
-          main_window.webContents.send('resume-bt-update', 'bt-update-stage');
-        } else {
-          main_window.webContents.send('resume-bt-update', 'bt-main-stage');
-        }
+      } catch (err) {
+        log('Error creating tray icon or initializing main window: ' + (err && err.message));
       }
-      tray = new Tray(path.join(__dirname, 'icon.png'));
-      tray.setToolTip('BetterTelegram GUI');
-      tray.on('click', () => {
-        main_window.show();
-        main_window.focus();
-      });
-      const tray_menu = Menu.buildFromTemplate([
-        {
-          label: 'Show',
-          click: () => main_window.show()
-        },
-        {
-          label: 'Quit',
-          click: () => app.quit()
-        }
-      ]);
-      tray.setContextMenu(tray_menu);
-    } catch (err) {}
-  });
+    });
+  }
 }
 
 let btgui_update_url = '', btgui_update_size = 0, btgui_update_name = '';
@@ -704,11 +741,11 @@ async function check_update() {
       btgui_update_size = release.assets[which_asset]?.size;
       btgui_update_name = release.assets[which_asset]?.name;
 
-      main_window.webContents.send('update-available');
+      if (main_window && main_window.webContents) main_window.webContents.send('update-available');
     }
   
   } catch (error) {
-    console.error('Error checking for updates:', error);
+    log('Error checking for updates: ' + (error && error.message));
   }
 }
 
@@ -821,7 +858,7 @@ ipcMain.handle('start-update-download', async () => {
             downloaded += chunk.length;
             file.write(chunk);
 
-            main_window.webContents.send('update-download-progress', downloaded / btgui_update_size);
+            if (main_window && main_window.webContents) main_window.webContents.send('update-download-progress', downloaded / btgui_update_size);
           });
 
           res.on('end', () => {
@@ -836,7 +873,7 @@ ipcMain.handle('start-update-download', async () => {
         });
       });
     } else {
-      main_window.webContents.send('update-download-progress', 1);
+      if (main_window && main_window.webContents) main_window.webContents.send('update-download-progress', 1);
       return { success: true, path: download_path };
     }
 	} catch (err) {
@@ -845,30 +882,34 @@ ipcMain.handle('start-update-download', async () => {
 });
 
 ipcMain.handle('dialog:openFile', async () => {
-  const result = await dialog.showOpenDialog({
-    properties: ['openFile'],
-    filters: [ { name: 'Telegram Executable', extensions: [os.platform() === 'win32' ? 'exe' : os.platform() === 'darwin' ? 'app' : ''] } ]
-  });
-  // note: added these to make sure that only Telegram.exe can be selected
-  if (result.canceled || !result.filePaths.length) return null;
-  const telegram_path = result.filePaths[0];
-  if (!telegram_path.toLowerCase().endsWith('telegram.exe')) return null;
-  return telegram_path;
+  try {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [ { name: 'Telegram Executable', extensions: [os.platform() === 'win32' ? 'exe' : os.platform() === 'darwin' ? 'app' : ''] } ]
+    });
+    if (result.canceled || !Array.isArray(result.filePaths) || !result.filePaths.length) return null;
+    const telegram_path = result.filePaths[0];
+    if (!telegram_path || typeof telegram_path !== 'string' || !telegram_path.toLowerCase().endsWith('telegram.exe')) return null;
+    return telegram_path;
+  } catch (err) {
+    log('Error in dialog:openFile: ' + (err && err.message));
+    return null;
+  }
 });
 
 let last_config_data = {};
 ipcMain.handle('write-config-file', (e, data) => {
-  if (start_app_main) {
+  if (start_app_main && data && typeof data === 'object' && data.plugins) {
     try {
-      if (last_config_data.plugins.otr !== data.plugins.otr)
+      if (last_config_data.plugins && last_config_data.plugins.otr !== data.plugins.otr)
         overwrite_config_line(3,`OTR-${data.plugins.otr ? 'ENABLED' : 'DISABLED'}`);
-      else if (last_config_data.plugins.ghost !== data.plugins.ghost)
+      else if (last_config_data.plugins && last_config_data.plugins.ghost !== data.plugins.ghost)
         overwrite_config_line(4,`GHOST-${data.plugins.ghost ? 'ENABLED' : 'DISABLED'}`);
-      else if (last_config_data.plugins.purge !== data.plugins.purge)
+      else if (last_config_data.plugins && last_config_data.plugins.purge !== data.plugins.purge)
         overwrite_config_line(5,`PURGE-${data.plugins.purge ? 'ENABLED' : 'DISABLED'}`);
       last_config_data = data;
       fs.writeFileSync(better_telegram_plugins, JSON.stringify(last_config_data));
-    } catch (err) {}
+    } catch (err) { log('Error writing config file: ' + (err && err.message)); }
   } else return {};
 });
 
@@ -881,6 +922,7 @@ ipcMain.handle('read-config-file', (e) => {
       if (!Object.keys(last_config_data).length) last_config_data = JSON.parse(config.plugins);
       return config;
     } catch (err) {
+      log('Error reading config file: ' + (err && err.message));
       return {};
     }
   } else return {};
@@ -1041,4 +1083,56 @@ ipcMain.handle('logout_app', (e, arg) => {
   }
   app.quit();
 });
-app.whenReady().then(() => main_app_window());
+app.whenReady().then(() => main_app_window()).catch(err => log('App failed to start: ' + (err && err.message)));
+
+function get_pid_by_name(process_name) {
+  return new Promise((resolve) => {
+    exec('tasklist /fo csv /nh', (err, stdout) => {
+      if (err) return resolve(0);
+      const lines = stdout.split('\n');
+      for (const line of lines) {
+        const cols = line.replace(/"/g, '').split(',');
+        if (cols[0] && cols[0].toLowerCase() === process_name.toLowerCase()) {
+          const pid = parseInt(cols[1], 10);
+          if (!isNaN(pid)) return resolve(pid);
+        }
+      }
+      resolve(0);
+    });
+  });
+}
+
+async function inject_pid(pid, dll_path) {
+  try {
+    if (!fs.existsSync(dll_path)) return 'patch.dll not found';
+    const kernel32_lib = koffi.load('kernel32.dll');
+    const PROCESS_ALL_ACCESS = 0x1F0FFF;
+    const open_process = kernel32_lib.func('void* OpenProcess(uint32 dwDesiredAccess, int bInheritHandle, uint32 dwProcessId)');
+    const virtual_alloc_ex = kernel32_lib.func('void* VirtualAllocEx(void* hProcess, void* lpAddress, uint32 dwSize, uint32 flAllocationType, uint32 flProtect)');
+    const write_process_memory = kernel32_lib.func('int WriteProcessMemory(void* hProcess, void* lpBaseAddress, void* lpBuffer, uint32 nSize, void* lpNumberOfBytesWritten)');
+    const get_module_handle_a = kernel32_lib.func('void* GetModuleHandleA(const char* lpModuleName)');
+    const get_proc_address = kernel32_lib.func('void* GetProcAddress(void* hModule, const char* lpProcName)');
+    const create_remote_thread = kernel32_lib.func('void* CreateRemoteThread(void* hProcess, void* lpThreadAttributes, uint32 dwStackSize, void* lpStartAddress, void* lpParameter, uint32 dwCreationFlags, void* lpThreadId)');
+    const close_handle = kernel32_lib.func('int CloseHandle(void* hObject)');
+    const process_handle = open_process(PROCESS_ALL_ACCESS, 0, pid);
+    if (!process_handle) return 'failed to open telegram process';
+    const dll_path_buf = Buffer.from(dll_path + '\0', 'ascii');
+    const mem = virtual_alloc_ex(process_handle, null, dll_path_buf.length, 0x1000 | 0x2000, 0x40);
+    if (!mem) { close_handle(process_handle); return 'virtual_alloc_ex failed'; }
+    if (!write_process_memory(process_handle, mem, dll_path_buf, dll_path_buf.length, null)) {
+      close_handle(process_handle);
+      return 'write_process_memory failed';
+    }
+    const h_kernel32 = get_module_handle_a('kernel32.dll');
+    const load_lib_addr = get_proc_address(h_kernel32, 'LoadLibraryA');
+    if (!load_lib_addr) { close_handle(process_handle); return 'get_proc_address failed'; }
+    const thread = create_remote_thread(process_handle, null, 0, load_lib_addr, mem, 0, null);
+    if (!thread) { close_handle(process_handle); return 'create_remote_thread failed'; }
+    close_handle(thread);
+    close_handle(process_handle);
+    return null;
+  } catch (err) {
+    log('inject_pid error: ' + (err && err.message));
+    return 'injection error: ' + (err && err.message);
+  }
+}

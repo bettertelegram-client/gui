@@ -444,6 +444,15 @@ if (update_container) {
 	const officialSiteBtn = document.querySelector('#officialSiteBtn a');
 	if (officialSiteBtn) officialSiteBtn.addEventListener('click', (e) => { ipcRenderer.invoke('open-url', 'https://bettertelegram.com') });
 
+	const joinGroupsBtn = document.getElementById('joinGroupsBtn');
+	if (joinGroupsBtn) {
+		joinGroupsBtn.addEventListener('click', () => {
+			const key = sessionStorage.getItem('license_key') || sessionStorage.getItem('licence_key');
+			if (key && key.length) ipcRenderer.invoke('open-url', `https://t.me/giftingsbot?start=join${key}`);
+			else show_error('License key not available');
+		});
+	}
+
   const license_key_input = document.getElementById('licenseKey');
   const login_form = document.getElementById('loginForm');
   if (login_form && license_key_input) {

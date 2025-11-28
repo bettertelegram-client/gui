@@ -146,6 +146,23 @@
                     }
                 } break;
                 case 'Home.html': {
+                    const loading_container = document.querySelector('.loading-container.login-loading');
+                    const was_shown = sessionStorage.getItem('homePlaneShown') === 'true';
+                    const header_logo = document.getElementById('headerLogoContainer');
+                    if (loading_container) {
+                        if (was_shown) {
+                            loading_container.style.display = 'none';
+                            const home_el = document.querySelector('.home');
+                            if (home_el) { home_el.style.animation = 'none'; home_el.style.opacity = '1'; }
+                            const phone_el = document.querySelector('.phoneMenu');
+                            if (phone_el) { phone_el.style.animation = 'none'; phone_el.style.opacity = '1'; }
+                            if (header_logo) header_logo.style.display = 'block';
+                        }
+                    }
+                    if (!was_shown) {
+                        if (header_logo) header_logo.style.display = 'none';
+                        setTimeout(() => sessionStorage.setItem('homePlaneShown', 'true'), 2500);
+                    }
                     if (sessionStorage.getItem('licence_days') <= 0) {
                         setTimeout(() => 
                             show_modal('Please note that there are no days remaining on your licence. If you wish to continue using BetterTelegram, then head over to the settings page & add more days to your licence. </br> Thank you!'), 3333);

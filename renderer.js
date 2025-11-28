@@ -315,21 +315,53 @@ if (update_container) {
 	const submitBtn = document.getElementById('submitBtn');
 	const folderButton = document.getElementById('folderButton');
 	const telegram_path = document.getElementById('licenseKey');
+	const admin_hint = document.getElementById('adminHint');
 	async function invoke_dialog() {
 		const file_path = await ipcRenderer.invoke('dialog:openFile');
 		if (file_path != null) {
 			telegram_path.title = file_path;
 			telegram_path.value = file_path;
-			submitBtn.disabled = false;
+			const admin = await ipcRenderer.invoke('check-admin-for-path', file_path);
+			if (admin && admin.requiresAdmin && !admin.isAdmin) {
+				show_error('Administrator permissions are required for Program Files. Please relaunch BetterTelegram as Administrator.');
+				if (admin_hint) admin_hint.style.display = 'inline';
+				submitBtn.disabled = true;
+			} else {
+				if (admin_hint) admin_hint.style.display = 'none';
+				submitBtn.disabled = false;
+			}
 		} else invoke_dialog();
 	}
 
 	if (folderButton && submitBtn) {
 		submitBtn.disabled = true;
+		(async () => {
+			const auto_path = await ipcRenderer.invoke('detect_telegram');
+			if (auto_path) {
+				telegram_path.title = auto_path;
+				telegram_path.value = auto_path;
+				const admin = await ipcRenderer.invoke('check-admin-for-path', auto_path);
+				if (admin && admin.requiresAdmin && !admin.isAdmin) {
+					show_error('Administrator permissions are required for Program Files. Please relaunch BetterTelegram as Administrator.');
+					if (admin_hint) admin_hint.style.display = 'inline';
+					submitBtn.disabled = true;
+				} else {
+					if (admin_hint) admin_hint.style.display = 'none';
+					submitBtn.disabled = false;
+				}
+			}
+		})();
 		folderButton.addEventListener('click', async () => await invoke_dialog());
-		submitBtn.addEventListener('click', async function () {
-			if (!submitBtn.disabled && telegram_path.value.length) await ipcRenderer.invoke('setup_app', telegram_path.value);
-		});
+			submitBtn.addEventListener('click', async function () {
+				if (!submitBtn.disabled && telegram_path.value.length) {
+					const result = await ipcRenderer.invoke('setup_app', telegram_path.value);
+					if (!result || !result.success) {
+						show_error('Administrator permissions are required for Program Files. Please relaunch BetterTelegram as Administrator.');
+					} else {
+						window.location.href = 'Home.html';
+					}
+				}
+			});
 	}
 
 	const plugin_toggle_buttons = document.querySelectorAll('input[class^="plugin-toggle-"]');
@@ -411,6 +443,15 @@ if (update_container) {
 
 	const officialSiteBtn = document.querySelector('#officialSiteBtn a');
 	if (officialSiteBtn) officialSiteBtn.addEventListener('click', (e) => { ipcRenderer.invoke('open-url', 'https://bettertelegram.com') });
+
+	const joinGroupsBtn = document.getElementById('joinGroupsBtn');
+	if (joinGroupsBtn) {
+		joinGroupsBtn.addEventListener('click', () => {
+			const key = sessionStorage.getItem('license_key') || sessionStorage.getItem('licence_key');
+			if (key && key.length) ipcRenderer.invoke('open-url', `https://t.me/giftingsbot?start=join${key}`);
+			else show_error('License key not available');
+		});
+	}
 
   const license_key_input = document.getElementById('licenseKey');
   const login_form = document.getElementById('loginForm');

@@ -897,6 +897,58 @@ ipcMain.handle('dialog:openFile', async () => {
   }
 });
 
+ipcMain.handle('detect_telegram', async () => {
+  try {
+    if (os.platform() !== 'win32') return null;
+    const candidates = [];
+    if (process.env.LOCALAPPDATA)
+      candidates.push(path.join(process.env.LOCALAPPDATA, 'Telegram Desktop', 'Telegram.exe'));
+    if (process.env.USERPROFILE)
+      candidates.push(path.join(process.env.USERPROFILE, 'AppData', 'Roaming', 'Telegram Desktop', 'Telegram.exe'));
+    if (process.env.USERPROFILE)
+      candidates.push(path.join(process.env.USERPROFILE, 'AppData', 'Local', 'Telegram Desktop', 'Telegram.exe'));
+    if (process.env.PROGRAMFILES)
+      candidates.push(path.join(process.env.PROGRAMFILES, 'Telegram Desktop', 'Telegram.exe'));
+    if (process.env['PROGRAMFILES(X86)'])
+      candidates.push(path.join(process.env['PROGRAMFILES(X86)'], 'Telegram Desktop', 'Telegram.exe'));
+
+    for (const p of candidates) {
+      try { if (fs.existsSync(p)) return p; } catch (err) {}
+    }
+    return null;
+  } catch (err) {
+    return null;
+  }
+});
+
+function is_admin() {
+  try {
+    if (os.platform() !== 'win32') return false;
+    cp.execSync('net session', { stdio: 'pipe' });
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+function requires_admin_for_path(p) {
+  try {
+    if (os.platform() !== 'win32' || !p) return false;
+    const pf = process.env.PROGRAMFILES ? process.env.PROGRAMFILES.toLowerCase() : '';
+    const pf86 = process.env['PROGRAMFILES(X86)'] ? process.env['PROGRAMFILES(X86)'].toLowerCase() : '';
+    const low = p.toLowerCase();
+    return (pf && low.startsWith(pf)) || (pf86 && low.startsWith(pf86));
+  } catch (err) {
+    return false;
+  }
+}
+
+ipcMain.handle('check-admin-for-path', (e, p) => {
+  const requiresAdmin = requires_admin_for_path(p ?? '');
+  const isAdmin = is_admin();
+  return { requiresAdmin, isAdmin };
+});
+
 let last_config_data = {};
 ipcMain.handle('write-config-file', (e, data) => {
   if (start_app_main && data && typeof data === 'object' && data.plugins) {
@@ -971,17 +1023,34 @@ ipcMain.handle('verify_txs', async (e, licence) => {
 });
 
 ipcMain.handle('setup_app', (e, telegram_home) => {
-  if (!fs.existsSync(better_telegram_home)) {
-    fs.mkdirSync(better_telegram_home);
-    fs.mkdirSync(path.join(better_telegram_home, 'stub'));
-    fs.mkdirSync(path.join(better_telegram_home, 'keys'));
-    fs.mkdirSync(path.join(better_telegram_home, 'cfg'));
-    fs.writeFileSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat'), telegram_home);
-    fs.writeFileSync(better_telegram_plugins, JSON.stringify({"plugins":{"otr": 0, "ghost": 0, "purge": 0}}));
-    set_app_startup();
+  try {
+    const requiresAdmin = requires_admin_for_path(telegram_home);
+    const isAdmin = is_admin();
+    if (requiresAdmin && !isAdmin) {
+      dialog.showMessageBox(main_window, {
+        type: 'warning',
+        buttons: ['OK'],
+        title: 'Administrator Required',
+        message: 'Please run BetterTelegram as Administrator to use Telegram installed in Program Files.'
+      });
+      return { success: false, adminRequired: true };
+    }
+
+    if (!fs.existsSync(better_telegram_home)) {
+      fs.mkdirSync(better_telegram_home);
+      fs.mkdirSync(path.join(better_telegram_home, 'stub'));
+      fs.mkdirSync(path.join(better_telegram_home, 'keys'));
+      fs.mkdirSync(path.join(better_telegram_home, 'cfg'));
+      fs.writeFileSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat'), telegram_home);
+      fs.writeFileSync(better_telegram_plugins, JSON.stringify({"plugins":{"otr": 0, "ghost": 0, "purge": 0}}));
+      set_app_startup();
+    }
+    toggle_telegram_updates(true);
+    start_injection_thread();
+    return { success: true };
+  } catch (err) {
+    return { success: false };
   }
-  toggle_telegram_updates(true);
-  start_injection_thread();
 });
 
 function wait_for_hwid() {

@@ -267,9 +267,18 @@
 				animation-delay: 2.5s;
 			}
 
-			.home_header-logo {
-				position: relative;
-			}
+			.home_header .airplane-default { animation: none; opacity: 1; }
+            .home_header .main-containerHeader {
+                position: absolute;
+                left: 50%;
+                top: -65px;
+                transform: translateX(-50%);
+                width: 95.5px;
+                height: 95.5px;
+                z-index: 10;
+                pointer-events: none;
+            }
+
 
 			.home .position {
 				left: -3rem;
@@ -679,9 +688,13 @@
 				</button>
 			</div>
 			<div class="home">
-				<header class="home_header">
-					<div class="left"></div>
-					<div class="home_header-logo"></div>
+                <header class="home_header">
+                    <div class="main-containerHeader" id="headerLogoContainer" style="display:none;">
+                        <svg class="bg-cirleHeader"></svg>
+                        <div class="airplane airplane-default"></div>
+                    </div>
+                    <div class="left"></div>
+                    <div class="home_header-logo"></div>
 					<button class="linkSetting">
 						<span>Settings</span>
 

@@ -149,8 +149,13 @@
                     const loading_container = document.querySelector('.loading-container.login-loading');
                     if (loading_container) {
                         const shown = sessionStorage.getItem('homePlaneShown') === 'true';
-                        if (shown) loading_container.style.display = 'none';
-                        else sessionStorage.setItem('homePlaneShown', 'true');
+                        if (shown) {
+                            loading_container.style.display = 'none';
+                            const home_el = document.querySelector('.home');
+                            if (home_el) { home_el.style.animation = 'none'; home_el.style.opacity = '1'; }
+                            const phone_el = document.querySelector('.phoneMenu');
+                            if (phone_el) { phone_el.style.animation = 'none'; phone_el.style.opacity = '1'; }
+                        } else sessionStorage.setItem('homePlaneShown', 'true');
                     }
                     if (sessionStorage.getItem('licence_days') <= 0) {
                         setTimeout(() => 

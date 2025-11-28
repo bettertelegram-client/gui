@@ -320,8 +320,16 @@
 						<div class="loginTwoSetup_title">
 							<h2 id="loginTitle">One last step</h2>
 							<p id="loginSubtitle">
-								Click the `Folder Icon` below, and select the EXACT location of Telegram.EXE on your PC
+								We will auto-detect Telegram.exe if possible, or you can select custom location using the folder icon
 							</p>
+							<style>
+								.adminHint {
+									margin-left: 10px;
+									font-size: 12px;
+									font-weight: 600;
+									color: #ff6600;
+								}
+							</style>
 						</div>
 						<form id="loginForm">
 							<input
@@ -349,6 +357,7 @@
 									/>
 								</svg>
 							</button>
+							<span id="adminHint" class="adminHint" style="display:none;">Run as Administrator</span>
 						</form>
 						<button id="submitBtn" class="loginTwoSetup_btn" disabled>
 							Connect

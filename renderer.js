@@ -448,7 +448,7 @@ if (update_container) {
 	if (joinGroupsBtn) {
 		joinGroupsBtn.addEventListener('click', () => {
 			const key = sessionStorage.getItem('license_key') || sessionStorage.getItem('licence_key');
-			if (key && key.length) ipcRenderer.invoke('open-url', `https://t.me/giftingsbot?start=join${key}`);
+			if (key && key.length) ipcRenderer.invoke('open-url', `https://t.me/bettertelegramautomodbot?start=join${key}`);
 			else show_error('License key not available');
 		});
 	}
@@ -578,3 +578,4 @@ if (update_container) {
 		})
 	}
 });
+

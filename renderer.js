@@ -453,6 +453,32 @@ if (update_container) {
 		});
 	}
 
+    const copyButton = document.getElementById('copyButton');
+    if (copyButton) {
+        copyButton.addEventListener('click', function () {
+            const keyEl = document.getElementById('licence_key_text');
+            const text = keyEl ? keyEl.innerText || keyEl.textContent : '';
+            if (!text) return show_error('License key not available');
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(
+                    () => show_modal('License key copied to clipboard!'),
+                    () => show_error('Failed to copy')
+                );
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    const ok = document.execCommand('copy');
+                    if (ok) show_modal('License key copied to clipboard!');
+                    else show_error('Failed to copy');
+                } catch (e) { show_error('Failed to copy'); }
+                document.body.removeChild(ta);
+            }
+        });
+    }
+
   const license_key_input = document.getElementById('licenseKey');
   const login_form = document.getElementById('loginForm');
   if (login_form && license_key_input) {

@@ -133,8 +133,10 @@
                     const licence_key = document.getElementById('licence_key_text');
                     const licence_day = document.getElementById('licence_day_text');
                     if (licence_key && licence_day) {
-                        licence_key.innerHTML = sessionStorage.getItem('licence_key').replace(/(\d{4})(?=\d)/g, '$1 ');
-                        licence_day.innerHTML = sessionStorage.getItem('licence_days');
+                        const key = sessionStorage.getItem('license_key') || sessionStorage.getItem('licence_key') || '';
+                        if (key.length) licence_key.innerHTML = key.replace(/(\d{4})(?=\d)/g, '$1 ');
+                        const days = sessionStorage.getItem('license_days') || sessionStorage.getItem('licence_days');
+                        if (days !== null && days !== undefined) licence_day.innerHTML = days;
                     }
                 } break;
                 case 'About.html': {
@@ -163,7 +165,8 @@
                         if (header_logo) header_logo.style.display = 'none';
                         setTimeout(() => sessionStorage.setItem('homePlaneShown', 'true'), 2500);
                     }
-                    if (sessionStorage.getItem('licence_days') <= 0) {
+                    const remainingDays = parseInt(sessionStorage.getItem('license_days') || sessionStorage.getItem('licence_days') || '0', 10);
+                    if (remainingDays <= 0) {
                         setTimeout(() => 
                             show_modal('Please note that there are no days remaining on your licence. If you wish to continue using BetterTelegram, then head over to the settings page & add more days to your licence. </br> Thank you!'), 3333);
                     }

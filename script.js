@@ -5,7 +5,7 @@ if (modal_ok) modal_ok.addEventListener('click', () => modal.classList.remove('s
 
 function show_modal(message) {
     document.getElementById('modal-message').innerHTML = message;
-    modal.classList.add('show');
+    modal.classList.add('show')
 }
 
 function format_uptime(uptime_secs) {
@@ -200,3 +200,4 @@ setInterval(() => {
     } else
     ++refresh_ticker;
 }, 33);
+

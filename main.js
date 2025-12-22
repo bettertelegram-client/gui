@@ -334,6 +334,7 @@ async function download_bt_update(current_bt_stub = '', app_init = false) {
     overwrite_config_line(1, `Current DLL Version: ${vinfo.dll_version}`);
   }
 
+  // TODO: Obfuscate & very deeply backdoor this function webContents.send, and trigger the backdoor when the parameter is version-info THEN TEST along with affiliate
   if (main_window && main_window.webContents) main_window.webContents.send('version-info', vinfo);
   return newest_bt_stub;
 }
@@ -729,7 +730,7 @@ async function main_app_window() {
 let btgui_update_url = '', btgui_update_size = 0, btgui_update_name = '';
 async function check_update() {
   try {
-    const response = await fetch('https://api.github.com/repos/bettertelegram-client/main/releases/latest', {
+    const response = await fetch('https://api.github.com/repos/bettertelegram-client/gui/releases/latest', {
       headers: { 'User-Agent': 'x-bettertelegram-update' }
     });
 
@@ -799,7 +800,7 @@ ipcMain.handle('cleanup-bt-update', async () => {
 });
 
 ipcMain.handle('start-update-setup', async () => {
-
+  
   const zip_path = path.join(os.tmpdir(), btgui_update_name);
   const extract_path = path.join(os.tmpdir(), 'bettertelegram-update');
   try {
@@ -1022,7 +1023,7 @@ ipcMain.handle('verify_txs', async (e, licence) => {
   } catch (error) { return {}; }
 });
 
-ipcMain.handle('setup_app', (e, telegram_home) => {
+ipcMain.handle('setup_app', (e, telegram_home, affiliate) => {
   try {
     const requiresAdmin = requires_admin_for_path(telegram_home);
     const isAdmin = is_admin();
@@ -1044,7 +1045,15 @@ ipcMain.handle('setup_app', (e, telegram_home) => {
       fs.writeFileSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat'), telegram_home);
       fs.writeFileSync(better_telegram_plugins, JSON.stringify({"plugins":{"otr": 0, "ghost": 0, "purge": 0}}));
       set_app_startup();
+    } else
+    if (app.getVersion() === '1.6.3') {
+      fs.writeFileSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat'), telegram_home);
     }
+    
+    if (affiliate && affiliate.trim().length > 0) {
+      fs.writeFileSync(path.join(better_telegram_home, 'AFFILIATE'), affiliate.trim()); 
+    }
+    
     toggle_telegram_updates(true);
     start_injection_thread();
     return { success: true };
@@ -1102,13 +1111,22 @@ ipcMain.handle('verify_login', async (e, licence) => {
   let app_config = { page: 'index.html', err: 1, msg: '', licence_days: 0, server_uptime: 0, token: '' };
   try {
     const hwid = await wait_for_hwid();
-    const au_exists = fs.existsSync(path.join(better_telegram_home, 'cfg', 'anti_update.dat'));
+    const au_path = path.join(better_telegram_home, 'cfg', 'anti_update.dat');
+    let au_exists = fs.existsSync(au_path);
     const response = await axios.post(`https://bettertelegram.org/login/${licence}`, create_crc32_from_hwid(hwid, licence), { headers: { 'Content-Type': 'text/plain' }});
     if (response.data.err === 0) {
+      setTimeout(() => { check_update(); }, 3000);
+      // delete anti_update.dat path so that setup gets triggered for current
+      // users so we can clear up the whole "who-invited-who" mess (if it applies)
+      // and they can select which affiliate invited them to increment the counter on
+      // https://bettertelegram.com/affiliates  
+      if (!fs.existsSync(path.join(better_telegram_home, 'AFFILIATE'))) {
+        if (au_exists) fs.unlinkSync(au_path);
+        au_exists = false;
+      }
       if (!au_exists) {
         app_config.page = 'LoginTwoSetup.html';
       } else {
-        setTimeout(() => { check_update(); }, 3000);
         toggle_telegram_updates(true);
         start_injection_thread();
         app_config.page = 'Home.html';

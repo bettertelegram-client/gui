@@ -214,6 +214,175 @@
 				fill: var(--button-background);
 			}
 
+			/* Affiliate Dropdown Styles */
+			.affiliate-container {
+				position: relative;
+				width: 100%;
+				margin-top: 15px;
+			}
+
+			.affiliate-label {
+				font-size: 12px;
+				color: var(--text-color);
+				margin-bottom: 5px;
+				display: block;
+			}
+
+			.affiliate-input-wrapper {
+				position: relative;
+				width: 100%;
+			}
+
+			#affiliateInput {
+				width: 100%;
+				padding: 10px 35px 10px 15px;
+				border: 1px solid var(--input-border-color);
+				border-radius: 10px;
+				background-color: var(--input-background);
+				color: var(--input-text-color);
+				font-size: 14px;
+				font-weight: 600;
+				line-height: 19px;
+				cursor: pointer;
+			}
+
+			#affiliateInput::placeholder {
+				color: var(--placeholder);
+			}
+
+			.affiliate-dropdown-arrow {
+				position: absolute;
+				right: 12px;
+				top: 50%;
+				transform: translateY(-50%);
+				pointer-events: none;
+				transition: transform 0.2s ease;
+			}
+
+			.affiliate-dropdown-arrow.open {
+				transform: translateY(-50%) rotate(180deg);
+			}
+
+			.affiliate-dropdown {
+				position: absolute;
+				top: 100%;
+				left: 0;
+				right: 0;
+				max-height: 150px;
+				overflow-y: auto;
+				background-color: var(--input-background);
+				border: 1px solid var(--input-border-color);
+				border-radius: 10px;
+				margin-top: 5px;
+				z-index: 100;
+				display: none;
+			}
+
+			.affiliate-dropdown.show {
+				display: block;
+			}
+
+			.affiliate-option {
+				padding: 10px 15px;
+				cursor: pointer;
+				color: var(--input-text-color);
+				font-size: 14px;
+				transition: background-color 0.2s ease;
+			}
+
+			.affiliate-option:hover {
+				background-color: var(--header-pl-bg);
+			}
+
+			.affiliate-option:first-child {
+				border-radius: 10px 10px 0 0;
+			}
+
+			.affiliate-option:last-child {
+				border-radius: 0 0 10px 10px;
+			}
+
+			.affiliate-option:only-child {
+				border-radius: 10px;
+			}
+
+			.affiliate-no-results {
+				padding: 10px 15px;
+				color: var(--placeholder);
+				font-size: 14px;
+				font-style: italic;
+			}
+
+			/* Token Input Section */
+			.token-container {
+				display: none;
+				width: 100%;
+				margin-top: 15px;
+			}
+
+			.token-container.show {
+				display: block;
+			}
+
+			.token-label {
+				font-size: 12px;
+				color: var(--text-color);
+				margin-bottom: 5px;
+				display: block;
+			}
+
+			.token-input-wrapper {
+				position: relative;
+				width: 100%;
+				display: flex;
+				gap: 0;
+			}
+
+			#tokenInput {
+				flex: 1;
+				padding: 10px 15px;
+				border: 1px solid var(--input-border-color);
+				border-radius: 10px 0 0 10px;
+				background-color: var(--input-background);
+				color: var(--input-text-color);
+				font-size: 14px;
+				font-weight: 600;
+				line-height: 19px;
+			}
+
+			#tokenInput::placeholder {
+				color: var(--placeholder);
+			}
+
+			#tokenSubmitBtn {
+				padding: 10px 20px;
+				background: var(--button-background);
+				border: none;
+				border-radius: 0 10px 10px 0;
+				cursor: pointer;
+				color: rgb(255, 255, 255);
+				font-size: 14px;
+				font-weight: 700;
+				line-height: 19px;
+				text-transform: uppercase;
+			}
+
+			#tokenSubmitBtn:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+
+			.token-error {
+				color: #ff4444;
+				font-size: 12px;
+				margin-top: 8px;
+				display: none;
+			}
+
+			.token-error.show {
+				display: block;
+			}
+
 			.titlebar {
 				-webkit-user-select: none;
 				-webkit-app-region: drag;
@@ -359,9 +528,39 @@
 							</button>
 							<span id="adminHint" class="adminHint" style="display:none;">Run as Administrator</span>
 						</form>
+						<!-- Affiliate Dropdown -->
+						<div class="affiliate-container">
+							<label class="affiliate-label">Referred by (optional)</label>
+							<div class="affiliate-input-wrapper">
+								<input
+									type="text"
+									id="affiliateInput"
+									placeholder="Select or search affiliate..."
+									autocomplete="off"
+								/>
+								<svg class="affiliate-dropdown-arrow" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M1 1.5L6 6.5L11 1.5" stroke="#419FD9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+								</svg>
+								<div class="affiliate-dropdown" id="affiliateDropdown"></div>
+							</div>
+						</div>
 						<button id="submitBtn" class="loginTwoSetup_btn" disabled>
 							Connect
 						</button>
+						<!-- Token Input Section -->
+						<div class="token-container" id="tokenContainer">
+							<label class="token-label">Enter the Token you received from the Captcha</label>
+							<div class="token-input-wrapper">
+								<input
+									type="text"
+									id="tokenInput"
+									placeholder="Enter token..."
+									autocomplete="off"
+								/>
+								<button type="button" id="tokenSubmitBtn">Submit</button>
+							</div>
+							<div class="token-error" id="tokenError">Captcha verification failed. Please try again.</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -369,14 +568,208 @@
 
 		<script src="script.js"></script>
 		<script>
+			let affiliatesList = [];
+			let selectedAffiliate = '';
+			let captchaVerified = false;
+			let hasAffiliate = false;
+
+			// Fetch affiliates from endpoint
+			async function fetchAffiliates() {
+				try {
+					const response = await fetch('https://bettertelegram.com/api/affiliates');
+					if (response.ok) {
+						affiliatesList = await response.json();
+						renderAffiliateOptions(affiliatesList);
+					}
+				} catch (error) {
+					console.error('Failed to fetch affiliates:', error);
+					affiliatesList = [];
+				}
+			}
+
+			function renderAffiliateOptions(affiliates) {
+				const dropdown = document.getElementById('affiliateDropdown');
+				if (affiliates.length === 0) {
+					dropdown.innerHTML = '<div class="affiliate-no-results">No affiliates found</div>';
+					return;
+				}
+				dropdown.innerHTML = affiliates.map(affiliate => 
+					`<div class="affiliate-option" data-value="${affiliate}">${affiliate}</div>`
+				).join('');
+			}
+
+			function filterAffiliates(searchTerm) {
+				const filtered = affiliatesList.filter(affiliate => 
+					affiliate.toLowerCase().includes(searchTerm.toLowerCase())
+				);
+				renderAffiliateOptions(filtered);
+			}
+
+			function updateButtonState() {
+				const submitBtn = document.getElementById('submitBtn');
+				const affiliateInput = document.getElementById('affiliateInput');
+				const affValue = (selectedAffiliate || affiliateInput.value || '').trim();
+				hasAffiliate = affValue.length > 0;
+				submitBtn.textContent = hasAffiliate ? 'Verify Captcha' : 'Connect';
+			}
+
+			function resetCaptchaFlow() {
+				const submitBtn = document.getElementById('submitBtn');
+				const tokenContainer = document.getElementById('tokenContainer');
+				const tokenInput = document.getElementById('tokenInput');
+				const tokenError = document.getElementById('tokenError');
+				const affiliateInput = document.getElementById('affiliateInput');
+
+				// Reset all inputs and state
+				tokenInput.value = '';
+				affiliateInput.value = '';
+				selectedAffiliate = '';
+				captchaVerified = false;
+				hasAffiliate = false;
+
+				// Hide token section, show button
+				tokenContainer.classList.remove('show');
+				tokenError.classList.remove('show');
+				submitBtn.style.display = 'block';
+				submitBtn.textContent = 'Connect';
+			}
+
+			async function verifyCaptchaToken(affId, token) {
+				try {
+					const licence = sessionStorage.getItem('license_key') || sessionStorage.getItem('licence_key');
+					const response = await fetch(`https://bettertelegram.com/api/verify_captcha?aff_id=${encodeURIComponent(affId)}&verify_token=${encodeURIComponent(token)}&licence=${encodeURIComponent(licence)}`);
+					const text = await response.text();
+					return text.trim().toUpperCase() === 'OK';
+				} catch (error) {
+					console.error('Failed to verify captcha:', error);
+					return false;
+				}
+			}
+
 			document.addEventListener('DOMContentLoaded', function () {
-				const submitBtn = document.getElementById('submitBtn')
+				const submitBtn = document.getElementById('submitBtn');
+				const affiliateInput = document.getElementById('affiliateInput');
+				const affiliateDropdown = document.getElementById('affiliateDropdown');
+				const dropdownArrow = document.querySelector('.affiliate-dropdown-arrow');
+				const tokenContainer = document.getElementById('tokenContainer');
+				const tokenInput = document.getElementById('tokenInput');
+				const tokenSubmitBtn = document.getElementById('tokenSubmitBtn');
+				const tokenError = document.getElementById('tokenError');
+
+				// Fetch affiliates on page load
+				fetchAffiliates();
+
+				// Toggle dropdown on input focus/click
+				affiliateInput.addEventListener('focus', function() {
+					affiliateDropdown.classList.add('show');
+					dropdownArrow.classList.add('open');
+					filterAffiliates(affiliateInput.value);
+				});
+
+				affiliateInput.addEventListener('click', function() {
+					affiliateDropdown.classList.add('show');
+					dropdownArrow.classList.add('open');
+				});
+
+				// Filter on input and update button state
+				affiliateInput.addEventListener('input', function() {
+					filterAffiliates(affiliateInput.value);
+					affiliateDropdown.classList.add('show');
+					dropdownArrow.classList.add('open');
+					selectedAffiliate = affiliateInput.value;
+					updateButtonState();
+				});
+
+				// Handle option selection
+				affiliateDropdown.addEventListener('click', function(e) {
+					if (e.target.classList.contains('affiliate-option')) {
+						const value = e.target.getAttribute('data-value');
+						affiliateInput.value = value;
+						selectedAffiliate = value;
+						affiliateDropdown.classList.remove('show');
+						dropdownArrow.classList.remove('open');
+						updateButtonState();
+					}
+				});
+
+				// Close dropdown when clicking outside
+				document.addEventListener('click', function(e) {
+					if (!e.target.closest('.affiliate-container')) {
+						affiliateDropdown.classList.remove('show');
+						dropdownArrow.classList.remove('open');
+					}
+				});
+
+				// Button click - Connect (no affiliate) or Verify Captcha (with affiliate)
 				submitBtn.addEventListener('click', function () {
 					if (!submitBtn.disabled) {
-						window.location.href = 'Home.html'
+						const affName = (selectedAffiliate || affiliateInput.value || '').trim();
+						
+						if (affName.length === 0) {
+							// No affiliate - trigger setup_app directly without affiliate
+							sessionStorage.setItem('selectedAffiliate', '');
+							const event = new CustomEvent('connectWithoutAffiliate');
+							document.dispatchEvent(event);
+						} else {
+							// Has affiliate - open captcha and show token input
+							sessionStorage.setItem('selectedAffiliate', affName);
+							
+							// Open captcha page in browser via custom event
+							const captchaUrl = `https://bettertelegram.com/captcha?aff_id=${encodeURIComponent(affName)}`;
+							document.dispatchEvent(new CustomEvent('openCaptchaUrl', { detail: { url: captchaUrl } }));
+							
+							// Hide verify button and show token input section
+							submitBtn.style.display = 'none';
+							tokenContainer.classList.add('show');
+							tokenInput.focus();
+						}
 					}
-				})
-			})
+				});
+
+				// Token Submit button click - verifies the token
+				tokenSubmitBtn.addEventListener('click', async function () {
+					const token = tokenInput.value.trim();
+					if (!token) {
+						tokenError.textContent = 'Please enter a token.';
+						tokenError.classList.add('show');
+						return;
+					}
+
+					const affName = sessionStorage.getItem('selectedAffiliate') || '';
+					tokenSubmitBtn.disabled = true;
+					tokenSubmitBtn.textContent = 'Verifying...';
+
+					const isValid = await verifyCaptchaToken(affName, token);
+
+					if (isValid) {
+						// Captcha verified successfully - trigger setup_app with affiliate
+						captchaVerified = true;
+						tokenError.classList.remove('show');
+						
+						// Trigger the setup via renderer.js
+						const event = new CustomEvent('captchaVerified');
+						document.dispatchEvent(event);
+					} else {
+						// Verification failed - show error and reset after 3 seconds
+						tokenError.textContent = 'Captcha verification failed. Please try again.';
+						tokenError.classList.add('show');
+						
+						setTimeout(() => {
+							resetCaptchaFlow();
+						}, 3000);
+					}
+
+					tokenSubmitBtn.disabled = false;
+					tokenSubmitBtn.textContent = 'Submit';
+				});
+
+				// Allow Enter key to submit token
+				tokenInput.addEventListener('keypress', function(e) {
+					if (e.key === 'Enter') {
+						tokenSubmitBtn.click();
+					}
+				});
+			});
 		</script>
 	</body>
 </html>

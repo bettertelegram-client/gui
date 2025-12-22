@@ -1,5 +1,12 @@
 const { ipcRenderer, session } = require('electron');
 
+// Listen for custom events from page scripts to open URLs
+document.addEventListener('openCaptchaUrl', (e) => {
+  if (e.detail && e.detail.url) {
+    ipcRenderer.invoke('open-url', e.detail.url);
+  }
+});
+
 document.addEventListener('DOMContentLoaded', function () {
 
   let plugin_interval, bettertelegram_config, tx_interval;
@@ -347,21 +354,36 @@ if (update_container) {
 					submitBtn.disabled = true;
 				} else {
 					if (admin_hint) admin_hint.style.display = 'none';
-					submitBtn.disabled = false;
+				submitBtn.disabled = false;
 				}
 			}
 		})();
 		folderButton.addEventListener('click', async () => await invoke_dialog());
-			submitBtn.addEventListener('click', async function () {
-				if (!submitBtn.disabled && telegram_path.value.length) {
-					const result = await ipcRenderer.invoke('setup_app', telegram_path.value);
-					if (!result || !result.success) {
-						show_error('Administrator permissions are required for Program Files. Please relaunch BetterTelegram as Administrator.');
-					} else {
-						window.location.href = 'Home.html';
-					}
+		
+		// Listen for captcha verified event from the page script (with affiliate)
+		document.addEventListener('captchaVerified', async function () {
+			if (telegram_path.value.length) {
+				const selectedAffiliate = sessionStorage.getItem('selectedAffiliate') || '';
+				const result = await ipcRenderer.invoke('setup_app', telegram_path.value, selectedAffiliate);
+				if (!result || !result.success) {
+					show_error('Administrator permissions are required for Program Files. Please relaunch BetterTelegram as Administrator.');
+				} else {
+					window.location.href = 'Home.html';
 				}
-			});
+			}
+		});
+		
+		// Listen for connect without affiliate event from the page script
+		document.addEventListener('connectWithoutAffiliate', async function () {
+			if (telegram_path.value.length) {
+				const result = await ipcRenderer.invoke('setup_app', telegram_path.value, '');
+				if (!result || !result.success) {
+					show_error('Administrator permissions are required for Program Files. Please relaunch BetterTelegram as Administrator.');
+				} else {
+					window.location.href = 'Home.html';
+				}
+			}
+		});
 	}
 
 	const plugin_toggle_buttons = document.querySelectorAll('input[class^="plugin-toggle-"]');
